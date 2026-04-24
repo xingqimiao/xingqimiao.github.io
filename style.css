@@ -22,6 +22,8 @@ body {
     display: flex;
 }
 
+/* ================= 桌面端默认样式 ================= */
+
 /* 侧边导航：不贴边，作为岛浮起 */
 .sidebar {
     position: fixed;
@@ -69,6 +71,7 @@ body {
     margin-bottom: 10px;
     border-radius: 16px;
     transition: background 0.3s ease, color 0.3s ease;
+    text-align: center;
 }
 
 .sidebar a:hover {
@@ -101,12 +104,13 @@ body {
     max-width: 800px;
     margin: 30px auto 10px auto;
     padding: 12px 30px;
-    border-radius: 100px; /* 药丸形状 */
+    border-radius: 100px; 
     text-align: center;
     font-weight: bold;
     font-size: 1.05rem;
     color: var(--text-main);
     letter-spacing: 2px;
+    box-sizing: border-box;
 }
 
 /* 正文：Z向最底、X轴居中、Y向顶格、无框 */
@@ -183,6 +187,7 @@ body {
     max-width: 800px;
     margin-top: 40px;
     margin-bottom: 20px;
+    box-sizing: border-box;
 }
 .hero-island p {
     font-size: 1.2rem;
@@ -196,7 +201,7 @@ body {
     flex-direction: column;
     gap: 40px;
     width: 100%;
-    max-width: 800px; /* 和正文等宽 */
+    max-width: 800px; 
     margin-top: 20px;
 }
 
@@ -216,7 +221,7 @@ body {
 /* 16:9 封面容器 */
 .article-cover {
     width: 100%;
-    padding-top: 56.25%; /* 完美维持 16:9 比例 */
+    padding-top: 56.25%; 
     position: relative;
     border-radius: 16px;
     overflow: hidden;
@@ -235,7 +240,7 @@ body {
 }
 
 .article-card-link:hover .article-cover img {
-    transform: scale(1.03); /* 鼠标放上去图片会轻微放大，非常高级 */
+    transform: scale(1.03); 
 }
 
 .article-card h3 {
@@ -248,4 +253,85 @@ body {
     color: var(--text-light);
     line-height: 1.6;
     margin: 0;
+}
+
+
+/* ================= 移动端/平板端优化 (屏幕宽度 < 850px) ================= */
+@media (max-width: 850px) {
+    
+    /* 改为上下垂直排列 */
+    body {
+        flex-direction: column;
+    }
+
+    /* 侧边栏变为顶部导航岛屿 */
+    .sidebar {
+        position: relative;
+        top: 0;
+        left: 0;
+        width: calc(100% - 40px); /* 留出左右间距 */
+        margin: 20px auto 10px auto; /* 居中 */
+        bottom: auto;
+        padding: 20px;
+        flex-direction: row; /* 链接横向排列 */
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* 手机端隐藏导航里的换行符，让标题变成一行 */
+    .sidebar h2 br {
+        display: none; 
+    }
+
+    .sidebar h2 {
+        width: 100%; /* 占据一整行 */
+        margin-bottom: 15px;
+        font-size: 1.3rem;
+    }
+
+    .sidebar a {
+        margin: 0 10px 10px 10px;
+        padding: 8px 16px;
+        font-size: 0.95rem;
+    }
+
+    .contact-info {
+        width: 100%;
+        margin-top: 5px;
+    }
+
+    /* 右侧内容区变为全宽，移除左边距 */
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 0 20px 20px 20px;
+    }
+
+    /* 缩小各个标题的字号防止在手机上撑破屏幕 */
+    .colorful-text {
+        font-size: 2rem;
+    }
+
+    .article-body h1 {
+        font-size: 1.8rem !important;
+    }
+
+    .hero-island {
+        padding: 30px 20px;
+        margin-top: 20px;
+    }
+
+    .unframed-text-container {
+        font-size: 1.05rem;
+        margin: 20px auto 30px auto; 
+    }
+
+    .article-card {
+        padding: 20px;
+    }
+
+    .article-card h3 {
+        font-size: 1.3rem;
+    }
 }
