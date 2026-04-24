@@ -1,0 +1,251 @@
+/* style.css */
+:root {
+    --trans-blue: #5BCEFA;
+    --trans-pink: #F5A9B8;
+    --trans-white: #FFFFFF;
+    --text-main: #2c3e50;
+    --text-light: #596a7b;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: var(--text-main);
+    background: 
+        radial-gradient(circle at 15% 20%, rgba(91, 206, 250, 0.4) 0%, transparent 50%),
+        radial-gradient(circle at 85% 80%, rgba(245, 169, 184, 0.4) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.8) 0%, transparent 80%),
+        #fdfdfd;
+    background-attachment: fixed;
+    min-height: 100vh;
+    display: flex;
+}
+
+/* 侧边导航：不贴边，作为岛浮起 */
+.sidebar {
+    position: fixed;
+    top: 30px;
+    left: 30px;
+    bottom: 30px;
+    width: 260px;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    z-index: 20;
+}
+
+/* Apple Liquid Glass 浮岛核心样式 */
+.glass-island {
+    position: relative;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 28px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-island:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
+}
+
+.sidebar h2 {
+    text-align: center;
+    font-size: 1.5rem;
+    margin-bottom: 40px;
+    color: var(--text-main);
+}
+
+.sidebar a {
+    text-decoration: none;
+    color: var(--text-main);
+    font-weight: 600;
+    padding: 12px 20px;
+    margin-bottom: 10px;
+    border-radius: 16px;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.sidebar a:hover {
+    background: rgba(255, 255, 255, 0.6);
+    color: var(--trans-blue);
+}
+
+.contact-info {
+    margin-top: auto;
+    font-size: 0.85rem;
+    color: var(--text-light);
+    text-align: center;
+}
+
+/* 右侧主要内容区域 */
+.main-content {
+    margin-left: 320px; 
+    padding: 0 40px 20px 40px; 
+    width: calc(100% - 320px);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    min-height: 100vh;
+}
+
+/* --- 细细的横岛屿 (用于顶部栏) --- */
+.top-bar-island {
+    width: 100%;
+    max-width: 800px;
+    margin: 30px auto 10px auto;
+    padding: 12px 30px;
+    border-radius: 100px; /* 药丸形状 */
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.05rem;
+    color: var(--text-main);
+    letter-spacing: 2px;
+}
+
+/* 正文：Z向最底、X轴居中、Y向顶格、无框 */
+.unframed-text-container {
+    position: relative;
+    z-index: 1; 
+    width: 100%;
+    max-width: 800px;
+    text-align: center; 
+    margin: 40px auto 50px auto; 
+    line-height: 1.8;
+    font-size: 1.15rem;
+}
+
+/* 针对长篇阅读文章的特定排版 (居左对齐) */
+.article-body {
+    text-align: left;
+}
+.article-body h2 {
+    margin-top: 50px;
+    color: var(--trans-blue);
+    border-bottom: 1px solid rgba(91, 206, 250, 0.3);
+    padding-bottom: 10px;
+    font-size: 1.6rem;
+}
+.article-body h3 {
+    margin-top: 30px;
+    color: var(--trans-pink);
+    font-size: 1.2rem;
+}
+.article-body ul, .article-body ol {
+    padding-left: 20px;
+}
+.article-body li {
+    margin-bottom: 12px;
+}
+
+.bottom-small-text {
+    position: relative;
+    z-index: 1;
+    margin-top: auto; 
+    padding-top: 40px;
+    text-align: center;
+    font-size: 0.85rem; 
+    color: var(--text-light);
+    line-height: 1.8;
+    width: 100%;
+    max-width: 800px;
+}
+
+/* 彩色大字效果 */
+.colorful-text {
+    background: linear-gradient(135deg, #5BCEFA, #F5A9B8, #ff758c, #5BCEFA);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradient-flow 4s ease infinite;
+    font-size: 3rem;
+    margin: 0 0 15px 0;
+    letter-spacing: 2px;
+}
+
+@keyframes gradient-flow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* 主页大Banner岛 */
+.hero-island {
+    padding: 50px 40px;
+    text-align: center;
+    width: 100%;
+    max-width: 800px;
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+.hero-island p {
+    font-size: 1.2rem;
+    color: var(--text-light);
+    margin: 0;
+}
+
+/* --- 文章列表排列模式 (List) --- */
+.articles-list {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    width: 100%;
+    max-width: 800px; /* 和正文等宽 */
+    margin-top: 20px;
+}
+
+/* 链接包裹卡片 */
+.article-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    border-radius: 28px;
+}
+
+.article-card {
+    padding: 30px;
+    cursor: pointer;
+}
+
+/* 16:9 封面容器 */
+.article-cover {
+    width: 100%;
+    padding-top: 56.25%; /* 完美维持 16:9 比例 */
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 25px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+}
+
+.article-cover img {
+    position: absolute;
+    top: 0; 
+    left: 0;
+    width: 100%; 
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.article-card-link:hover .article-cover img {
+    transform: scale(1.03); /* 鼠标放上去图片会轻微放大，非常高级 */
+}
+
+.article-card h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+    color: var(--text-main);
+}
+.article-card p {
+    color: var(--text-light);
+    line-height: 1.6;
+    margin: 0;
+}
