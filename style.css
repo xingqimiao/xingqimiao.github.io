@@ -22,8 +22,6 @@ body {
     display: flex;
 }
 
-/* ================= 桌面端默认样式 ================= */
-
 /* 侧边导航：不贴边，作为岛浮起 */
 .sidebar {
     position: fixed;
@@ -71,7 +69,6 @@ body {
     margin-bottom: 10px;
     border-radius: 16px;
     transition: background 0.3s ease, color 0.3s ease;
-    text-align: center;
 }
 
 .sidebar a:hover {
@@ -104,13 +101,12 @@ body {
     max-width: 800px;
     margin: 30px auto 10px auto;
     padding: 12px 30px;
-    border-radius: 100px; 
+    border-radius: 100px; /* 药丸形状 */
     text-align: center;
     font-weight: bold;
     font-size: 1.05rem;
     color: var(--text-main);
     letter-spacing: 2px;
-    box-sizing: border-box;
 }
 
 /* 正文：Z向最底、X轴居中、Y向顶格、无框 */
@@ -187,7 +183,6 @@ body {
     max-width: 800px;
     margin-top: 40px;
     margin-bottom: 20px;
-    box-sizing: border-box;
 }
 .hero-island p {
     font-size: 1.2rem;
@@ -201,7 +196,7 @@ body {
     flex-direction: column;
     gap: 40px;
     width: 100%;
-    max-width: 800px; 
+    max-width: 800px; /* 和正文等宽 */
     margin-top: 20px;
 }
 
@@ -221,7 +216,7 @@ body {
 /* 16:9 封面容器 */
 .article-cover {
     width: 100%;
-    padding-top: 56.25%; 
+    padding-top: 56.25%; /* 完美维持 16:9 比例 */
     position: relative;
     border-radius: 16px;
     overflow: hidden;
@@ -240,7 +235,7 @@ body {
 }
 
 .article-card-link:hover .article-cover img {
-    transform: scale(1.03); 
+    transform: scale(1.03); /* 鼠标放上去图片会轻微放大，非常高级 */
 }
 
 .article-card h3 {
@@ -254,84 +249,100 @@ body {
     line-height: 1.6;
     margin: 0;
 }
+/* Markdown 文章内部图片优化 */
+.article-body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 16px;
+    margin: 20px 0;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    display: block;
+}
+/* ================= Markdown 文章内部超链接优化 ================= */
+.article-body a {
+    color: #4aadd6; /* 比纯主题蓝稍微深一点，保证在亮色背景上的阅读清晰度 */
+    text-decoration: none; /* 彻底去掉默认的丑陋细下划线 */
+    border-bottom: 2px dashed rgba(91, 206, 250, 0.6); /* 替换为柔和的半透明蓝色虚线 */
+    padding: 0 4px;
+    padding-bottom: 1px;
+    font-weight: 600;
+    transition: all 0.3s ease; /* 添加苹果般丝滑的动画过渡 */
+}
 
+.article-body a:hover {
+    color: var(--trans-pink); /* 鼠标放上去时变成跨性别粉色 */
+    border-bottom: 2px solid var(--trans-pink); /* 虚线变成粉色实线 */
+    background: rgba(245, 169, 184, 0.15); /* 底部浮现淡淡的粉色毛玻璃高亮背景 */
+    border-radius: 6px; /* 背景高亮带一点圆角 */
+}
+/* ================= 搜索岛屿与下拉提示 ================= */
+.search-island {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto 30px auto;
+    padding: 15px 25px;
+    border-radius: 100px;
+    display: flex;
+    position: relative;
+    box-sizing: border-box;
+    z-index: 50; /* 保证下拉框在最上层 */
+}
 
-/* ================= 移动端/平板端优化 (屏幕宽度 < 850px) ================= */
+#searchInput {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 1.1rem;
+    color: var(--text-main);
+    outline: none;
+    font-family: inherit;
+}
+
+#searchInput::placeholder {
+    color: var(--text-light);
+    opacity: 0.7;
+}
+
+/* 推荐词悬浮下拉框 */
+.suggestions-box {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 20px;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+    display: none; /* 默认隐藏 */
+    overflow: hidden;
+}
+
+.suggestion-item {
+    padding: 15px 25px;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-light);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover {
+    background: rgba(255, 255, 255, 0.8);
+    color: var(--trans-blue);
+}
+
+/* 手机端搜索栏优化 */
 @media (max-width: 850px) {
-    
-    /* 改为上下垂直排列 */
-    body {
-        flex-direction: column;
+    .search-island {
+        padding: 12px 20px;
     }
-
-    /* 侧边栏变为顶部导航岛屿 */
-    .sidebar {
-        position: relative;
-        top: 0;
-        left: 0;
-        width: calc(100% - 40px); /* 留出左右间距 */
-        margin: 20px auto 10px auto; /* 居中 */
-        bottom: auto;
-        padding: 20px;
-        flex-direction: row; /* 链接横向排列 */
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
-    }
-
-    /* 手机端隐藏导航里的换行符，让标题变成一行 */
-    .sidebar h2 br {
-        display: none; 
-    }
-
-    .sidebar h2 {
-        width: 100%; /* 占据一整行 */
-        margin-bottom: 15px;
-        font-size: 1.3rem;
-    }
-
-    .sidebar a {
-        margin: 0 10px 10px 10px;
-        padding: 8px 16px;
-        font-size: 0.95rem;
-    }
-
-    .contact-info {
-        width: 100%;
-        margin-top: 5px;
-    }
-
-    /* 右侧内容区变为全宽，移除左边距 */
-    .main-content {
-        margin-left: 0;
-        width: 100%;
-        padding: 0 20px 20px 20px;
-    }
-
-    /* 缩小各个标题的字号防止在手机上撑破屏幕 */
-    .colorful-text {
-        font-size: 2rem;
-    }
-
-    .article-body h1 {
-        font-size: 1.8rem !important;
-    }
-
-    .hero-island {
-        padding: 30px 20px;
-        margin-top: 20px;
-    }
-
-    .unframed-text-container {
-        font-size: 1.05rem;
-        margin: 20px auto 30px auto; 
-    }
-
-    .article-card {
-        padding: 20px;
-    }
-
-    .article-card h3 {
-        font-size: 1.3rem;
+    #searchInput {
+        font-size: 1rem;
     }
 }

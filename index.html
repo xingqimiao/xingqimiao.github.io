@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KiraMyao Equal | 跨性别权利发声</title>
-    <!-- 引入 .ico 网站图标 -->
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="style.css">
@@ -32,21 +31,34 @@
             <p>我们致力于让每一个受到侵害的声音都能被听见。</p>
         </div>
 
-        <!-- 文章列表区 (单列排列) -->
-        <div class="articles-list">
-            
-            <!-- 第一篇文章的悬浮岛 -->
-            <a href="article1.html" class="article-card-link glass-island">
+        <!-- 搜索岛屿 (新增功能) -->
+        <div class="search-island glass-island">
+            <input type="text" id="searchInput" placeholder="🔍 搜索文章标题或关键词..." autocomplete="off">
+            <div id="searchSuggestions" class="suggestions-box"></div>
+        </div>
+
+        <!-- 文章列表区 -->
+        <div class="articles-list" id="articlesList">
+<!-- POSTS_START -->
+            <a href="article/China-Transgender-Healthcare-Report.html" class="article-card-link glass-island" data-title="中国跨性别医疗评估报告">
                 <div class="article-card">
-                    <!-- 16:9 封面图 -->
                     <div class="article-cover">
-                        <img src="pic/challenges-solutions.png" alt="跨性别人权分析">
+                        <img src="pic/ChinaTransgenderHealthcareReport.png" alt="中国跨性别医疗评估报告">
+                    </div>
+                    <h3>中国跨性别医疗评估报告</h3>
+                    <p>中国跨性别医疗体系仍以“病理化+高门槛+家庭控制+高成本”构成</p>
+                </div>
+            </a>
+            <a href="article/article1.html" class="article-card-link glass-island" data-title="联合国自由和平等：跨性别人群现状与挑战">
+                <div class="article-card">
+                    <div class="article-cover">
+                        <img src="pic/challenges-solutions.png" alt="联合国自由和平等：跨性别人群现状与挑战">
                     </div>
                     <h3>联合国自由和平等：跨性别人群现状与挑战</h3>
                     <p>每个人都有对自我身份的深刻认知。了解跨性别人群面临的生存现状、暴力威胁、法律承认缺失，以及我们能采取的共同行动。</p>
                 </div>
             </a>
-
+<!-- POSTS_END -->
         </div>
 
         <!-- 沉底小字 -->
@@ -56,5 +68,54 @@
 
     </main>
 
+    <!-- 实现搜索联想与自动过滤的脚本 -->
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const searchSuggestions = document.getElementById('searchSuggestions');
+        const articles = document.querySelectorAll('.article-card-link');
+
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            searchSuggestions.innerHTML = ''; // 清空提示
+            
+            if (query === '') {
+                searchSuggestions.style.display = 'none';
+                articles.forEach(a => a.style.display = 'block'); // 恢复显示所有文章
+                return;
+            }
+
+            let hasSuggestions = false;
+            articles.forEach(a => {
+                const title = a.getAttribute('data-title').toLowerCase();
+                if (title.includes(query)) {
+                    a.style.display = 'block'; // 列表里保留这篇
+                    hasSuggestions = true;
+                    
+                    // 添加到下拉提示词中
+                    const div = document.createElement('div');
+                    div.className = 'suggestion-item';
+                    div.innerText = a.getAttribute('data-title');
+                    div.onclick = () => window.location.href = a.href; // 点击提示词直接跳转
+                    searchSuggestions.appendChild(div);
+                } else {
+                    a.style.display = 'none'; // 列表里隐藏不匹配的
+                }
+            });
+
+            // 控制下拉框的显示与隐藏
+            if (hasSuggestions) {
+                searchSuggestions.style.display = 'block';
+            } else {
+                searchSuggestions.style.display = 'none';
+            }
+        });
+
+        // 点击页面其他地方时隐藏下拉提示
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.search-island')) {
+                searchSuggestions.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 </html>
