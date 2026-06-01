@@ -1,30 +1,9 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { Outfit, Inter, Noto_Sans_SC } from "next/font/google";
 import CanvasBackground from "@/components/CanvasBackground";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import "./globals.css";
-
-// 1. Configure Fallback / Alternative Google Fonts
-const outfit = Outfit({
-  subsets: ["latin"],
-  variable: "--font-outfit",
-  display: "swap",
-});
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const notoCent = Noto_Sans_SC({
-  subsets: ["latin"],
-  variable: "--font-noto-sans",
-  weight: ["400", "500", "700"],
-  display: "swap",
-});
 
 // 2. Configure Local Brand Fonts (Google Sans & HarmonyOS Sans SC)
 const googleSans = localFont({
@@ -46,7 +25,7 @@ const googleSans = localFont({
     },
   ],
   variable: "--font-google-sans",
-  fallback: ["var(--font-outfit)", "var(--font-inter)", "sans-serif"],
+  fallback: ["Arial", "sans-serif"],
   display: "swap",
 });
 
@@ -69,7 +48,7 @@ const harmonyOSSans = localFont({
     },
   ],
   variable: "--font-harmony-sans",
-  fallback: ["var(--font-noto-sans)", "sans-serif"],
+  fallback: ["Microsoft YaHei", "Arial", "sans-serif"],
   display: "swap",
 });
 
@@ -83,6 +62,12 @@ export const metadata: Metadata = {
   keywords: ["KiraMyao Equal", "跨性别", "LGBTQ+", "性少数群体", "公益组织", "NGO", "性别平等", "MTF生存指南"],
 };
 
+metadata.icons = {
+  icon: "/pic/logo/Logo.png",
+  shortcut: "/pic/logo/Logo.png",
+  apple: "/pic/logo/Logo.png",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -91,7 +76,7 @@ export default function RootLayout({
   return (
     <html
       lang="zh-CN"
-      className={`${outfit.variable} ${inter.variable} ${notoCent.variable} ${googleSans.variable} ${harmonyOSSans.variable} h-full antialiased`}
+      className={`${googleSans.variable} ${harmonyOSSans.variable} h-full antialiased`}
     >
       <body className="relative min-h-full flex flex-col font-sans text-text-main bg-background overflow-x-hidden">
         {/* Persistent bottom canvas layer */}

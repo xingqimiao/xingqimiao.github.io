@@ -6,63 +6,60 @@ import aboutData from "@/data/about.json";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
+type AboutContent = typeof aboutData & {
+  content_html?: string;
+  content_markdown?: string;
+};
+
 export default function AboutPage() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const content = aboutData as AboutContent;
 
   useGSAP(() => {
     const tl = gsap.timeline();
-    tl.fromTo(".fade-in", 
-      { y: 30, opacity: 0 }, 
-      { y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: "power3.out" }
+    tl.fromTo(
+      ".fade-in",
+      { y: 30, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.8, stagger: 0.12, ease: "power3.out" }
     );
   }, { scope: containerRef });
 
   return (
-    <main ref={containerRef} className="bg-white dark:bg-background min-h-screen pt-32 pb-24 px-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Top Header */}
-        <div className="fade-in mb-6 text-label-large tracking-widest text-primary font-medium uppercase">
-          📖 About Us / 关于我们
-        </div>
-        
-        {/* Title */}
-        <h1 className="fade-in text-display-medium md:text-display-large text-text-main font-medium tracking-tight mb-8">
-          {aboutData.title}
+    <main ref={containerRef} className="min-h-screen bg-white px-6 pb-24 pt-32 dark:bg-background">
+      <div className="mx-auto max-w-4xl">
+        <h1 className="fade-in mb-10 text-display-medium font-medium tracking-tight text-text-main md:text-display-large">
+          {content.title}
         </h1>
 
-        {/* Intro Highlight Card */}
-        <div className="fade-in p-8 md:p-10 rounded-[32px] bg-surface-light dark:bg-surface-dark border border-black/5 dark:border-white/5 shadow-soft-giant mb-12">
-          <p className="text-title-large text-text-main leading-relaxed font-medium">
-            {aboutData.intro}
-          </p>
-        </div>
+        {content.content_html ? (
+          <div
+            className="g2-markdown fade-in prose prose-lg max-w-3xl text-text-sub prose-headings:text-text-main prose-p:leading-relaxed prose-a:text-text-main prose-a:underline"
+            dangerouslySetInnerHTML={{ __html: content.content_html }}
+          />
+        ) : (
+          <div className="fade-in max-w-3xl space-y-8 text-body-large leading-loose text-text-sub">
+            <p className="text-title-large leading-relaxed text-text-sub">{content.intro}</p>
 
-        {/* Declaration & Body */}
-        <div className="fade-in space-y-8 text-body-large text-text-sub leading-loose max-w-3xl">
-          <p className="font-semibold text-text-main text-title-large">
-            {aboutData.funding_statement}
-          </p>
+            <p className="text-title-large font-semibold text-text-main">{content.funding_statement}</p>
 
-          <hr className="border-black/5 dark:border-white/5 my-8" />
+            <hr className="my-8 border-black/5 dark:border-white/5" />
 
-          <p className="text-[18px] leading-[28px] font-medium text-brand-pink dark:text-brand-pink/90">
-            {aboutData.declaration_header}
-          </p>
+            <p className="text-[18px] font-medium leading-[28px] text-text-main">{content.declaration_header}</p>
 
-          {aboutData.paragraphs.map((para, index) => (
-            <p key={index} className="text-body-large">
-              {para}
-            </p>
-          ))}
-        </div>
+            {content.paragraphs.map((para, index) => (
+              <p key={index} className="text-body-large">
+                {para}
+              </p>
+            ))}
+          </div>
+        )}
 
-        {/* Back to Home Button */}
         <div className="fade-in mt-16">
-          <Link 
-            href="/" 
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-black/5 dark:bg-white/5 text-label-large text-text-main hover:bg-black/10 dark:hover:bg-white/10 transition-all"
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 rounded-full bg-black/5 px-6 py-3 text-label-large text-text-main transition-all hover:bg-black/10 dark:bg-white/5 dark:hover:bg-white/10"
           >
-            ← 返回首页
+            返回首页
           </Link>
         </div>
       </div>

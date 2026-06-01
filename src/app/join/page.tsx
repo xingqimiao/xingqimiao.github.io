@@ -3,7 +3,6 @@
 import React, { useRef } from "react";
 import Link from "next/link";
 import joinData from "@/data/join.json";
-import { BentoCard } from "@/components/ui/BentoCard";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
@@ -11,81 +10,77 @@ export default function JoinUsPage() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
-    gsap.fromTo(".fade-in", 
-      { y: 30, opacity: 0 }, 
+    gsap.fromTo(
+      ".fade-in",
+      { y: 30, opacity: 0 },
       { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: "power3.out" }
     );
   }, { scope: containerRef });
 
   return (
-    <main ref={containerRef} className="bg-white dark:bg-background min-h-screen pt-32 pb-24 px-6 flex flex-col justify-center items-center text-center">
-      <div className="max-w-4xl mx-auto w-full flex flex-col items-center">
-        {/* Header */}
-        <div className="fade-in mb-6 text-label-large tracking-widest text-primary font-medium uppercase">
-          🤝 Join Us / 加入我们
-        </div>
-        <h1 className="fade-in text-display-medium md:text-display-large text-text-main font-medium tracking-tight mb-8">
+    <main ref={containerRef} className="min-h-screen bg-white px-6 pb-24 pt-32 dark:bg-background">
+      <div className="mx-auto w-full max-w-5xl">
+        <h1 className="fade-in mb-8 text-display-medium font-medium tracking-tight text-text-main md:text-display-large">
           加入我们，让改变发生
         </h1>
 
-        {/* Centered Content */}
-        <div 
-          className="fade-in text-title-large text-text-sub leading-relaxed max-w-2xl mx-auto mb-16 text-center"
+        {joinData.survey_url && (
+          <a
+            href={joinData.survey_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="fade-in mb-10 flex w-full items-center justify-between gap-6 rounded-[24px] border border-black/10 bg-[#f5f5f7] px-6 py-4 text-left transition-all hover:scale-[1.01] hover:border-black/15"
+          >
+            <span className="text-title-large font-medium text-text-main">{joinData.survey_label || "填写问卷"}</span>
+            <span className="shrink-0 rounded-full bg-white px-4 py-2 text-label-large text-text-main">Open</span>
+          </a>
+        )}
+
+        <div
+          className="g2-markdown fade-in prose prose-lg mb-16 max-w-3xl text-text-sub prose-p:leading-relaxed prose-a:text-text-main prose-a:underline prose-strong:text-text-main"
           dangerouslySetInnerHTML={{ __html: joinData.description_html }}
         />
 
-        {/* Centered Cards Container (Grid) */}
-        <div className="fade-in grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-3xl justify-center">
-          {/* Card 1: WeChat Donation */}
+        <div className="fade-in grid w-full grid-cols-1 gap-8 md:grid-cols-[minmax(280px,0.72fr)_minmax(0,1.28fr)]">
           {joinData.wechat_qr && (
-            <BentoCard theme="light" className="p-8 flex flex-col items-center justify-between text-center min-h-[400px]" hoverEffect>
-              <div className="flex flex-col items-center">
-                <h3 className="text-title-large text-text-main font-semibold mb-3">微信赞赏</h3>
-                <p className="text-body-large text-text-sub mb-6">扫一扫，请猫猫吃个罐头吧~</p>
+            <section className="flex flex-col rounded-[28px] border border-black/10 bg-white p-6 transition-all hover:scale-[1.01]">
+              <div>
+                <h2 className="mb-3 text-title-large font-semibold text-text-main">微信赞赏</h2>
+                <p className="mb-6 text-body-large text-text-sub">扫码支持项目继续维护与更新。</p>
               </div>
-              <div className="w-48 h-48 rounded-[20px] overflow-hidden bg-white shadow-md flex items-center justify-center p-2">
-                <img 
-                  src={joinData.wechat_qr} 
-                  alt="微信赞赏二维码" 
-                  className="w-full h-full object-contain"
-                />
+              <div className="mt-auto aspect-square w-full overflow-hidden rounded-[22px] border border-black/5 bg-[#f5f5f7] p-4">
+                <img src={joinData.wechat_qr} alt="微信赞赏二维码" className="h-full w-full object-contain" />
               </div>
-            </BentoCard>
+            </section>
           )}
 
-          {/* Card 2: Twitter Support */}
           {joinData.twitter_intro && (
-            <BentoCard theme="light" className="p-8 flex flex-col items-center justify-between text-center min-h-[400px]" hoverEffect>
-              <div className="flex flex-col items-center">
-                <h3 className="text-title-large text-text-main font-semibold mb-3">关注 Twitter (X)</h3>
-                <p className="text-body-large text-text-sub mb-6">获取最新动态，一起交流互动</p>
+            <section className="flex flex-col rounded-[28px] border border-black/10 bg-white p-6 transition-all hover:scale-[1.01]">
+              <div>
+                <h2 className="mb-3 text-title-large font-semibold text-text-main">关注 Twitter (X)</h2>
+                <p className="mb-6 text-body-large text-text-sub">获取最新动态，也可以直接通过主页与我们联系。</p>
               </div>
-              <div className="w-48 h-32 rounded-[20px] overflow-hidden bg-black/5 flex items-center justify-center shadow-inner">
-                <img 
-                  src={joinData.twitter_intro} 
-                  alt="推特简介" 
-                  className="w-full h-full object-cover"
-                />
+              <div className="aspect-[16/9] w-full overflow-hidden rounded-[22px] border border-black/5 bg-[#f5f5f7]">
+                <img src={joinData.twitter_intro} alt="Twitter 简介预览截图" className="h-full w-full object-contain" />
               </div>
-              <a 
-                href={joinData.twitter_url} 
-                target="_blank" 
+              <a
+                href={joinData.twitter_url}
+                target="_blank"
                 rel="noopener noreferrer"
-                className="mt-6 inline-block px-8 py-3 rounded-full bg-gradient-to-r from-brand-blue to-brand-pink text-white font-bold tracking-wide hover:shadow-lg hover:scale-105 transition-all"
+                className="mt-6 inline-flex w-fit items-center rounded-full bg-[#121317] px-6 py-3 text-label-large text-white transition-all hover:scale-105 hover:bg-[#3C4043]"
               >
-                一键跳转主页
+                打开主页
               </a>
-            </BentoCard>
+            </section>
           )}
         </div>
 
-        {/* Back Button */}
         <div className="fade-in mt-16">
-          <Link 
-            href="/" 
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-black/5 dark:bg-white/5 text-label-large text-text-main hover:bg-black/10 dark:hover:bg-white/10 transition-all"
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 rounded-full bg-black/5 px-6 py-3 text-label-large text-text-main transition-all hover:bg-black/10 dark:bg-white/5 dark:hover:bg-white/10"
           >
-            ← 返回首页
+            返回首页
           </Link>
         </div>
       </div>

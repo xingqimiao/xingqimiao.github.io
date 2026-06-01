@@ -1,30 +1,30 @@
 [
   {
     "id": 1,
-    "title": "多元性别平权倡导",
-    "desc": "通过持续的社会宣发与教育，消除公众偏见，推动政策保障。",
-    "cover_name": "",
+    "title": "年度处境调查",
+    "desc": "用严谨的目光审视每一个研究课题，将复杂的分析转化为精美、易读的报告，为你呈现结构化的洞察。",
+    "cover_name": "/pic/action/ChatGPT_Image_May_31,_2026,_05_55_21_AM.png",
     "size": "large"
   },
   {
     "id": 2,
-    "title": "跨性别医疗资源网络",
-    "desc": "建立全面、安全的医疗信息库，协助伙伴获取必要的医疗支持。",
-    "cover_name": "",
+    "title": "跨性别知识宣传",
+    "desc": "把我们的声音打包成信件，向世界发出邀请，让有价值的想法走得更远。",
+    "cover_name": "/pic/action/ChatGPT_Image_Jun_2,_2026,_01_00_12_AM.png",
     "size": "small"
   },
   {
     "id": 3,
-    "title": "心理健康援助",
-    "desc": "提供友善的心理热线与咨询服务，构筑坚实的心理防线。",
-    "cover_name": "",
+    "title": "疑难解答",
+    "desc": "不用担心迷路，我们把那些踩过的坑、精细的指南与常见疑问梳理成册。",
+    "cover_name": "/pic/action/ChatGPT_Image_Jun_2,_2026,_01_04_58_AM.png",
     "size": "small"
   },
   {
     "id": 4,
-    "title": "社群互助网络建设",
-    "desc": "连接各地的性少数群体，打造温暖、安全的线下与线上互助空间。",
-    "cover_name": "",
+    "title": "故事",
+    "desc": "记录我们走过的轨迹、那些闪光的瞬间，以及关于成长与陪伴的细腻篇章。",
+    "cover_name": "/pic/action/教室.jpeg",
     "size": "large"
   }
 ]

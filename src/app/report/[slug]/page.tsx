@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import compiledArticles from "@/data/compiled_articles.json";
+import { normalizeRouteSlug } from "@/lib/articleRoute";
 import { notFound } from "next/navigation";
 
 export const dynamicParams = false;
@@ -19,7 +20,8 @@ interface Props {
 
 export default async function ReportDetailPage({ params }: Props) {
   const { slug } = await params;
-  const article = compiledArticles.find((art) => art.slug === slug && art.type === "report");
+  const normalizedSlug = normalizeRouteSlug(slug);
+  const article = compiledArticles.find((art) => art.slug === normalizedSlug && art.type === "report");
 
   if (!article) {
     notFound();
@@ -42,7 +44,7 @@ export default async function ReportDetailPage({ params }: Props) {
         </div>
 
         {/* Title */}
-        <h1 className="text-display-medium md:text-display-medium text-text-main font-medium leading-tight mb-4 text-center">
+        <h1 className="article-title text-display-medium md:text-display-medium font-medium leading-tight mb-4 text-center">
           {article.title}
         </h1>
 
@@ -66,7 +68,7 @@ export default async function ReportDetailPage({ params }: Props) {
 
         {/* Article Body */}
         <article 
-          className="prose prose-lg dark:prose-invert max-w-none text-body-large text-text-main leading-relaxed space-y-6"
+          className="g2-markdown prose prose-lg max-w-none text-body-large text-text-main leading-relaxed space-y-6"
           dangerouslySetInnerHTML={{ __html: article.contentHtml }}
         />
 

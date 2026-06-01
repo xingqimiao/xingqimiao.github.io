@@ -18,8 +18,8 @@ const config: Config = {
           dark: '#0D0D12',
         },
         primary: {
-          DEFAULT: '#FF5A59',
-          cta: '#FF5A59',
+          DEFAULT: '#121317',
+          cta: '#121317',
         },
         text: {
           main: '#121317',

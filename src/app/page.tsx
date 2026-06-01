@@ -2,7 +2,7 @@
 
 import React, { useRef } from "react";
 import Link from "next/link";
-import { BentoCard } from "@/components/ui/BentoCard";
+import { HomepageActionCard } from "@/components/ui/HomepageActionCard";
 import { Chip } from "@/components/ui/Chip";
 import { Button } from "@/components/ui/Button";
 import gsap from "gsap";
@@ -118,19 +118,7 @@ export default function Home() {
                 item.size === "large" ? "md:col-span-8" : "md:col-span-4"
               } flex flex-col gap-6 scroll-item`}
             >
-              <BentoCard theme="light" className="w-full h-[400px]" hoverEffect>
-                {item.cover_name ? (
-                  <img 
-                    src={item.cover_name} 
-                    alt={item.title} 
-                    className="w-full h-full object-cover rounded-2xl" 
-                  />
-                ) : (
-                  <div className="w-full h-full min-h-[300px] flex flex-col items-center justify-center bg-gradient-to-tr from-brand-blue/10 via-white/50 to-brand-pink/10 dark:from-brand-blue/5 dark:via-surface-dark/50 dark:to-brand-pink/5 backdrop-blur-xl border border-black/5 dark:border-white/5">
-                    <span className="text-label-large text-text-sub/50">KiraEqual Action</span>
-                  </div>
-                )}
-              </BentoCard>
+              <HomepageActionCard title={item.title} coverName={item.cover_name} />
               <div className="px-2">
                 <h3 className="text-title-large text-text-main mb-2">{item.title}</h3>
                 <p className="text-[14px] leading-[20px] text-text-sub">{item.desc}</p>
@@ -167,7 +155,7 @@ export default function Home() {
                   </Chip>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-title-large text-text-main mb-2 group-hover:underline decoration-2 underline-offset-4 decoration-current transition-all">
+                  <h3 className="article-title text-title-large mb-2 group-hover:underline decoration-2 underline-offset-4 decoration-current transition-all">
                     {post.title}
                   </h3>
                   <p className="text-body-large text-text-sub line-clamp-1">{post.desc}</p>

@@ -6,8 +6,9 @@ export default function Navbar() {
     <nav className="fixed top-0 left-0 w-full z-50 bg-white/80 dark:bg-background/80 backdrop-blur-md border-b border-black/5 dark:border-white/5 h-16">
       <div className="max-w-[1400px] mx-auto px-4 md:px-6 flex items-center justify-between h-full">
         {/* Left: Logo */}
-        <Link href="/" className="text-title-large font-medium tracking-tight text-text-main">
-          KiraEqual
+        <Link href="/" className="flex items-center gap-2 text-title-large font-medium tracking-tight text-text-main">
+          <img src="/pic/logo/Logo.png" alt="KiraEqual Logo" className="h-8 w-8 rounded-full object-contain" />
+          <span>KiraEqual</span>
         </Link>
 
         {/* Center: Links */}
