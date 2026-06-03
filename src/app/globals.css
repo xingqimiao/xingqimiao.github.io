@@ -6,16 +6,97 @@
   --foreground: #121317;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0d0d12;
-    --foreground: #ffffff;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+.g2-markdown {
+  color: inherit;
+}
+
+.g2-markdown > * + * {
+  margin-top: 1.25rem;
+}
+
+.g2-markdown :is(h1, h2, h3, h4, h5, h6) {
+  margin-top: 2.4em;
+  margin-bottom: 0.75em;
+  font-weight: 650;
+  line-height: 1.22;
+  letter-spacing: 0;
+}
+
+.g2-markdown h1 {
+  font-size: clamp(2.25rem, 4vw, 3.5rem);
+}
+
+.g2-markdown h2 {
+  font-size: clamp(1.9rem, 3vw, 2.65rem);
+}
+
+.g2-markdown h3 {
+  font-size: clamp(1.55rem, 2.2vw, 2rem);
+}
+
+.g2-markdown h4 {
+  font-size: 1.35rem;
+}
+
+.g2-markdown h5 {
+  font-size: 1.15rem;
+}
+
+.g2-markdown h6 {
+  font-size: 1rem;
+  color: #5f6368 !important;
+}
+
+.g2-markdown p {
+  margin: 1.05rem 0;
+  white-space: pre-line;
+}
+
+.g2-markdown :is(ul, ol) {
+  margin: 1.25rem 0;
+  padding-left: 1.55rem;
+}
+
+.g2-markdown ul {
+  list-style: disc;
+}
+
+.g2-markdown ol {
+  list-style: decimal;
+}
+
+.g2-markdown li {
+  margin: 0.45rem 0;
+  padding-left: 0.15rem;
+}
+
+.g2-markdown blockquote {
+  margin: 1.75rem 0;
+  border-left: 4px solid rgba(18, 19, 23, 0.16);
+  padding: 0.2rem 0 0.2rem 1.25rem;
+  color: #5f6368;
+}
+
+.g2-markdown a {
+  color: #121317;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.g2-markdown strong {
+  color: #121317;
+  font-weight: 650;
+}
+
+.g2-markdown hr {
+  margin: 2.5rem 0;
+  border: 0;
+  border-top: 1px solid rgba(18, 19, 23, 0.1);
 }
 
 .g2-markdown img {
@@ -32,7 +113,131 @@ body {
   margin: 2rem 0;
 }
 
+.g2-markdown :is(p, li, blockquote) {
+  line-height: 1.85;
+}
+
 .g2-markdown :is(h1, h2, h3, h4, h5, h6),
 .article-title {
   color: #121317 !important;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pageRiseIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-text,
+.hero-media,
+.scroll-item,
+.fade-in,
+.action-card {
+  opacity: 0;
+  transform: translateY(24px);
+  will-change: opacity, transform;
+}
+
+.hero-media {
+  clip-path: inset(16% 9% 16% 9% round 48px);
+  will-change: opacity, transform, filter, clip-path;
+}
+
+.hero-stage,
+.scroll-item {
+  transform-style: preserve-3d;
+}
+
+.page-enter {
+  opacity: 0;
+  transform: translateY(24px);
+  animation: pageRiseIn 0.72s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
+}
+
+.page-enter-delay-1 {
+  animation-delay: 0.08s;
+}
+
+.page-enter-delay-2 {
+  animation-delay: 0.16s;
+}
+
+.page-enter-delay-3 {
+  animation-delay: 0.24s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-text,
+  .hero-media,
+  .scroll-item,
+  .fade-in,
+  .action-card,
+  .page-enter {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}
+
+.reading-page[data-theme="dark"] {
+  background: #0d0d12;
+  color: #f4f5f7;
+}
+
+.reading-page[data-theme="dark"] .article-title,
+.reading-page[data-theme="dark"] .g2-markdown :is(h1, h2, h3, h4, h5, h6) {
+  color: #f4f5f7 !important;
+}
+
+.reading-page[data-theme="dark"] .reading-subtle,
+.reading-page[data-theme="dark"] .g2-markdown {
+  color: rgba(244, 245, 247, 0.72);
+}
+
+.reading-page[data-theme="dark"] .g2-markdown :is(a, strong) {
+  color: #f4f5f7;
+}
+
+.reading-page[data-theme="dark"] .g2-markdown blockquote {
+  border-left-color: rgba(244, 245, 247, 0.2);
+  color: rgba(244, 245, 247, 0.68);
+}
+
+.reading-page[data-theme="dark"] .reading-chip {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f4f5f7;
+}
+
+.reading-page[data-theme="dark"] .reading-link {
+  color: rgba(244, 245, 247, 0.72);
+}
+
+.reading-page[data-theme="dark"] .reading-link:hover {
+  color: #f4f5f7;
+}
+
+.reading-page[data-theme="dark"] .reading-rule,
+.reading-page[data-theme="dark"] .g2-markdown img {
+  border-color: rgba(255, 255, 255, 0.12);
 }

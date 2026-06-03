@@ -595,15 +595,25 @@ function StarRing({
   const lastTime = useRef(0);
   const everRendered = useRef(false);
 
-  // Track global mouse position
+  // Track global mouse & touch position
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       cursor.current.x = e.clientX;
       cursor.current.y = e.clientY;
     };
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        cursor.current.x = e.touches[0].clientX;
+        cursor.current.y = e.touches[0].clientY;
+      }
+    };
     window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
+    window.addEventListener("touchstart", handleTouchMove, { passive: true });
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchstart", handleTouchMove);
     };
   }, []);
 
@@ -658,10 +668,11 @@ function StarRing({
     }
 
     const dpr = gl.getPixelRatio();
-    const particleScale = (gl.domElement.width / dpr / 2000) * particlesScale;
+    const minViewportPixels = Math.min(gl.domElement.width, gl.domElement.height) / dpr;
+    const particleScale = Math.max(0.4, minViewportPixels / 1000) * particlesScale;
 
-    // GPGPU ring radius scaled dynamically to be about 45% of viewport height (half the box height!)
-    const baseRadius = 0.45 / viewport.aspect;
+    // Scale radius proportionally to min(width, height) to ensure it stays completely inside visible bounds on mobile
+    const baseRadius = 0.35 * Math.min(viewport.width, viewport.height) / Math.max(viewport.width, viewport.height);
 
     // Simulation Pass (Ping-Pong FBO)
     if (rt1.current && rt2.current) {

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Google Forms">
+  <rect width="64" height="64" rx="18" fill="#673ab7"/>
+  <path d="M42 8H22a6 6 0 0 0-6 6v36a6 6 0 0 0 6 6h20a6 6 0 0 0 6-6V20L42 8Z" fill="#fff" opacity=".95"/>
+  <path d="M42 8v9a3 3 0 0 0 3 3h3L42 8Z" fill="#d8c9ff"/>
+  <circle cx="25" cy="28" r="2.8" fill="#673ab7"/>
+  <circle cx="25" cy="38" r="2.8" fill="#673ab7"/>
+  <path d="M31 27h10v3H31v-3Zm0 10h10v3H31v-3Z" fill="#673ab7"/>
+</svg>

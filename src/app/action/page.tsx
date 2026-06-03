@@ -1,7 +1,7 @@
 "use client";
+import { ReturnHomeButton } from "@/components/ui/ReturnHomeButton";
 
 import React, { useRef } from "react";
-import Link from "next/link";
 import actionsData from "@/data/actions.json";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -69,12 +69,7 @@ export default function ActionPage() {
         </div>
 
         <div className="action-card mt-16">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 rounded-full bg-black/5 px-6 py-3 text-label-large text-text-main transition-all hover:bg-black/10"
-          >
-            返回首页
-          </Link>
+          <ReturnHomeButton />
         </div>
       </div>
     </main>

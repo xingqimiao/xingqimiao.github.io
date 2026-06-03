@@ -62,12 +62,6 @@ export const metadata: Metadata = {
   keywords: ["KiraMyao Equal", "跨性别", "LGBTQ+", "性少数群体", "公益组织", "NGO", "性别平等", "MTF生存指南"],
 };
 
-metadata.icons = {
-  icon: "/pic/logo/Logo.png",
-  shortcut: "/pic/logo/Logo.png",
-  apple: "/pic/logo/Logo.png",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{

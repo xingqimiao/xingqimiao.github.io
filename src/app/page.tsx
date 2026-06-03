@@ -32,35 +32,61 @@ export default function Home() {
     .filter(Boolean);
 
   useGSAP(() => {
-    const tl = gsap.timeline();
+    const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
 
-    // 标题文字 Fade Up Stagger
-    tl.fromTo(".hero-text",
-      { y: 30, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: "power3.out" }
-    );
+    gsap.set(".hero-text", { y: 42, opacity: 0, filter: "blur(18px)" });
+    gsap.set(".hero-media", {
+      y: 92,
+      opacity: 0,
+      scale: 0.94,
+      filter: "blur(18px)",
+      clipPath: "inset(16% 9% 16% 9% round 48px)",
+    });
 
-    // 媒体容器 Fade Up
-    tl.fromTo(
+    tl.to(".hero-text", {
+      y: 0,
+      opacity: 1,
+      filter: "blur(0px)",
+      duration: 1,
+      stagger: 0.12,
+    }).to(
       ".hero-media",
-      { y: 100, opacity: 0 },
-      { y: 0, opacity: 1, duration: 1.2, ease: "power4.out" },
-      "-=0.4"
+      {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        filter: "blur(0px)",
+        clipPath: "inset(0% 0% 0% 0% round 48px)",
+        duration: 1.45,
+      },
+      "-=0.55"
     );
 
-    // Fade in and slide up elements in section B and C with ScrollTrigger
+    gsap.to(".hero-media video", {
+      scale: 1.08,
+      ease: "none",
+      scrollTrigger: {
+        trigger: ".hero-media",
+        start: "top 70%",
+        end: "bottom top",
+        scrub: 0.8,
+      },
+    });
+
     gsap.utils.toArray<HTMLElement>(".scroll-item").forEach((el) => {
       gsap.fromTo(
         el,
-        { y: 50, opacity: 0 },
+        { y: 72, opacity: 0, filter: "blur(14px)", rotateX: -8, transformOrigin: "50% 80%" },
         {
           y: 0,
           opacity: 1,
-          duration: 0.8,
-          ease: "power3.out",
+          filter: "blur(0px)",
+          rotateX: 0,
+          duration: 1,
+          ease: "expo.out",
           scrollTrigger: {
             trigger: el,
-            start: "top 85%", // Trigger when the top of the element hits 85% of the viewport height
+            start: "top 84%",
             toggleActions: "play none none reverse",
           },
         }
@@ -87,7 +113,7 @@ export default function Home() {
 
         {/* Huge Video Container */}
         <div className="w-full px-4 md:px-6">
-          <div className="hero-media relative w-full aspect-square md:aspect-video min-h-[60vh] max-h-[85vh] rounded-[32px] md:rounded-[48px] overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-black/5 dark:border-white/5">
+          <div className="hero-media relative w-full aspect-video md:min-h-[60vh] md:max-h-[85vh] rounded-[32px] md:rounded-[48px] overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-black/5 dark:border-white/5">
             <video 
               autoPlay 
               loop 
