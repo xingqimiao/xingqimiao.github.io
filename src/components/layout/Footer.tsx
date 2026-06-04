@@ -14,14 +14,14 @@ export default function Footer() {
       </div>
 
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-5 border-t border-black/5 px-6 pt-8 md:flex-row md:items-start md:px-12">
-        <div className="text-center text-sm font-medium leading-relaxed text-text-sub md:pt-0.5 md:text-left">
+        <div className="text-body-large text-center text-text-sub md:text-left">
           &copy; {currentYear} KiraMyao Equal
           <span className="px-2 text-black/25">·</span>
           <a
             href="https://creativecommons.org/licenses/by-nc/4.0/?utm_source=chatgpt.com"
             target="_blank"
             rel="noopener noreferrer license"
-            className="text-text-main underline decoration-black/20 underline-offset-4 transition-colors hover:decoration-black/60"
+            className="text-text-sub transition-colors hover:text-text-main hover:underline"
           >
             CC BY-NC 4.0
           </a>
