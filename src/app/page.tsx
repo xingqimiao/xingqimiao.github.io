@@ -9,7 +9,15 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { TextPlugin } from "gsap/TextPlugin";
-import { ParticleRipple } from "@/components/ui/ParticleRipple";
+import dynamic from "next/dynamic";
+
+const ParticleRipple = dynamic(
+  () => import("@/components/ui/ParticleRipple").then((mod) => mod.ParticleRipple),
+  {
+    ssr: false,
+    loading: () => <div className="absolute inset-0 bg-[#0D0D12]" />,
+  }
+);
 
 // Dynamic data imports
 import bentoData from "@/data/homepage_bento.json";
@@ -36,11 +44,9 @@ export default function Home() {
 
     gsap.set(".hero-text", { y: 42, opacity: 0, filter: "blur(18px)" });
     gsap.set(".hero-media", {
-      y: 92,
+      y: 42,
       opacity: 0,
-      scale: 0.94,
       filter: "blur(18px)",
-      clipPath: "inset(16% 9% 16% 9% round 48px)",
     });
 
     tl.to(".hero-text", {
@@ -54,10 +60,8 @@ export default function Home() {
       {
         y: 0,
         opacity: 1,
-        scale: 1,
         filter: "blur(0px)",
-        clipPath: "inset(0% 0% 0% 0% round 48px)",
-        duration: 1.45,
+        duration: 1,
       },
       "-=0.55"
     );
@@ -106,20 +110,21 @@ export default function Home() {
         </p>
 
         <div className="hero-text mt-8 mb-16 flex justify-center">
-          <Link href="/join">
+          <Link href="/join" prefetch={false}>
             <Button variant="primary">Join Us</Button>
           </Link>
         </div>
 
         {/* Huge Video Container */}
         <div className="w-full px-4 md:px-6">
-          <div className="hero-media relative w-full aspect-video md:min-h-[60vh] md:max-h-[85vh] rounded-[32px] md:rounded-[48px] overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-black/5 dark:border-white/5">
+          <div className="hero-media relative w-full aspect-video md:min-h-[60vh] md:max-h-[85vh] rounded-[32px] md:rounded-[48px] overflow-hidden bg-[#0D0D12] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-black/5 dark:border-white/5">
             <video 
               autoPlay 
               loop 
               muted 
+              preload="auto"
               playsInline 
-              className="w-full h-full object-cover relative z-10"
+              className="relative z-10 h-full w-full object-contain"
             >
               <source src="/video/kirahero.mp4" type="video/mp4" />
               Your browser does not support the video tag.
@@ -158,7 +163,7 @@ export default function Home() {
       <section className="py-24 px-6 max-w-7xl mx-auto scroll-item">
         <div className="flex justify-between items-end mb-16 px-2">
           <h2 className="text-headline-large text-text-main">最新洞察</h2>
-          <Link href="/blog" className="text-label-large text-text-sub hover:text-text-main hover:underline underline-offset-4 cursor-pointer transition-all">
+          <Link href="/blog" className="text-label-large text-text-sub hover:text-text-main hover:underline underline-offset-4 cursor-pointer transition-all" prefetch={false}>
             查看全部文章 →
           </Link>
         </div>
@@ -171,6 +176,7 @@ export default function Home() {
                 key={post.slug} 
                 href={`/${post.type}/${post.slug}`}
                 className="group flex flex-col sm:flex-row sm:items-center py-8 border-b border-black/5 dark:border-white/5 cursor-pointer transition-colors hover:bg-black/5 dark:hover:bg-white/5 px-6 -mx-6 rounded-2xl"
+                prefetch={false}
               >
                 <div className="flex items-center gap-4 w-full sm:w-1/4 mb-4 sm:mb-0">
                   <span className="text-label-large text-text-sub opacity-70">
@@ -201,7 +207,7 @@ export default function Home() {
           {/* 前景内容 */}
           <div className="relative z-10 flex flex-col items-center text-center pointer-events-auto">
             <h2 className="text-display-medium text-white mb-8 tracking-tight font-medium">加入我们，让改变发生</h2>
-            <Link href="/join">
+            <Link href="/join" prefetch={false}>
               <Button variant="glass" className="px-8 py-4 text-title-medium">Join Us</Button>
             </Link>
           </div>

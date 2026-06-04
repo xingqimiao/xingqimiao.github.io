@@ -594,6 +594,12 @@ function StarRing({
   const noise1D = useMemo(() => new Noise1D(), []);
   const lastTime = useRef(0);
   const everRendered = useRef(false);
+  const _tempVec3 = useRef(new THREE.Vector3());
+  const _cycleColors = useMemo(() => [
+    new THREE.Color("#5BCEFA"), // Blue
+    new THREE.Color("#FFFFFF"), // White
+    new THREE.Color("#F5A9B8"), // Pink
+  ], []);
 
   // Track global mouse & touch position
   useEffect(() => {
@@ -643,7 +649,7 @@ function StarRing({
 
     if (mouseIsOver) {
       isIntersecting.current = true;
-      const vector = new THREE.Vector3(mouseX, mouseY, 0.5);
+      const vector = _tempVec3.current.set(mouseX, mouseY, 0.5);
       vector.unproject(camera);
       const dir = vector.sub(camera.position).normalize();
       const distanceZ = -camera.position.z / dir.z;
@@ -696,18 +702,13 @@ function StarRing({
       everRendered.current = true;
 
       // Cycle monochromatic color smoothly over time: Blue (#5BCEFA) -> White (#FFFFFF) -> Pink (#F5A9B8)
-      const colors = [
-        new THREE.Color("#5BCEFA"), // Blue
-        new THREE.Color("#FFFFFF"), // White
-        new THREE.Color("#F5A9B8"), // Pink
-      ];
       const cycleTime = 8.0; // 8 seconds per full cycle loop
-      const totalColors = colors.length;
+      const totalColors = _cycleColors.length;
       const cycle = (elapsed / cycleTime) % totalColors;
       const iA = Math.floor(cycle);
       const iB = (iA + 1) % totalColors;
       const blend = cycle - iA;
-      renderUniforms.uColor.value.copy(colors[iA]).lerp(colors[iB], blend);
+      renderUniforms.uColor.value.copy(_cycleColors[iA]).lerp(_cycleColors[iB], blend);
 
       // Update Render Uniforms
       renderUniforms.uPosition.value = rt1.current.texture;

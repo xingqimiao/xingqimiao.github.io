@@ -82,6 +82,7 @@ export function ArticleIndex({ articles, type, searchPlaceholder, emptyText }: A
                         "group rounded-[28px] border border-black/10 bg-white p-4 transition-all hover:-translate-y-0.5 hover:scale-[1.01] hover:border-black/15 hover:bg-white",
                         isFeatured && "md:col-span-2"
                       )}
+                      prefetch={false}
                     >
                       <article
                         className={cn(

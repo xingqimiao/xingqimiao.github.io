@@ -1,4 +1,5 @@
 import React from "react";
+import { Metadata } from "next";
 import compiledArticles from "@/data/compiled_articles.json";
 import { ReadingArticlePage } from "@/components/reading/ReadingArticlePage";
 import { stripDuplicateLeadImage } from "@/lib/articleContent";
@@ -17,6 +18,35 @@ export async function generateStaticParams() {
 
 interface Props {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const normalizedSlug = normalizeRouteSlug(slug);
+  const article = compiledArticles.find((art) => art.slug === normalizedSlug && art.type === "blog");
+
+  if (!article) {
+    return {
+      title: "文章未找到",
+    };
+  }
+
+  return {
+    title: article.title,
+    description: article.desc,
+    openGraph: {
+      title: article.title,
+      description: article.desc,
+      type: "article",
+      images: article.cover_name ? [{ url: article.cover_name }] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: article.title,
+      description: article.desc,
+      images: article.cover_name ? [article.cover_name] : [],
+    },
+  };
 }
 
 export default async function BlogDetailPage({ params }: Props) {

@@ -53,13 +53,38 @@ const harmonyOSSans = localFont({
 });
 
 // 3. SEO Metadata Configuration
+const siteUrl = "https://kiraequal.org";
+const siteDescription =
+  "KiraMyao Equal 是一个关注跨性别与性少数群体处境的公益信息网站，发布生存指南、研究报告、真实故事与倡导行动，整理安全、隐私友好的公共资料，帮助更多人被看见、被理解并获得支持。";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     template: "%s | KiraMyao Equal",
-    default: "KiraMyao Equal | 跨性别与性少数群体 (LGBTQ+) 关怀与倡导组织",
+    default: "KiraMyao Equal | 跨性别与性少数群体公益信息与倡导网站",
   },
-  description: "KiraMyao Equal 是一个致力于为跨性别与性少数群体 (LGBTQ+) 提供支持、关怀与社会倡导的非政府组织 (NGO)。我们通过现代科技与包容设计，推动无边界与流动的性别平等。",
-  keywords: ["KiraMyao Equal", "跨性别", "LGBTQ+", "性少数群体", "公益组织", "NGO", "性别平等", "MTF生存指南"],
+  description: siteDescription,
+  keywords: ["KiraMyao Equal", "KiraEqual", "kiraequal.org", "跨性别", "LGBTQ+", "性少数群体", "公益信息", "性别平等", "MTF生存指南"],
+  alternates: {
+    canonical: "./",
+  },
+  openGraph: {
+    title: "KiraMyao Equal | 跨性别与性少数群体公益信息与倡导网站",
+    description: siteDescription,
+    url: siteUrl,
+    siteName: "KiraMyao Equal",
+    locale: "zh_CN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "KiraMyao Equal | 跨性别与性少数群体公益信息与倡导网站",
+    description: siteDescription,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

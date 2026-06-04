@@ -1,42 +1,11 @@
-"use client";
-import { ReturnHomeButton } from "@/components/ui/ReturnHomeButton";
+import { Metadata } from "next";
+import StoryListClient from "./StoryListClient";
 
-import React, { useRef } from "react";
-import compiledArticles from "@/data/compiled_articles.json";
-import { ArticleIndex, type ArticleIndexItem } from "@/components/ui/ArticleIndex";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
+export const metadata: Metadata = {
+  title: "真实的心声与记录",
+  description: "在这里聆听来自跨性别与性少数群体 (LGBTQ+) 的真实个人经历与内心独白。我们记录多元的性别故事，破除刻板印象，展现鲜活真实的生命历程。",
+};
 
 export default function StoryListPage() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const stories = (compiledArticles as ArticleIndexItem[]).filter((art) => art.type === "story");
-
-  useGSAP(() => {
-    gsap.fromTo(
-      ".fade-in",
-      { y: 30, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.8, stagger: 0.08, ease: "power3.out" }
-    );
-  }, { scope: containerRef });
-
-  return (
-    <main ref={containerRef} className="min-h-screen bg-white px-6 pb-24 pt-32">
-      <div className="mx-auto max-w-7xl">
-        <h1 className="fade-in mb-12 text-display-medium font-medium tracking-tight text-text-main md:text-display-large">
-          真实的心声与记录
-        </h1>
-
-        <ArticleIndex
-          articles={stories}
-          type="story"
-          searchPlaceholder="搜索故事标题或关键词"
-          emptyText="没有找到匹配的故事，请尝试其他关键词"
-        />
-
-        <div className="fade-in mt-16">
-          <ReturnHomeButton />
-        </div>
-      </div>
-    </main>
-  );
+  return <StoryListClient />;
 }

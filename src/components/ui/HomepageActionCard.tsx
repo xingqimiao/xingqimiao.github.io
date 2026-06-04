@@ -15,6 +15,7 @@ export function HomepageActionCard({ title, coverName }: HomepageActionCardProps
             src={coverName}
             alt={title}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.025]"
+            loading="lazy"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-[linear-gradient(135deg,#ffffff,#f5f5f7)]">

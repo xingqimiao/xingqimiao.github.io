@@ -12,22 +12,22 @@ export default function Footer() {
       </div>
 
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 border-t border-black/5 px-6 pt-8 md:flex-row md:px-12">
-        <div className="text-label-medium text-text-sub">
+        <div className="text-body-large text-text-sub">
           © {new Date().getFullYear()} KiraMyao Equal. All rights reserved.
         </div>
 
         <div className="flex flex-wrap justify-center gap-x-8 gap-y-3">
-          <Link href="/about-kiramyao" className="text-label-medium text-text-sub transition-colors hover:text-text-main hover:underline">
+          <Link href="/about-kiramyao" className="text-body-large text-text-sub transition-colors hover:text-text-main hover:underline" prefetch={false}>
             About KiraMyao
           </Link>
-          <Link href="/privacy" className="text-label-medium text-text-sub transition-colors hover:text-text-main hover:underline">
+          <Link href="/privacy" className="text-body-large text-text-sub transition-colors hover:text-text-main hover:underline" prefetch={false}>
             Privacy Policy
           </Link>
           <a
             href="https://2345.lgbt/zh-cn/"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-label-medium text-text-sub transition-colors hover:text-text-main hover:underline"
+            className="text-body-large text-text-sub transition-colors hover:text-text-main hover:underline"
           >
             Project Trans
           </a>
@@ -35,7 +35,7 @@ export default function Footer() {
             href={globalConfig.twitter_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-label-medium text-text-sub transition-colors hover:text-text-main hover:underline"
+            className="text-body-large text-text-sub transition-colors hover:text-text-main hover:underline"
           >
             Twitter
           </a>

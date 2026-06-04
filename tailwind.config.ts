@@ -35,16 +35,18 @@ const config: Config = {
         'display-large': ['57px', { lineHeight: '64px', letterSpacing: '-0.25px', fontWeight: '500' }],
         'display-medium': ['45px', { lineHeight: '52px', letterSpacing: '0px', fontWeight: '500' }],
         'headline-large': ['32px', { lineHeight: '40px', letterSpacing: '0px', fontWeight: '500' }],
+        'headline-medium': ['28px', { lineHeight: '36px', letterSpacing: '0px', fontWeight: '500' }],
         'title-large': ['22px', { lineHeight: '28px', letterSpacing: '0px', fontWeight: '500' }],
+        'title-medium': ['16px', { lineHeight: '24px', letterSpacing: '0.15px', fontWeight: '500' }],
         'body-large': ['16px', { lineHeight: '24px', letterSpacing: '0.5px', fontWeight: '400' }],
         'label-large': ['14px', { lineHeight: '20px', letterSpacing: '0.1px', fontWeight: '500' }],
+        'label-medium': ['12px', { lineHeight: '16px', letterSpacing: '0.5px', fontWeight: '500' }],
       },
       fontFamily: {
         sans: [
           'var(--font-google-sans)',
           'var(--font-harmony-sans)',
-          'var(--font-outfit)',
-          'var(--font-inter)',
+
           '-apple-system',
           'BlinkMacSystemFont',
           'sans-serif',

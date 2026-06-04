@@ -57,7 +57,7 @@ export function ReadingArticlePage({
     >
       <div className="page-enter mx-auto max-w-[880px]">
         <div className="mb-8 flex items-center justify-between gap-4">
-          <Link href={backHref} className="reading-link text-label-large text-text-sub transition-colors hover:text-text-main">
+          <Link href={backHref} className="reading-link text-label-large text-text-sub transition-colors hover:text-text-main" prefetch={false}>
             {backLabel}
           </Link>
           <div className="flex items-center gap-3">
@@ -101,6 +101,7 @@ export function ReadingArticlePage({
           <Link
             href={backHref}
             className="reading-link rounded-full bg-black/5 px-6 py-3 text-label-large text-text-main transition-colors hover:bg-black/10"
+            prefetch={false}
           >
             {backLabel}
           </Link>

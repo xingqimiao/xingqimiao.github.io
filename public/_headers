@@ -1,0 +1,27 @@
+/
+  Link: </.well-known/api-catalog>; rel="api-catalog"; type="application/json", </.well-known/service-doc.md>; rel="service-doc"; type="text/markdown", </llms.txt>; rel="alternate"; type="text/markdown"
+  Content-Signal: ai-train=no, search=yes, ai-input=yes
+  Vary: Accept
+
+/*
+  Link: </.well-known/api-catalog>; rel="api-catalog"; type="application/json", </.well-known/service-doc.md>; rel="service-doc"; type="text/markdown", </llms.txt>; rel="alternate"; type="text/markdown"
+  Content-Signal: ai-train=no, search=yes, ai-input=yes
+  Vary: Accept
+
+/ai/*
+  Content-Type: text/markdown; charset=utf-8
+
+/.well-known/api-catalog
+  Content-Type: application/json; charset=utf-8
+
+/.well-known/api-catalog.json
+  Content-Type: application/json; charset=utf-8
+
+/.well-known/agent-card.json
+  Content-Type: application/json; charset=utf-8
+
+/.well-known/service-doc.md
+  Content-Type: text/markdown; charset=utf-8
+
+/llms.txt
+  Content-Type: text/plain; charset=utf-8

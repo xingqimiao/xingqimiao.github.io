@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/generate-agent-assets.mjs && next build",
+    "pages:verify": "node scripts/verify-cloudflare-pages.mjs",
+    "pages:deploy": "npm run build && npm run pages:verify && npx wrangler pages deploy out --project-name kiraequal",
     "start": "next start",
     "lint": "eslint"
   },

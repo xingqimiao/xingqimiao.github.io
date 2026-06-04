@@ -1,42 +1,11 @@
-"use client";
-import { ReturnHomeButton } from "@/components/ui/ReturnHomeButton";
+import { Metadata } from "next";
+import ReportListClient from "./ReportListClient";
 
-import React, { useRef } from "react";
-import compiledArticles from "@/data/compiled_articles.json";
-import { ArticleIndex, type ArticleIndexItem } from "@/components/ui/ArticleIndex";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
+export const metadata: Metadata = {
+  title: "研究、数据与报告",
+  description: "在此阅读由 KiraMyao Equal 发布的跨性别与性少数群体 (LGBTQ+) 生存处境研究报告。我们基于第一手匿名统计数据提供深度交叉分析，为公共表达与社会倡议提供科学坚实的依据。",
+};
 
 export default function ReportListPage() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const reports = (compiledArticles as ArticleIndexItem[]).filter((art) => art.type === "report");
-
-  useGSAP(() => {
-    gsap.fromTo(
-      ".fade-in",
-      { y: 30, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.8, stagger: 0.08, ease: "power3.out" }
-    );
-  }, { scope: containerRef });
-
-  return (
-    <main ref={containerRef} className="min-h-screen bg-white px-6 pb-24 pt-32">
-      <div className="mx-auto max-w-7xl">
-        <h1 className="fade-in mb-12 text-display-medium font-medium tracking-tight text-text-main md:text-display-large">
-          研究、数据与正义
-        </h1>
-
-        <ArticleIndex
-          articles={reports}
-          type="report"
-          searchPlaceholder="搜索报告标题或关键词"
-          emptyText="没有找到匹配的报告，请尝试其他关键词"
-        />
-
-        <div className="fade-in mt-16">
-          <ReturnHomeButton />
-        </div>
-      </div>
-    </main>
-  );
+  return <ReportListClient />;
 }

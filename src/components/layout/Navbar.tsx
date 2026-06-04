@@ -39,6 +39,7 @@ export default function Navbar() {
             href="/" 
             onClick={closeMenu} 
             className="flex items-center gap-2 text-title-large font-medium tracking-tight text-text-main relative z-50"
+            prefetch={false}
           >
             <img src="/pic/logo/Logo.png" alt="KiraEqual Logo" className="h-8 w-8 rounded-full object-contain" />
             <span>KiraEqual</span>
@@ -51,6 +52,7 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 className="px-4 py-2 rounded-full text-label-large text-text-sub transition-all duration-200 hover:bg-black/5 hover:text-text-main"
+                prefetch={false}
               >
                 {link.label}
               </Link>
@@ -60,7 +62,7 @@ export default function Navbar() {
           {/* Right: Desktop CTA & Mobile Toggle */}
           <div className="flex items-center gap-4 relative z-50">
             <div className="hidden md:block">
-              <Link href="/join">
+              <Link href="/join" prefetch={false}>
                 <Button variant="primary">Join Us</Button>
               </Link>
             </div>
@@ -96,12 +98,13 @@ export default function Navbar() {
                 href={link.href}
                 onClick={closeMenu}
                 className="text-headline-medium text-text-sub hover:text-text-main py-3 rounded-2xl hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-200"
+                prefetch={false}
               >
                 {link.label}
               </Link>
             ))}
             <div className="mt-8 border-t border-black/5 dark:border-white/5 pt-8">
-              <Link href="/join" onClick={closeMenu}>
+              <Link href="/join" onClick={closeMenu} prefetch={false}>
                 <Button variant="primary" className="w-full py-4 text-title-medium">
                   Join Us
                 </Button>

@@ -1,6 +1,12 @@
 import React from "react";
+import { Metadata } from "next";
 import privacyData from "@/data/privacy.json";
 import { ReturnHomeButton } from "@/components/ui/ReturnHomeButton";
+
+export const metadata: Metadata = {
+  title: "隐私政策",
+  description: "KiraMyao Equal 跨性别与性少数群体 (LGBTQ+) 关怀与倡导组织的隐私政策。我们尊重并保障每一位参与问卷调研和浏览本站的用户的隐私安全，对所有敏感调研数据均采取严格的去标识化与匿名处理保护措施。",
+};
 
 export default function PrivacyPolicyPage() {
   return (

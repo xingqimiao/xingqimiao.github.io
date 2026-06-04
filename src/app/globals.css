@@ -159,8 +159,7 @@ body {
 }
 
 .hero-media {
-  clip-path: inset(16% 9% 16% 9% round 48px);
-  will-change: opacity, transform, filter, clip-path;
+  will-change: opacity, transform, filter;
 }
 
 .hero-stage,

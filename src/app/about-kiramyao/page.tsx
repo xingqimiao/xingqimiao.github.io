@@ -1,7 +1,13 @@
 import React from "react";
+import { Metadata } from "next";
 import aboutData from "@/data/about.json";
 import { ReturnHomeButton } from "@/components/ui/ReturnHomeButton";
 import { splitAboutHtml } from "@/lib/aboutSections";
+
+export const metadata: Metadata = {
+  title: "关于 KiraMyao",
+  description: "了解 KiraMyao Equal 的发起故事与创始历程。KiraMyao Equal 是由跨性别女孩发起并主导的关怀与倡导网络，通过开源项目、数据研究等多元手段推动社群连接与流动的性别平等。",
+};
 
 type AboutContent = typeof aboutData & {
   content_html?: string;
