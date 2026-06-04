@@ -12,7 +12,7 @@ This project is prepared for the GitHub -> Cloudflare Pages workflow.
 
 ```txt
 Project name: kiraequal
-Production branch: master
+Production branch: cloudflare-pages-source
 Build command: npm run build
 Build output directory: out
 Root directory: /
@@ -81,7 +81,7 @@ If no remote is configured, create a GitHub repository and add it:
 
 ```txt
 git remote add origin git@github.com:YOUR_ACCOUNT/YOUR_REPO.git
-git push -u origin master
+git push -u origin master:cloudflare-pages-source
 ```
 
 ## Custom Domain
