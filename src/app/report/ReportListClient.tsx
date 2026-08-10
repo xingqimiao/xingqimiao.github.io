@@ -6,10 +6,13 @@ import compiledArticles from "@/data/compiled_articles.json";
 import { ArticleIndex, type ArticleIndexItem } from "@/components/ui/ArticleIndex";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import type { Locale } from "@/i18n/locale";
+import { articleListCopy } from "@/lib/articleListPresentation";
 
-export default function ReportListClient() {
+export default function ReportListClient({ locale = "zh" }: { locale?: Locale }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const reports = (compiledArticles as ArticleIndexItem[]).filter((art) => art.type === "report");
+  const copy = articleListCopy(locale, "report");
 
   useGSAP(() => {
     gsap.fromTo(
@@ -23,18 +26,19 @@ export default function ReportListClient() {
     <main ref={containerRef} className="min-h-screen bg-white px-6 pb-24 pt-32">
       <div className="mx-auto max-w-7xl">
         <h1 className="fade-in mb-12 text-display-medium font-medium tracking-tight text-text-main md:text-display-large">
-          研究、数据与正义
+          {copy.title}
         </h1>
 
         <ArticleIndex
           articles={reports}
+          locale={locale}
           type="report"
-          searchPlaceholder="搜索报告标题或关键词"
-          emptyText="没有找到匹配的报告，请尝试其他关键词"
+          searchPlaceholder={copy.searchPlaceholder}
+          emptyText={copy.emptyText}
         />
 
         <div className="fade-in mt-16">
-          <ReturnHomeButton />
+          <ReturnHomeButton locale={locale} />
         </div>
       </div>
     </main>

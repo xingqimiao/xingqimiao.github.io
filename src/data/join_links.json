@@ -1,0 +1,29 @@
+[
+  {
+    "id": "google-survey",
+    "enabled": false,
+    "label": "一起参与2026 中国跨性别者困境调查行动",
+    "url": "https://forms.gle/UtLWfS4dmNWWuuZ8A",
+    "source": "Google Forms",
+    "logo": "/pic/join/google_forms_logo.svg",
+    "order": 1
+  },
+  {
+    "id": "tencent-survey",
+    "enabled": false,
+    "label": "一起参与2026 中国跨性别者困境调查行动（腾讯问卷）",
+    "url": "https://wj.qq.com/s2/26908864/cf79/",
+    "source": "腾讯问卷",
+    "logo": "/pic/join/tencent_wenjuan_logo.svg",
+    "order": 2
+  },
+  {
+    "id": "volunteer-recruitment",
+    "enabled": true,
+    "label": "加入 KiraMyao Equal｜志愿者招募表",
+    "url": "https://forms.gle/yJY2ZnawLLdgPnws7",
+    "source": "Google Forms",
+    "logo": "/pic/join/google_forms_logo.svg",
+    "order": 3
+  }
+]

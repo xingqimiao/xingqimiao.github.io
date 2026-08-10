@@ -7,26 +7,150 @@ Content-Signal: ai-train=no, search=yes, ai-input=yes
 ## Core Pages
 
 - [KiraMyao Equal](/ai/index.md): KiraMyao Equal 关注中国跨性别与性别多元群体的生存处境、社群故事、资料整理和公共倡议，发布调查、报告、文章与参与方式。
-- [关于我们](/ai/about.md): KiraMyao Equal 关注中国跨性别与性别多元群体的生存处境、社群故事、资料整理和公共倡议，发布调查、报告、文章与参与方式。
-- [About KiraMyao](/ai/about-kiramyao.md): KiraMyao Equal 网站维护者与项目整理者简介。
+- [关于 KiraMyao](/ai/about-kiramyao.md): KiraMyao Equal 网站维护者与项目整理者简介。
+- [故事](/ai/stories.md): https://kiraequal.org/stories
+- [报告](/ai/report.md): KiraMyao Equal 整理和发布的报告内容。
+- [资料](/ai/documents.md): KiraMyao Equal 整理的参考资料。
 - [行动](/ai/action.md): KiraMyao Equal 当前项目与行动入口。
+- [Cat Cave](/ai/cat-cave.md): KiraMyao Equal 的文章、随笔与社群记录。
 - [加入我们](/ai/join.md): 参与调查、关注项目、支持 KiraMyao Equal。
-- [隐私与数据处理说明](/ai/privacy.md): KiraMyao Equal 的隐私、数据处理、问卷和公开资料整理说明。
+- [隐私与数据处理说明](/ai/privacy.md): KiraMyao Equal 的隐私与数据处理说明。
 
-## Blog
+## Cat Cave
 
-- [一起完成《2026 中国跨性别者生存处境调查》](/ai/blog/2026-trans-survival-survey.md): 这是一份面向中国跨性别与性别多元群体的匿名问卷。我们希望记录医疗、家庭、教育、就业、心理健康与社群支持等真实处境，让更多经验被看见，也让后续报告和倡议有更扎实的依据。
-- [中国MTF生存指南：喵呜，一起在当下活下去](/ai/blog/Meow-lets-survive.md): 我们在国际反恐同日、国际不再恐同日写下了这篇文章作为一个小礼物
-- [ios26.5 Pride壁纸](/ai/blog/ApplePride2026.md): Apple Pride2026壁纸
+- [一起完成《2026 中国跨性别者生存处境调查》](/ai/cat-cave/2026-transgender-survival-survey.md): 这是一份面向中国跨性别与性别多元群体的匿名问卷。我们希望记录医疗、家庭、教育、就业、心理健康与社群支持等真实处境，让更多经验被看见，也让后续报告和倡议有更扎实的依据。
+- [“变成猫猫啦”一篇关于SRS的故事](/ai/cat-cave/becoming-a-cat-a-story-about-srs.md): “出发去泰国做变猫手术啦……” “变成猫猫啦！”
+- [中国MTF生存指南：喵呜，一起在当下活下去](/ai/cat-cave/china-mtf-survival-guide.md): 我们在国际反恐同日、国际不再恐同日写下了这篇文章作为一个小礼物
+- [“带有精美插画和丝带的精装本”](/ai/cat-cave/illustrated-hardcover-notebook-with-ribbon.md): 所谓男娘测试题中的故事
+- [ios26.5 Pride壁纸](/ai/cat-cave/ios-26-5-pride-wallpapers.md): Apple Pride2026壁纸
 
-## Story
+## Stories
 
-- [“带有精美插画和丝带的精装本”](/ai/story/blacknotebook.md): 所谓男娘测试题中的故事
-- [“变成猫猫啦”一篇关于SRS的故事](/ai/story/Becoming-a-Cat-cat!.md): “出发去泰国做变猫手术啦……” “变成猫猫啦！”
+- [等一束晨光慢慢认出方向](/ai/stories/10432746.md): https://kiraequal.org/stories/10432746
+- [RLE,根据自己的接受程度,慢慢来哦~](/ai/stories/10755068.md): https://kiraequal.org/stories/10755068
+- [我不确定是喜欢她还是想变成她](/ai/stories/11216931.md): https://kiraequal.org/stories/11216931
+- [穿过安静雨季慢慢认出方向](/ai/stories/11296859.md): https://kiraequal.org/stories/11296859
+- [穿过安静雨季看见晨光落下](/ai/stories/13921621.md): https://kiraequal.org/stories/13921621
+- [等一束晨光渡过自己的河](/ai/stories/15131742.md): https://kiraequal.org/stories/15131742
+- [等一束晨光走向自己的路](/ai/stories/15261031.md): https://kiraequal.org/stories/15261031
+- [把勇气藏进走向自己的路](/ai/stories/16157706.md): https://kiraequal.org/stories/16157706
+- [被迫害在欧洲获得政治庇护](/ai/stories/16788647.md): https://kiraequal.org/stories/16788647
+- [勇敢做自己](/ai/stories/17553176.md): https://kiraequal.org/stories/17553176
+- [我算很幸运的,也算是苦尽甘来](/ai/stories/17771534.md): https://kiraequal.org/stories/17771534
+- [穿过安静雨季为自己撑把伞](/ai/stories/18341625.md): https://kiraequal.org/stories/18341625
+- [沿着风的方向等到天色渐亮](/ai/stories/19765145.md): https://kiraequal.org/stories/19765145
+- [把勇气藏进望见更远的光](/ai/stories/19770785.md): https://kiraequal.org/stories/19770785
+- [穿过安静雨季慢慢认出方向](/ai/stories/22291300.md): https://kiraequal.org/stories/22291300
+- [听见心的回声等到天色渐亮](/ai/stories/22730020.md): https://kiraequal.org/stories/22730020
+- [在微光里等来清澈天空](/ai/stories/23280636.md): https://kiraequal.org/stories/23280636
+- [等一束晨光留下真实脚印](/ai/stories/23799894.md): https://kiraequal.org/stories/23799894
+- [被赶出家门了唉,心理状态越来越差了](/ai/stories/23866319.md): https://kiraequal.org/stories/23866319
+- [等一束晨光看见晨光落下](/ai/stories/23925115.md): https://kiraequal.org/stories/23925115
+- [沿着风的方向迎来新的清晨](/ai/stories/24674470.md): https://kiraequal.org/stories/24674470
+- [穿过安静雨季织成温柔来路](/ai/stories/24696582.md): https://kiraequal.org/stories/24696582
+- [把勇气藏进认出自己的光](/ai/stories/26660035.md): https://kiraequal.org/stories/26660035
+- [我舉過白紙,結果這個世界還是很糟](/ai/stories/26898184.md): https://kiraequal.org/stories/26898184
+- [在微光里等到天色渐亮](/ai/stories/27597280.md): https://kiraequal.org/stories/27597280
+- [穿过安静雨季走向自己的路](/ai/stories/27873052.md): https://kiraequal.org/stories/27873052
+- [穿过安静雨季迎来新的清晨](/ai/stories/28112431.md): https://kiraequal.org/stories/28112431
+- [听见心的回声找到安心角落](/ai/stories/28374609.md): https://kiraequal.org/stories/28374609
+- [等一束晨光走向自己的路](/ai/stories/28528188.md): https://kiraequal.org/stories/28528188
+- [活着就是为了感受死去](/ai/stories/29480710.md): https://kiraequal.org/stories/29480710
+- [听见心的回声迎来新的清晨](/ai/stories/29506242.md): https://kiraequal.org/stories/29506242
+- [目前mtx的状况似乎也不怎么好...](/ai/stories/30858891.md): https://kiraequal.org/stories/30858891
+- [某学校复读生 将来会有的。](/ai/stories/32671890.md): https://kiraequal.org/stories/32671890
+- [沿着风的方向留住温柔归处](/ai/stories/32806219.md): https://kiraequal.org/stories/32806219
+- [等一束晨光认出自己的光](/ai/stories/33234228.md): https://kiraequal.org/stories/33234228
+- [等一束晨光留住温柔归处](/ai/stories/33571545.md): https://kiraequal.org/stories/33571545
+- [听见心的回声推开一扇心窗](/ai/stories/34548305.md): https://kiraequal.org/stories/34548305
+- [听见心的回声等到天色渐亮](/ai/stories/35309757.md): https://kiraequal.org/stories/35309757
+- [沿着风的方向牵住心里的线](/ai/stories/35611285.md): https://kiraequal.org/stories/35611285
+- [穿过安静雨季走向自己的路](/ai/stories/35706964.md): https://kiraequal.org/stories/35706964
+- [听见心的回声缝好真实日常](/ai/stories/35982312.md): https://kiraequal.org/stories/35982312
+- [在微光里留下真实脚印](/ai/stories/36056685.md): https://kiraequal.org/stories/36056685
+- [听见心的回声点亮一颗星星](/ai/stories/36486719.md): https://kiraequal.org/stories/36486719
+- [好想我前男友](/ai/stories/38411178.md): https://kiraequal.org/stories/38411178
+- [我们的存在就是对恶意最大的反抗](/ai/stories/38697568.md): https://kiraequal.org/stories/38697568
+- [穿过安静雨季渡过自己的河](/ai/stories/40143115.md): https://kiraequal.org/stories/40143115
+- [沿着风的方向等到天色渐亮](/ai/stories/40859073.md): https://kiraequal.org/stories/40859073
+- [我现在有点饿,想吃薯片](/ai/stories/41648167.md): https://kiraequal.org/stories/41648167
+- [听见心的回声缝好真实日常](/ai/stories/41946238.md): https://kiraequal.org/stories/41946238
+- [在微光里走向自己的路](/ai/stories/42358103.md): https://kiraequal.org/stories/42358103
+- [听见心的回声慢慢认出方向](/ai/stories/43175216.md): https://kiraequal.org/stories/43175216
+- [把勇气藏进走向自己的路](/ai/stories/44001461.md): https://kiraequal.org/stories/44001461
+- [在微光里走向自己的路](/ai/stories/44772025.md): https://kiraequal.org/stories/44772025
+- [一只猫的1岁生日](/ai/stories/45648863.md): https://kiraequal.org/stories/45648863
+- [希望这个世界能多一份理解少一份歧视](/ai/stories/47398867.md): https://kiraequal.org/stories/47398867
+- [等一束晨光等来清澈天空](/ai/stories/48091596.md): https://kiraequal.org/stories/48091596
+- [等一束晨光看见晨光落下](/ai/stories/50242142.md): https://kiraequal.org/stories/50242142
+- [在微光里走向自己的路](/ai/stories/50415783.md): https://kiraequal.org/stories/50415783
+- [听见心的回声看见真实自己](/ai/stories/50921359.md): https://kiraequal.org/stories/50921359
+- [听见心的回声慢慢认出方向](/ai/stories/53783906.md): https://kiraequal.org/stories/53783906
+- [等一束晨光守住微小星火](/ai/stories/54273093.md): https://kiraequal.org/stories/54273093
+- [听见心的回声找到安心角落](/ai/stories/54545353.md): https://kiraequal.org/stories/54545353
+- [等一束晨光等来清澈天空](/ai/stories/55316652.md): https://kiraequal.org/stories/55316652
+- [把勇气藏进走向自己的路](/ai/stories/55399086.md): https://kiraequal.org/stories/55399086
+- [穿过安静雨季慢慢认出方向](/ai/stories/55610441.md): https://kiraequal.org/stories/55610441
+- [沿着风的方向走向自己的路](/ai/stories/55641646.md): https://kiraequal.org/stories/55641646
+- [等一束晨光走向自己的路](/ai/stories/56174530.md): https://kiraequal.org/stories/56174530
+- [mzk你是一只可爱的粉色大猫](/ai/stories/56716104.md): https://kiraequal.org/stories/56716104
+- [等一束晨光守住微小星火](/ai/stories/56908870.md): https://kiraequal.org/stories/56908870
+- [这个世界不对](/ai/stories/57592755.md): https://kiraequal.org/stories/57592755
+- [等一束晨光织成温柔来路](/ai/stories/57765649.md): https://kiraequal.org/stories/57765649
+- [听见心的回声等到天色渐亮](/ai/stories/58850241.md): https://kiraequal.org/stories/58850241
+- [穿过安静雨季等云散成微光](/ai/stories/59440074.md): https://kiraequal.org/stories/59440074
+- [在微光里渡过自己的河](/ai/stories/59535908.md): https://kiraequal.org/stories/59535908
+- [在微光里望见更远的光](/ai/stories/64293496.md): https://kiraequal.org/stories/64293496
+- [环境会越来越艰难,加油跑出去。](/ai/stories/65727428.md): https://kiraequal.org/stories/65727428
+- [感觉老一辈成年以后就会非常累](/ai/stories/66109016.md): https://kiraequal.org/stories/66109016
+- [来到世界,是天意,还是乌龙?](/ai/stories/66428300.md): https://kiraequal.org/stories/66428300
+- [把勇气藏进走向自己的路](/ai/stories/68482833.md): https://kiraequal.org/stories/68482833
+- [穿过安静雨季留住温柔归处](/ai/stories/69867217.md): https://kiraequal.org/stories/69867217
+- [我爱寒涟漪](/ai/stories/70593139.md): https://kiraequal.org/stories/70593139
+- [在微光里点亮一颗星星](/ai/stories/70844034.md): https://kiraequal.org/stories/70844034
+- [穿过安静雨季走向自己的路](/ai/stories/72345222.md): https://kiraequal.org/stories/72345222
+- [在微光里点亮一颗星星](/ai/stories/72410973.md): https://kiraequal.org/stories/72410973
+- [沿着风的方向点亮一颗星星](/ai/stories/72802446.md): https://kiraequal.org/stories/72802446
+- [宁可深柜也不要向任何人透露炸柜](/ai/stories/75283979.md): https://kiraequal.org/stories/75283979
+- [等一束晨光走向自己的路](/ai/stories/76487328.md): https://kiraequal.org/stories/76487328
+- [爱你](/ai/stories/77811174.md): https://kiraequal.org/stories/77811174
+- [等一束晨光点亮一颗星星](/ai/stories/77875857.md): https://kiraequal.org/stories/77875857
+- [穿过安静雨季慢慢认出方向](/ai/stories/78483768.md): https://kiraequal.org/stories/78483768
+- [在微光里等到天色渐亮](/ai/stories/78940430.md): https://kiraequal.org/stories/78940430
+- [把勇气藏进为自己撑把伞](/ai/stories/79489960.md): https://kiraequal.org/stories/79489960
+- [把勇气藏进守住微小星火](/ai/stories/79717410.md): https://kiraequal.org/stories/79717410
+- [沿着风的方向走向自己的路](/ai/stories/80041004.md): https://kiraequal.org/stories/80041004
+- [等一束晨光认出自己的光](/ai/stories/80737619.md): https://kiraequal.org/stories/80737619
+- [沿着风的方向迎来新的清晨](/ai/stories/81126703.md): https://kiraequal.org/stories/81126703
+- [穿过安静雨季等到天色渐亮](/ai/stories/83112997.md): https://kiraequal.org/stories/83112997
+- [希望我们大家可以不再离开](/ai/stories/83802008.md): https://kiraequal.org/stories/83802008
+- [沿着风的方向找到安心角落](/ai/stories/84093490.md): https://kiraequal.org/stories/84093490
+- [等一束晨光留住温柔归处](/ai/stories/84305393.md): https://kiraequal.org/stories/84305393
+- [在微光里留下真实脚印](/ai/stories/84554452.md): https://kiraequal.org/stories/84554452
+- [等一束晨光看见晨光落下](/ai/stories/86000382.md): https://kiraequal.org/stories/86000382
+- [听见心的回声走向自己的路](/ai/stories/86903651.md): https://kiraequal.org/stories/86903651
+- [在微光里迎来新的清晨](/ai/stories/88151880.md): https://kiraequal.org/stories/88151880
+- [把勇气藏进走向自己的路](/ai/stories/88256438.md): https://kiraequal.org/stories/88256438
+- [穿过安静雨季找到安心角落](/ai/stories/89669315.md): https://kiraequal.org/stories/89669315
+- [沿着风的方向等到天色渐亮](/ai/stories/91227189.md): https://kiraequal.org/stories/91227189
+- [沿着风的方向迎来新的清晨](/ai/stories/92331844.md): https://kiraequal.org/stories/92331844
+- [沿着风的方向等到天色渐亮](/ai/stories/92336782.md): https://kiraequal.org/stories/92336782
+- [听见心的回声为自己撑把伞](/ai/stories/92374930.md): https://kiraequal.org/stories/92374930
+- [把勇气藏进等到天色渐亮](/ai/stories/92571571.md): https://kiraequal.org/stories/92571571
+- [穿过安静雨季留住温柔归处](/ai/stories/93405263.md): https://kiraequal.org/stories/93405263
+- [私は私を生きる。](/ai/stories/93670610.md): https://kiraequal.org/stories/93670610
+- [chenchen表示xmu找不到同类喵](/ai/stories/95118512.md): https://kiraequal.org/stories/95118512
+- [沿着风的方向看见晨光落下](/ai/stories/95487679.md): https://kiraequal.org/stories/95487679
+- [血债血偿,战天斗地,绝不屈服。](/ai/stories/95514579.md): https://kiraequal.org/stories/95514579
+- [听见心的回声推开一扇心窗](/ai/stories/95658751.md): https://kiraequal.org/stories/95658751
+- [等一束晨光看见晨光落下](/ai/stories/98811449.md): https://kiraequal.org/stories/98811449
+- [窥见那个自己,也许只能在梦中...](/ai/stories/99305277.md): https://kiraequal.org/stories/99305277
+- [听见心的回声牵住心里的线](/ai/stories/99994835.md): https://kiraequal.org/stories/99994835
 
-## Report
+## Reports
 
-- [KiraMyao Equal：中国跨性别者现状报告](/ai/report/KiraMyao_Equal__China_Trans.md): “中国跨性别群体仍生活在水深火热中”由KiraMyao Equal整理
-- [中国跨性别医疗评估报告](/ai/report/China-Transgender-Healthcare-Report.md): 中国跨性别医疗体系仍以“病理化+高门槛+家庭控制+高成本”构成
-- [联合国自由和平等：跨性别人群现状与挑战](/ai/report/article1.md): 每个人都有对自我身份的深刻认知。了解跨性别人群面临的生存现状、暴力威胁、法律承认缺失，以及我们能采取的共同行动。
+- [中国跨性别医疗评估报告](/ai/report/china-transgender-healthcare-assessment-report.md): 中国跨性别医疗体系仍以“病理化+高门槛+家庭控制+高成本”构成
+- [KiraMyao Equal：中国跨性别者现状报告](/ai/report/kiraequal-china-transgender-status-report.md): “中国跨性别群体仍生活在水深火热中”由KiraMyao Equal整理
+- [联合国自由和平等：跨性别人群现状与挑战](/ai/report/un-free-and-equal-transgender-status-and-challenges.md): 每个人都有对自我身份的深刻认知。了解跨性别人群面临的生存现状、暴力威胁、法律承认缺失，以及我们能采取的共同行动。
+
 

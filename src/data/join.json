@@ -8,6 +8,7 @@
   "twitter_url": "https://X.com/KiraMyao",
   "donation_link": "https://X.com/KiraMyao",
   "survey_label": "一起参与2026 中国跨性别者困境调查行动",
+  "survey_enabled": false,
   "survey_url": "https://forms.gle/UtLWfS4dmNWWuuZ8A",
   "tencent_survey_url": "https://wj.qq.com/s2/26908864/cf79/",
   "google_survey_logo": "/pic/join/google_forms_logo.svg",

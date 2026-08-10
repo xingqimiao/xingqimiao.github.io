@@ -3,6 +3,7 @@ title: "加入我们 | KiraMyao Equal"
 description: "参与调查、关注项目、支持 KiraMyao Equal。"
 canonical: "https://kiraequal.org/join"
 content_signal: "ai-train=no, search=yes, ai-input=yes"
+language: "zh-CN"
 ---
 # 加入我们
 
@@ -12,11 +13,11 @@ content_signal: "ai-train=no, search=yes, ai-input=yes"
 
 ## 参与入口
 
-- 一起参与2026 中国跨性别者困境调查行动: https://forms.gle/UtLWfS4dmNWWuuZ8A
-- 腾讯问卷: https://wj.qq.com/s2/26908864/cf79/
-- 加入 KiraMyao Equal｜志愿者招募表: https://forms.gle/yJY2ZnawLLdgPnws7
+- 加入 KiraMyao Equal｜志愿者招募表 (Google Forms): https://forms.gle/yJY2ZnawLLdgPnws7
+
 - 联系与关注: https://X.com/KiraMyao
 - 支持项目: https://X.com/KiraMyao
+
 
 “在平行时空里，寻找同频闪烁的星星。”
 

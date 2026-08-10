@@ -1,10 +1,11 @@
 ---
-title: "About KiraMyao | KiraMyao Equal"
+title: "关于 KiraMyao | KiraMyao Equal"
 description: "KiraMyao Equal 网站维护者与项目整理者简介。"
 canonical: "https://kiraequal.org/about-kiramyao"
 content_signal: "ai-train=no, search=yes, ai-input=yes"
+language: "zh-CN"
 ---
-# About KiraMyao
+# 关于 KiraMyao
 
 **至于你说 KiraMyao 是谁……**
 

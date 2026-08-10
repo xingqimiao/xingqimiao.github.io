@@ -5,7 +5,6 @@
   "contentSignal": "ai-train=no, search=yes, ai-input=yes",
   "capabilities": [
     "agent-discovery-link-headers",
-    "markdown-negotiation",
     "content-signals",
     "dns-aid-publication-notes"
   ],

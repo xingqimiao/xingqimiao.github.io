@@ -3,6 +3,7 @@ title: "行动 | KiraMyao Equal"
 description: "KiraMyao Equal 当前项目与行动入口。"
 canonical: "https://kiraequal.org/action"
 content_signal: "ai-train=no, search=yes, ai-input=yes"
+language: "zh-CN"
 ---
 # 行动
 

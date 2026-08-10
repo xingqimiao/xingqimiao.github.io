@@ -12,7 +12,17 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    ".tmp-*/**",
   ]),
+  {
+    files: ["src/components/ui/ParticleRipple.tsx"],
+    // Three.js render targets and uniforms are intentionally imperative objects.
+    rules: {
+      "react-hooks/refs": "off",
+      "react-hooks/purity": "off",
+      "react-hooks/immutability": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

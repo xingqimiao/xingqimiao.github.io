@@ -1,9 +1,13 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
+import type { Locale } from "@/i18n/locale";
+
+type ReadingTheme = "light" | "dark";
 
 interface ReadingArticlePageProps {
+  locale?: Locale;
   backHref: string;
   backLabel: string;
   categoryLabel: string;
@@ -12,13 +16,14 @@ interface ReadingArticlePageProps {
   date?: string;
   coverName?: string;
   contentHtml: string;
+  contentLanguage?: "zh-CN" | "en";
+  initialTheme?: ReadingTheme;
 }
-
-type ReadingTheme = "light" | "dark";
 
 const STORAGE_KEY = "kira-reading-theme";
 
 export function ReadingArticlePage({
+  locale = "zh",
   backHref,
   backLabel,
   categoryLabel,
@@ -27,20 +32,22 @@ export function ReadingArticlePage({
   date,
   coverName,
   contentHtml,
+  contentLanguage,
+  initialTheme = "light",
 }: ReadingArticlePageProps) {
-  const [theme, setTheme] = useState<ReadingTheme>("light");
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored === "dark" || stored === "light") {
-      setTheme(stored);
+  const [theme, setTheme] = useState<ReadingTheme>(() => {
+    if (initialTheme === "dark" || typeof window === "undefined") {
+      return initialTheme;
     }
-  }, []);
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    return stored === "dark" || stored === "light" ? stored : initialTheme;
+  });
 
   const toggleLabel = useMemo(
-    () => (theme === "dark" ? "\u5207\u6362\u5230\u767d\u5929\u9605\u8bfb" : "\u5207\u6362\u5230\u591c\u665a\u9605\u8bfb"),
+    () => theme === "dark" ? "Switch to light reading" : "Switch to dark reading",
     [theme]
   );
+  const resolvedContentLanguage = contentLanguage ?? "zh-CN";
 
   function toggleTheme() {
     setTheme((current) => {
@@ -76,7 +83,7 @@ export function ReadingArticlePage({
           </div>
         </div>
 
-        <h1 className="article-title mb-4 text-center text-display-medium font-medium leading-tight md:text-display-medium">
+        <h1 lang={resolvedContentLanguage} className="article-title mb-4 text-center text-display-medium font-medium leading-tight md:text-display-medium">
           {title}
         </h1>
 
@@ -93,6 +100,7 @@ export function ReadingArticlePage({
         )}
 
         <article
+          lang={resolvedContentLanguage}
           className="g2-markdown prose prose-lg mx-auto max-w-[720px] text-body-large leading-[1.85] text-text-main"
           dangerouslySetInnerHTML={{ __html: contentHtml }}
         />

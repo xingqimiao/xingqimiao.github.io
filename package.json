@@ -5,33 +5,51 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/generate-agent-assets.mjs && next build",
+    "content:compile": "node scripts/compile-articles.mjs",
+    "logo:migrate": "node scripts/migrate-site-logo.mjs",
+    "build": "npm run content:compile && node scripts/generate-agent-assets.mjs && next build",
     "pages:verify": "node scripts/verify-cloudflare-pages.mjs",
     "pages:deploy": "npm run build && npm run pages:verify && npx wrangler pages deploy out --project-name kiraequal",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest run",
+    "stories:migrate:dry": "node scripts/migrate-story-metadata.mjs",
+    "stories:migrate:apply": "node scripts/migrate-story-metadata.mjs --apply",
+    "stories:slugs:migrate:dry": "node scripts/migrate-story-numeric-slugs.mjs",
+    "stories:slugs:migrate:apply": "node scripts/migrate-story-numeric-slugs.mjs --apply",
+    "join-links:migrate:dry": "node scripts/migrate-join-links.mjs",
+    "join-links:migrate:apply": "node scripts/migrate-join-links.mjs --apply",
+    "images:migrate:dry": "node scripts/migrate-article-images.mjs",
+    "images:migrate:apply": "node scripts/migrate-article-images.mjs --apply",
+    "images:verify": "node scripts/verify-article-images.mjs",
+    "slugs:migrate:dry": "node scripts/migrate-slugs.mjs",
+    "slugs:migrate:apply": "node scripts/migrate-slugs.mjs --apply"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
-    "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
-    "@types/three": "^0.184.1",
     "clsx": "^2.1.1",
+    "flexsearch": "^0.8.212",
     "gsap": "^3.15.0",
-    "next": "16.2.6",
+    "marked": "^18.0.9",
+    "next": "^16.2.11",
+    "nodejieba": "^3.5.8",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "tailwind-merge": "^3.6.0",
-    "three": "^0.184.0"
+    "three": "^0.184.0",
+    "yaml": "^2.9.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.185.4",
     "eslint": "^9",
-    "eslint-config-next": "16.2.6",
+    "eslint-config-next": "^16.2.11",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.0"
   }
 }
