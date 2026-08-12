@@ -10,7 +10,7 @@ const config: Config = {
     extend: {
       colors: {
         background: {
-          DEFAULT: '#FFFFFF',
+          DEFAULT: 'var(--kira-bg)',
           alt: '#FAFAFA',
         },
         surface: {
@@ -22,8 +22,8 @@ const config: Config = {
           cta: '#121317',
         },
         text: {
-          main: '#121317',
-          sub: '#5F6368',
+          main: 'var(--kira-text-main)',
+          sub: 'var(--kira-text-sub)',
           dark: '#FFFFFF',
         },
         brand: {
