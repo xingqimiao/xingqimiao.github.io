@@ -50,11 +50,24 @@ function readBookmarks() {
 
 type StoryView = "all" | "bookmarked" | "longform";
 
+function htmlTextContent(html: string) {
+  let text = "";
+  let inTag = false;
+  for (const char of html) {
+    if (char === "<") {
+      inTag = true;
+    } else if (char === ">") {
+      inTag = false;
+    } else if (!inTag) {
+      text += char;
+    }
+  }
+  return text;
+}
+
 // A story counts as long-form when its rendered body has 100+ characters.
 function isLongFormStory(story: StoryItem) {
-  const text = String(story.contentHtml ?? "")
-    .replace(/<[^>]+>/g, "")
-    .replace(/\s+/g, "");
+  const text = htmlTextContent(String(story.contentHtml ?? "")).replace(/\s+/g, "");
   return text.length >= 100;
 }
 

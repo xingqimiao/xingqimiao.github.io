@@ -7,13 +7,31 @@ vi.mock('next/navigation', () => ({
   usePathname: () => '/stories/a-story',
 }))
 
-function anchorAttributes(markup: string, label: string): string {
-  const anchor = [...markup.matchAll(/<a\b([^>]*)>(.*?)<\/a>/g)].find(
-    ([, , content]) => content.replace(/<[^>]+>/g, '') === label,
-  )
+function stripTagsLoop(markup: string): string {
+  let text = ''
+  let inTag = false
+  for (const char of markup) {
+    if (char === '<') inTag = true
+    else if (char === '>') inTag = false
+    else if (!inTag) text += char
+  }
+  return text
+}
 
-  expect(anchor, `missing link labelled ${label}`).toBeDefined()
-  return anchor?.[1] ?? ''
+function anchorAttributes(markup: string, label: string): string {
+  let cursor = 0
+  for (;;) {
+    const openTag = markup.indexOf('<a', cursor)
+    if (openTag < 0) break
+    const openEnd = markup.indexOf('>', openTag)
+    const closeTag = markup.indexOf('</a>', openEnd)
+    if (openEnd < 0 || closeTag < 0) break
+    const content = stripTagsLoop(markup.slice(openEnd + 1, closeTag)).trim()
+    if (content === label) return markup.slice(openTag + 3, openEnd)
+    cursor = closeTag + 4
+  }
+  expect(null, `missing link labelled ${label}`).toBeDefined()
+  return ''
 }
 
 describe('Chinese-content site navigation', () => {

@@ -2,6 +2,7 @@ import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import nodejieba from "nodejieba";
+import { parse } from "node-html-parser";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");
@@ -64,71 +65,128 @@ function frontmatter(fields) {
 }
 
 function decodeEntities(text) {
-  return text
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&#x([0-9a-f]+);/gi, (_, hex) =>
-      String.fromCodePoint(Number.parseInt(hex, 16)),
-    )
-    .replace(/&#(\d+);/g, (_, value) =>
-      String.fromCodePoint(Number.parseInt(value, 10)),
-    );
+  return text.replace(/&(?:#x[0-9a-f]+|#\d+|amp|lt|gt|quot|nbsp);/gi, (entity) => {
+    switch (entity.toLowerCase()) {
+      case "&nbsp;":
+        return " ";
+      case "&amp;":
+        return "&";
+      case "&lt;":
+        return "<";
+      case "&gt;":
+        return ">";
+      case "&quot;":
+        return '"';
+      default:
+        if (entity.startsWith("&#x")) {
+          return String.fromCodePoint(Number.parseInt(entity.slice(3, -1), 16));
+        }
+        return String.fromCodePoint(Number.parseInt(entity.slice(2, -1), 10));
+    }
+  });
 }
 
-function stripTags(text) {
-  return decodeEntities(text.replace(/<[^>]*>/g, "")).trim();
+function stripUnsafeNodes(root) {
+  for (const node of root.querySelectorAll("script, style")) {
+    node.remove();
+  }
+}
+
+function renderInline(node) {
+  const parts = [];
+  for (const child of node.childNodes) {
+    if (child.nodeType === 3) {
+      parts.push(child.rawText);
+      continue;
+    }
+    if (child.nodeType !== 1) continue;
+    const tag = (child.rawTagName || "").toLowerCase();
+    if (tag === "br") {
+      parts.push("\n");
+    } else if (tag === "img") {
+      const src = child.getAttribute("src") || "";
+      const alt = child.getAttribute("alt") || "";
+      parts.push(src ? `\n\n![${alt}](${src})\n\n` : "");
+    } else if (tag === "a") {
+      const href = child.getAttribute("href") || "";
+      const label = renderInline(child).trim();
+      parts.push(href ? `[${label}](${href})` : label);
+    } else if (tag === "strong" || tag === "b") {
+      parts.push(`**${renderInline(child)}**`);
+    } else if (tag === "em" || tag === "i") {
+      parts.push(`*${renderInline(child)}*`);
+    } else if (tag === "code") {
+      parts.push(`\`${child.rawText}\``);
+    } else {
+      parts.push(renderInline(child));
+    }
+  }
+  return parts.join("");
 }
 
 function htmlToMarkdown(html = "") {
-  let text = html
-    .replace(/\r/g, "")
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/<style[\s\S]*?<\/style>/gi, "")
-    .replace(/<img\b([^>]*)>/gi, (_, attrs) => {
-      const src = (attrs.match(/\bsrc=["']([^"']+)["']/i) || [])[1] || "";
-      const alt = (attrs.match(/\balt=["']([^"']*)["']/i) || [])[1] || "";
-      return src ? `\n\n![${stripTags(alt)}](${src})\n\n` : "";
-    })
-    .replace(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi, (_, attrs, label) => {
-      const href = (attrs.match(/\bhref=["']([^"']+)["']/i) || [])[1] || "";
-      const cleanLabel = stripTags(label);
-      return href ? `[${cleanLabel}](${href})` : cleanLabel;
-    })
-    .replace(/<h([1-6])[^>]*>([\s\S]*?)<\/h\1>/gi, (_, level, content) => {
-      return `\n\n${"#".repeat(Number(level))} ${stripTags(content)}\n\n`;
-    })
-    .replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, (_, content) => {
-      return `\n- ${stripTags(content)}`;
-    })
-    .replace(/<\/?(ul|ol)[^>]*>/gi, "\n")
-    .replace(/<blockquote[^>]*>([\s\S]*?)<\/blockquote>/gi, (_, content) => {
-      return `\n\n> ${stripTags(content)}\n\n`;
-    })
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<\/p>/gi, "\n\n")
-    .replace(/<p[^>]*>/gi, "")
-    .replace(/<strong[^>]*>([\s\S]*?)<\/strong>/gi, "**$1**")
-    .replace(/<b[^>]*>([\s\S]*?)<\/b>/gi, "**$1**")
-    .replace(/<em[^>]*>([\s\S]*?)<\/em>/gi, "*$1*")
-    .replace(/<i[^>]*>([\s\S]*?)<\/i>/gi, "*$1*")
-    .replace(/<[^>]*>/g, "");
+  const source = String(html).replace(/\r/g, "");
+  if (!source.trim()) return "";
+  const root = parse(source);
+  stripUnsafeNodes(root);
 
-  text = decodeEntities(text)
+  const blocks = [];
+  const walk = (node) => {
+    for (const child of node.childNodes) {
+      if (child.nodeType === 3) {
+        const text = child.rawText.trim();
+        if (text) blocks.push(text);
+        continue;
+      }
+      if (child.nodeType !== 1) continue;
+      const tag = (child.rawTagName || "").toLowerCase();
+      const heading = tag.match(/^h([1-6])$/);
+      if (heading) {
+        const content = renderInline(child).trim();
+        if (content) blocks.push(`\n\n${"#".repeat(Number(heading[1]))} ${content}\n\n`);
+      } else if (tag === "p") {
+        const content = renderInline(child).trim();
+        if (content) blocks.push(`${content}\n\n`);
+      } else if (tag === "ul" || tag === "ol") {
+        for (const item of child.childNodes) {
+          if (item.nodeType !== 1 || (item.rawTagName || "").toLowerCase() !== "li") continue;
+          const content = renderInline(item).trim();
+          if (content) blocks.push(`\n- ${content}`);
+        }
+      } else if (tag === "li") {
+        const content = renderInline(child).trim();
+        if (content) blocks.push(`\n- ${content}`);
+      } else if (tag === "blockquote") {
+        const content = renderInline(child).trim();
+        if (content) blocks.push(`\n\n> ${content}\n\n`);
+      } else if (tag === "br") {
+        blocks.push("\n");
+      } else if (tag === "img") {
+        const rendered = renderInline(child).trim();
+        if (rendered) blocks.push(rendered);
+      } else {
+        walk(child);
+      }
+    }
+  };
+  walk(root);
+
+  const text = decodeEntities(blocks.join(""))
     .split("\n")
     .map((line) => line.trimEnd())
     .join("\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
-
-  return `${text}\n`;
+  return text ? `${text}\n` : "";
 }
 
 function searchTokensFor(text) {
-  const normalized = stripTags(String(text || "")).toLowerCase();
+  const parsed = parse(String(text || ""));
+  stripUnsafeNodes(parsed);
+  const normalized = decodeEntities(parsed.rawText || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
   if (!normalized) return [];
   try {
     return Array.from(new Set(nodejieba.cutForSearch(normalized).filter((token) => token.trim().length > 0)));

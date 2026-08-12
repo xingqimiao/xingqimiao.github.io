@@ -18,8 +18,27 @@ import {
 import { verifyCloudflarePages } from './verify-cloudflare-pages.mjs'
 
 describe('agent Markdown localization', () => {
-  it('uses complete English articles and explicitly falls back to the full Chinese article otherwise', async () => {
-    const complete = {
+  it('converts HTML bodies through the parser without double-escaping or script leakage', async () => {
+    const article = {
+      type: 'report',
+      slug: 'entity-report',
+      title: '实体测试',
+      contentHtml: '<p>中文</p>',
+      englishTitle: 'Entity test',
+      englishContentHtml: '<p>a &amp;lt; b &amp;amp; c</p><script>alert(1)</script><p><img src="/pic/x.png" alt="a > b"> tail</p><ul><li>一</li><li>二</li></ul>',
+    }
+
+    const markdown = await articleMarkdown(article, { locale: 'en' })
+
+    expect(markdown).toContain('a &lt; b &amp; c')
+    expect(markdown).not.toContain('a < b')
+    expect(markdown).not.toContain('alert(1)')
+    expect(markdown).toContain('![a > b](/pic/x.png)')
+    expect(markdown).toContain('- 一')
+    expect(markdown).toContain('- 二')
+  })
+
+  it('uses complete English articles and explicitly falls back to the full Chinese article otherwise', async () => {    const complete = {
       type: 'report',
       slug: 'complete-report',
       title: '完整报告',
