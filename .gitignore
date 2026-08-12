@@ -43,3 +43,17 @@ next-env.d.ts
 # python
 __pycache__/
 *.pyc
+
+# local tooling and workspace junk (never deploy these)
+/.tmp-*/
+/.equal-admin-trash/
+/migration-backups/
+/scratch_scripts.js
+/manager_server.py
+/KiraEqual_Manager.vbs
+/start_manager.bat
+/start_manager_silent.vbs
+/stop_manager.bat
+/Logo.png
+/visual-stories*.png
+/verify-glow*.mjs
