@@ -13,7 +13,6 @@ describe('home presentation', () => {
 
     expect(result).toMatchObject({
       description: 'KiraEqual是一个关注性别多元群体的独立研究、公共知识与数字公益项目',
-      statement: '让真实经历成为改变社会的证据',
       actionHeading: '我们的行动',
       insightHeading: '最新洞察',
       actions: [{ title: '年度处境调查', desc: '中文说明', contentLanguage: 'zh-CN' }],

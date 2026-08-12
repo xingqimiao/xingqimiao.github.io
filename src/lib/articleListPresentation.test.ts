@@ -19,14 +19,14 @@ describe('article list copy', () => {
       subtitle: undefined,
     })
     expect(articleListCopy('zh', 'blog')).toMatchObject({
-      title: '猫窝碎碎念',
+      title: '猫窝，碎碎念',
       subtitle: undefined,
     })
   })
 
   it.each([
     ['report', '研究、数据与正义', '搜索报告标题或关键词'],
-    ['blog', '猫窝碎碎念', '搜索猫窝文章'],
+    ['blog', '猫窝，碎碎念', '搜索猫窝文章'],
     ['documents', '资料，让事实有出处', '搜索资料'],
   ] as const)('keeps every %s section on the Chinese list copy', (type, title, searchPlaceholder) => {
     expect(articleListCopy('zh', type)).toMatchObject({ title, searchPlaceholder })

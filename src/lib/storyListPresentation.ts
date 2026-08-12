@@ -9,6 +9,7 @@ export type StoryListCopy = {
   subtitle: string
   all: string
   bookmarked: string
+  longForm: string
   searchPlaceholder: string
   clearSearch: string
   randomStory: string
@@ -30,6 +31,7 @@ const copy: StoryListCopy = {
   subtitle: '值得被看见',
   all: 'All Stories',
   bookmarked: 'Bookmarked',
+  longForm: 'Long-form',
   searchPlaceholder: '搜索故事…',
   clearSearch: 'Clear search',
   randomStory: 'Open a random story',

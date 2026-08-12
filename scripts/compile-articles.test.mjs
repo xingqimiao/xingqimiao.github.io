@@ -24,6 +24,22 @@ describe('Front Matter content compiler', () => {
     expect(article).not.toHaveProperty('englishContentHtml')
   })
 
+  it('compiles gridSpan front matter into grid_span for non-Stories, defaulting to normal', () => {
+    const featured = parseArticleSource(`---\ntitle: 报告\ndate: "2026-08-10"\ndescription: 摘要\ngridSpan: featured\n---\n# 正文`, 'report', 'report')
+    expect(featured).toMatchObject({ grid_span: 'featured' })
+
+    const normal = parseArticleSource(`---\ntitle: 报告\ndate: "2026-08-10"\ndescription: 摘要\n---\n# 正文`, 'other', 'blog')
+    expect(normal).toMatchObject({ grid_span: 'normal' })
+
+    const legacyKey = parseArticleSource(`---\ntitle: 报告\ndate: "2026-08-10"\ndescription: 摘要\ngrid_span: featured\n---\n# 正文`, 'legacy', 'documents')
+    expect(legacyKey).toMatchObject({ grid_span: 'featured' })
+
+    // front matter is the single source of truth: a missing gridSpan/grid_span key falls back to normal,
+    // it does NOT inherit a previously-compiled featured value from the fallback object.
+    const noFallback = parseArticleSource(`---\ntitle: 报告\ndate: "2026-08-10"\ndescription: 摘要\n---\n# 正文`, 'keep', 'report', { grid_span: 'featured' })
+    expect(noFallback).toMatchObject({ grid_span: 'normal' })
+  })
+
   it('repairs legacy indented Chinese prose while preserving explicit code blocks', () => {
     const article = parseArticleSource(`    这是一个被旧版编辑器整体缩进的中文自然段，其中包含 **需要保留的重点**，并且应当继续作为正常文章正文显示，而不是撑破阅读器的代码块。
 

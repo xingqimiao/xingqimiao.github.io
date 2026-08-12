@@ -20,7 +20,7 @@ export function SearchBox({ value, onChange, placeholder, clearLabel = "Clear", 
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
         className={cn(
-          "w-full min-w-0 rounded-[28px] border border-black/10 bg-white py-3.5 pl-12 text-body-large text-text-main outline-none transition-all placeholder:text-text-sub/55 focus:border-primary/35 focus:ring-4 focus:ring-primary/10",
+          "w-full min-w-0 rounded-[28px] border border-black/10 bg-white py-3.5 pl-12 text-body-large text-text-main outline-none transition-all placeholder:text-text-sub/55 focus:border-primary/35 focus:ring-4 focus:ring-primary/10 dark:border-white/12 dark:bg-white/5",
           value ? "pr-20" : "pr-4",
         )}
       />
@@ -28,7 +28,7 @@ export function SearchBox({ value, onChange, placeholder, clearLabel = "Clear", 
         <button
           type="button"
           onClick={() => onChange("")}
-          className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full px-3 py-1 text-label-large text-text-sub transition-colors hover:bg-black/5 hover:text-text-main"
+          className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full px-3 py-1 text-label-large text-text-sub transition-colors hover:bg-black/5 hover:text-text-main dark:hover:bg-white/10"
         >
           {clearLabel}
         </button>

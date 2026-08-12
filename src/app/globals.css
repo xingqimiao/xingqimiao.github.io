@@ -1,9 +1,50 @@
 @import "tailwindcss";
 @config "../../tailwind.config.ts";
 
+/* Class-based dark mode: `.dark` on <html> (toggled by the site theme button) */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #121317;
+  /* semantic tokens consumed by tailwind.config.ts color values */
+  --kira-bg: #ffffff;
+  --kira-text-main: #121317;
+  --kira-text-sub: #5f6368;
+  --kira-card: #ffffff;
+  --kira-soft: #f5f5f7;
+  --kira-line-soft: rgba(18, 19, 23, 0.05);
+  --kira-line: rgba(18, 19, 23, 0.1);
+  --kira-line-strong: rgba(18, 19, 23, 0.15);
+  --kira-ink-25: rgba(18, 19, 23, 0.25);
+  --kira-ink-05: rgba(18, 19, 23, 0.05);
+  --kira-ink-10: rgba(18, 19, 23, 0.1);
+}
+
+.dark {
+  --kira-bg: #0d0d12;
+  --kira-text-main: #f4f5f7;
+  --kira-text-sub: rgba(244, 245, 247, 0.72);
+  --kira-card: #16171d;
+  --kira-soft: rgba(255, 255, 255, 0.06);
+  --kira-line-soft: rgba(255, 255, 255, 0.08);
+  --kira-line: rgba(255, 255, 255, 0.12);
+  --kira-line-strong: rgba(255, 255, 255, 0.16);
+  --kira-ink-25: rgba(255, 255, 255, 0.25);
+  --kira-ink-05: rgba(255, 255, 255, 0.07);
+  --kira-ink-10: rgba(255, 255, 255, 0.12);
+}
+
+/* The reading page manages its own light/dark theme, so it re-scopes the
+   semantic tokens per [data-theme] and must not inherit the site palette. */
+.reading-page[data-theme="light"] {
+  --kira-text-main: #121317;
+  --kira-text-sub: #5f6368;
+  background: #ffffff;
+}
+.reading-page[data-theme="dark"] {
+  --kira-text-main: #f4f5f7;
+  --kira-text-sub: rgba(244, 245, 247, 0.72);
 }
 
 body {
@@ -358,4 +399,122 @@ body {
 .reading-page[data-theme="dark"] .reading-rule,
 .reading-page[data-theme="dark"] .g2-markdown img {
   border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Hide the native WebKit search cancel button (the emoji-style X) — our
+   components render their own clear control instead. */
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* ── Site-wide dark mode ────────────────────────────────────────────────
+   The `.dark` class lives on <html>. Semantic tokens (above) already flip
+   text-text-main / text-text-sub / bg-background. The rules below remap the
+   remaining hardcoded light utilities (white cards, black borders, soft
+   surfaces) to dark equivalents. They use :where(.dark) so any explicit
+   `dark:*` utility on an element always wins, and they skip the reading
+   page, which manages its own theme. */
+:where(.dark) .bg-white:not(.reading-page):not(.reading-page *) {
+  background-color: var(--kira-card);
+}
+:where(.dark) .bg-\[\#f5f5f7\]:not(.reading-page):not(.reading-page *) {
+  background-color: var(--kira-soft);
+}
+:where(.dark) .bg-black\/5:not(.reading-page):not(.reading-page *) {
+  background-color: var(--kira-ink-05);
+}
+:where(.dark) .bg-black\/10:not(.reading-page):not(.reading-page *) {
+  background-color: var(--kira-ink-10);
+}
+:where(.dark) .border-black\/5:not(.reading-page):not(.reading-page *) {
+  border-color: var(--kira-line-soft);
+}
+:where(.dark) .border-black\/10:not(.reading-page):not(.reading-page *) {
+  border-color: var(--kira-line);
+}
+:where(.dark) .border-black\/15:not(.reading-page):not(.reading-page *) {
+  border-color: var(--kira-line-strong);
+}
+:where(.dark) .text-black\/25:not(.reading-page):not(.reading-page *) {
+  color: var(--kira-ink-25);
+}
+
+/* markdown bodies outside the reading page (join / about / documents …) */
+.dark .g2-markdown {
+  color: rgba(244, 245, 247, 0.78);
+}
+.dark .g2-markdown :is(h1, h2, h3, h4, h5, h6) {
+  color: #f4f5f7 !important;
+}
+/* .article-title is used for page/card headings on light pages; flip it in
+   dark mode. The reading page re-scopes its own [data-theme] rules with
+   higher specificity, so it is unaffected. */
+:where(.dark) .article-title {
+  color: #f4f5f7 !important;
+}
+.dark .g2-markdown :is(a, strong) {
+  color: #f4f5f7;
+}
+.dark .g2-markdown blockquote {
+  border-left-color: rgba(255, 255, 255, 0.2);
+  color: rgba(244, 245, 247, 0.68);
+}
+.dark .g2-markdown img {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+}
+.dark .g2-markdown hr {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Keep the reading page's own light theme intact even when the site is dark */
+.reading-page[data-theme="light"] .g2-markdown {
+  color: #121317;
+}
+.reading-page[data-theme="light"] .g2-markdown :is(h1, h2, h3, h4, h5, h6),
+.reading-page[data-theme="light"] .article-title {
+  color: #121317 !important;
+}
+.reading-page[data-theme="light"] .g2-markdown :is(a, strong) {
+  color: #121317;
+}
+.reading-page[data-theme="light"] .g2-markdown blockquote {
+  border-left-color: rgba(18, 19, 23, 0.16);
+  color: #5f6368;
+}
+.reading-page[data-theme="light"] .g2-markdown img {
+  border-color: rgba(18, 19, 23, 0.06);
+  background: #f5f5f7;
+}
+.reading-page[data-theme="light"] .reading-rule {
+  border-color: rgba(18, 19, 23, 0.05);
+}
+.reading-page[data-theme="light"] .reading-link {
+  color: #5f6368;
+}
+.reading-page[data-theme="light"] .reading-link:hover {
+  color: #121317;
+}
+
+/* Dark reader: remap hardcoded light surfaces that appear inside the
+   reading page (download banners, back button, icon boxes). */
+.reading-page[data-theme="dark"] .bg-white {
+  background-color: #16171d;
+}
+.reading-page[data-theme="dark"] .bg-\[\#f5f5f7\] {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+.reading-page[data-theme="dark"] .bg-black\/5 {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+.reading-page[data-theme="dark"] .bg-black\/10 {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+.reading-page[data-theme="dark"] .border-black\/10 {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.reading-page[data-theme="dark"] .border-black\/15 {
+  border-color: rgba(255, 255, 255, 0.16);
 }

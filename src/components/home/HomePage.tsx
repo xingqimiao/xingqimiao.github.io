@@ -109,14 +109,13 @@ export default function Home({ locale = "zh" }: { locale?: Locale }) {
   }, { scope: containerRef });
 
   return (
-    <main ref={containerRef} className="bg-white dark:bg-background min-h-screen">
+    <main ref={containerRef} className="bg-background min-h-screen">
       {/* Section A: Hero */}
       <section className="flex flex-col items-center justify-center pt-32 pb-20 text-center w-full">
         {/* Title must have a fixed height so the layout doesn't jump during typewriter */}
         <h1 className="hero-text text-display-large mb-6 text-text-main tracking-tighter font-medium">{titleText}</h1>
         <p className="hero-text text-body-large text-text-sub max-w-2xl mx-auto px-6">
           {presentation.description}
-          <strong className="mt-3 block font-medium text-text-main">{presentation.statement}</strong>
         </p>
 
         <div className="hero-text mt-8 mb-16 flex justify-center">

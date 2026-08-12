@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import type { Locale } from "@/i18n/locale";
+import { prefersSiteDark } from "@/components/layout/ThemeToggle";
 
 type ReadingTheme = "light" | "dark";
 
@@ -18,6 +19,8 @@ interface ReadingArticlePageProps {
   contentHtml: string;
   contentLanguage?: "zh-CN" | "en";
   initialTheme?: ReadingTheme;
+  /** Small print rendered at the bottom of the reader (e.g. stories disclaimer). */
+  disclaimer?: string;
 }
 
 const STORAGE_KEY = "kira-reading-theme";
@@ -34,14 +37,20 @@ export function ReadingArticlePage({
   contentHtml,
   contentLanguage,
   initialTheme = "light",
+  disclaimer,
 }: ReadingArticlePageProps) {
   const [theme, setTheme] = useState<ReadingTheme>(() => {
     if (initialTheme === "dark" || typeof window === "undefined") {
       return initialTheme;
     }
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    return stored === "dark" || stored === "light" ? stored : initialTheme;
+    if (stored === "dark" || stored === "light") {
+      return stored;
+    }
+    // No explicit reader preference: follow the site-wide theme.
+    return prefersSiteDark() ? "dark" : initialTheme;
   });
+  const [disclaimerOpen, setDisclaimerOpen] = useState(false);
 
   const toggleLabel = useMemo(
     () => theme === "dark" ? "Switch to light reading" : "Switch to dark reading",
@@ -60,7 +69,7 @@ export function ReadingArticlePage({
   return (
     <main
       data-theme={theme}
-      className="reading-page min-h-screen bg-white px-6 pb-24 pt-32 text-[#121317] transition-colors duration-300"
+      className="reading-page min-h-screen px-6 pb-24 pt-32 text-[#121317] transition-colors duration-300"
     >
       <div className="page-enter mx-auto max-w-[880px]">
         <div className="mb-8 flex items-center justify-between gap-4">
@@ -105,7 +114,45 @@ export function ReadingArticlePage({
           dangerouslySetInnerHTML={{ __html: contentHtml }}
         />
 
-        <div className="reading-rule mx-auto mt-16 flex max-w-[720px] justify-end border-t border-black/5 pt-8">
+        {disclaimer && (
+          <div className="reading-rule mx-auto mt-16 max-w-[720px] border-t border-black/5 pt-6">
+            <button
+              type="button"
+              onClick={() => setDisclaimerOpen((open) => !open)}
+              aria-expanded={disclaimerOpen}
+              aria-controls="story-disclaimer-content"
+              className="reading-link flex cursor-pointer items-center gap-1.5 text-label-large text-text-sub transition-colors hover:text-text-main"
+            >
+              <span>内容说明</span>
+              <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                className={`h-4 w-4 transition-transform duration-300 ${disclaimerOpen ? "rotate-180" : ""}`}
+              >
+                <path
+                  d="m6 9 6 6 6-6"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+            <div
+              id="story-disclaimer-content"
+              className={`grid transition-all duration-300 ${disclaimerOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+            >
+              <div className="overflow-hidden">
+                <p className="reading-subtle pt-3 text-label-medium leading-relaxed text-text-sub/85">
+                  {disclaimer}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="reading-rule mx-auto mt-10 flex max-w-[720px] justify-end">
           <Link
             href={backHref}
             className="reading-link rounded-full bg-black/5 px-6 py-3 text-label-large text-text-main transition-colors hover:bg-black/10"

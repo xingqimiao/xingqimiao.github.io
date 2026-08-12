@@ -2,6 +2,7 @@ import localFont from 'next/font/local'
 import CanvasBackground from '@/components/CanvasBackground'
 import Footer from '@/components/layout/Footer'
 import Navbar from '@/components/layout/Navbar'
+import { SiteThemeBootstrap } from '@/components/layout/ThemeToggle'
 import { htmlLanguage, type Locale } from '@/i18n/locale'
 
 const googleSans = localFont({
@@ -37,8 +38,17 @@ export function SiteDocument({
     <html
       lang={htmlLanguage(locale)}
       className={`${googleSans.variable} ${harmonyOSSans.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("kira-site-theme");var d=t?t==="dark":window.matchMedia("(prefers-color-scheme: dark)").matches;document.documentElement.classList.toggle("dark",d);}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body className="relative flex min-h-full flex-col overflow-x-hidden bg-background font-sans text-text-main">
+        <SiteThemeBootstrap />
         <CanvasBackground />
         <Navbar locale={locale} />
         <div className="relative z-10 flex flex-grow flex-col">{children}</div>

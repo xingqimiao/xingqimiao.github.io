@@ -4,7 +4,7 @@
   "title": "KiraMyao Equal Agent Discovery Catalog",
   "description": "KiraMyao Equal 关注中国跨性别与性别多元群体的生存处境、社群故事、资料整理和公共倡议，发布调查、报告、文章与参与方式。",
   "homepage": "https://kiraequal.org/",
-  "generatedAt": "2026-08-10T20:11:43.802Z",
+  "generatedAt": "2026-08-12T20:54:43.842Z",
   "contentSignal": "ai-train=no, search=yes, ai-input=yes",
   "links": [
     {
@@ -148,7 +148,7 @@
     },
     {
       "kind": "stories",
-      "title": "等一束晨光慢慢认出方向",
+      "title": "性别审判庭",
       "href": "https://kiraequal.org/stories/10432746",
       "markdown": "/ai/stories/10432746.md",
       "date": "2026",
@@ -172,7 +172,7 @@
     },
     {
       "kind": "stories",
-      "title": "穿过安静雨季慢慢认出方向",
+      "title": "假货",
       "href": "https://kiraequal.org/stories/11296859",
       "markdown": "/ai/stories/11296859.md",
       "date": "2026",
@@ -180,7 +180,7 @@
     },
     {
       "kind": "stories",
-      "title": "穿过安静雨季看见晨光落下",
+      "title": "让我替她去看这世界",
       "href": "https://kiraequal.org/stories/13921621",
       "markdown": "/ai/stories/13921621.md",
       "date": "2026",
@@ -188,7 +188,7 @@
     },
     {
       "kind": "stories",
-      "title": "等一束晨光渡过自己的河",
+      "title": "活下去吧 哈吉跨",
       "href": "https://kiraequal.org/stories/15131742",
       "markdown": "/ai/stories/15131742.md",
       "date": "2026",
@@ -196,7 +196,7 @@
     },
     {
       "kind": "stories",
-      "title": "等一束晨光走向自己的路",
+      "title": "在忙碌中找回身体的主导",
       "href": "https://kiraequal.org/stories/15261031",
       "markdown": "/ai/stories/15261031.md",
       "date": "2026",
@@ -204,7 +204,7 @@
     },
     {
       "kind": "stories",
-      "title": "把勇气藏进走向自己的路",
+      "title": "荒原上的王国",
       "href": "https://kiraequal.org/stories/16157706",
       "markdown": "/ai/stories/16157706.md",
       "date": "2026",
@@ -236,7 +236,7 @@
     },
     {
       "kind": "stories",
-      "title": "穿过安静雨季为自己撑把伞",
+      "title": "被迫饰演的日常",
       "href": "https://kiraequal.org/stories/18341625",
       "markdown": "/ai/stories/18341625.md",
       "date": "2026",
@@ -244,7 +244,7 @@
     },
     {
       "kind": "stories",
-      "title": "沿着风的方向等到天色渐亮",
+      "title": "希望能早日减肥成功",
       "href": "https://kiraequal.org/stories/19765145",
       "markdown": "/ai/stories/19765145.md",
       "date": "2026",
@@ -252,7 +252,7 @@
     },
     {
       "kind": "stories",
-      "title": "把勇气藏进望见更远的光",
+      "title": "争取被看见的历史",
       "href": "https://kiraequal.org/stories/19770785",
       "markdown": "/ai/stories/19770785.md",
       "date": "2026",
@@ -260,7 +260,7 @@
     },
     {
       "kind": "stories",
-      "title": "穿过安静雨季慢慢认出方向",
+      "title": "还是需要一个人推一把",
       "href": "https://kiraequal.org/stories/22291300",
       "markdown": "/ai/stories/22291300.md",
       "date": "2026",
@@ -268,7 +268,7 @@
     },
     {
       "kind": "stories",
-      "title": "听见心的回声等到天色渐亮",
+      "title": "天色渐亮转变来临",
       "href": "https://kiraequal.org/stories/22730020",
       "markdown": "/ai/stories/22730020.md",
       "date": "2026",
@@ -276,7 +276,7 @@
     },
     {
       "kind": "stories",
-      "title": "在微光里等来清澈天空",
+      "title": "未来永远有值得我期待的东西",
       "href": "https://kiraequal.org/stories/23280636",
       "markdown": "/ai/stories/23280636.md",
       "date": "2026",
@@ -284,7 +284,7 @@
     },
     {
       "kind": "stories",
-      "title": "等一束晨光留下真实脚印",
+      "title": "我曾燃烧自己成为更多人的闪光",
       "href": "https://kiraequal.org/stories/23799894",
       "markdown": "/ai/stories/23799894.md",
       "date": "2026",
@@ -300,7 +300,7 @@
     },
     {
       "kind": "stories",
-      "title": "等一束晨光看见晨光落下",
+      "title": "希望所有酷儿们都可以像普通人一样幸福地活下去",
       "href": "https://kiraequal.org/stories/23925115",
       "markdown": "/ai/stories/23925115.md",
       "date": "2026",
@@ -308,7 +308,7 @@
     },
     {
       "kind": "stories",
-      "title": "沿着风的方向迎来新的清晨",
+      "title": "至少我的朋友们都很好",
       "href": "https://kiraequal.org/stories/24674470",
       "markdown": "/ai/stories/24674470.md",
       "date": "2026",
@@ -316,7 +316,7 @@
     },
     {
       "kind": "stories",
-      "title": "穿过安静雨季织成温柔来路",
+      "title": "竭尽所能不要忘记过去",
       "href": "https://kiraequal.org/stories/24696582",
       "markdown": "/ai/stories/24696582.md",
       "date": "2026",
@@ -324,7 +324,7 @@
     },
     {
       "kind": "stories",
-      "title": "把勇气藏进认出自己的光",
+      "title": "相信自己终达理想终的终点",
       "href": "https://kiraequal.org/stories/26660035",
       "markdown": "/ai/stories/26660035.md",
       "date": "2026",
@@ -348,7 +348,7 @@
     },
     {
       "kind": "stories",
-      "title": "穿过安静雨季走向自己的路",
+      "title": "被迫长假",
       "href": "https://kiraequal.org/stories/27873052",
       "markdown": "/ai/stories/27873052.md",
       "date": "2026",
@@ -356,7 +356,7 @@
     },
     {
       "kind": "stories",
-      "title": "穿过安静雨季迎来新的清晨",
+      "title": "想要燃烧自己",
       "href": "https://kiraequal.org/stories/28112431",
       "markdown": "/ai/stories/28112431.md",
       "date": "2026",
@@ -364,7 +364,7 @@
     },
     {
       "kind": "stories",
-      "title": "听见心的回声找到安心角落",
+      "title": "如果我们被剥夺了名字",
       "href": "https://kiraequal.org/stories/28374609",
       "markdown": "/ai/stories/28374609.md",
       "date": "2026",
@@ -372,7 +372,7 @@
     },
     {
       "kind": "stories",
-      "title": "等一束晨光走向自己的路",
+      "title": "重重困境被迫失学",
       "href": "https://kiraequal.org/stories/28528188",
       "markdown": "/ai/stories/28528188.md",
       "date": "2026",
@@ -388,7 +388,7 @@
     },
     {
       "kind": "stories",
-      "title": "听见心的回声迎来新的清晨",
+      "title": "苟延残喘，拿起画笔",
       "href": "https://kiraequal.org/stories/29506242",
       "markdown": "/ai/stories/29506242.md",
       "date": "2026",
@@ -404,7 +404,7 @@
     },
     {
       "kind": "stories",
-      "title": "某学校复读生 将来会有的。",
+      "title": "目前为高中复读生 将来会有的。",
       "href": "https://kiraequal.org/stories/32671890",
       "markdown": "/ai/stories/32671890.md",
       "date": "2026",
@@ -412,7 +412,7 @@
     },
     {
       "kind": "stories",
-      "title": "沿着风的方向留住温柔归处",
+      "title": "被错认的痛苦",
       "href": "https://kiraequal.org/stories/32806219",
       "markdown": "/ai/stories/32806219.md",
       "date": "2026",
@@ -420,7 +420,7 @@
     },
     {
       "kind": "stories",
-      "title": "等一束晨光认出自己的光",
+      "title": "见过的那些人生",
       "href": "https://kiraequal.org/stories/33234228",
       "markdown": "/ai/stories/33234228.md",
       "date": "2026",
@@ -428,7 +428,7 @@
     },
     {
       "kind": "stories",
-      "title": "等一束晨光留住温柔归处",
+      "title": "过早发育失去了身边所有人际关系",
       "href": "https://kiraequal.org/stories/33571545",
       "markdown": "/ai/stories/33571545.md",
       "date": "2026",
@@ -436,7 +436,7 @@
     },
     {
       "kind": "stories",
-      "title": "听见心的回声推开一扇心窗",
+      "title": "栅栏与推开的门",
       "href": "https://kiraequal.org/stories/34548305",
       "markdown": "/ai/stories/34548305.md",
       "date": "2026",
@@ -444,7 +444,7 @@
     },
     {
       "kind": "stories",
-      "title": "听见心的回声等到天色渐亮",
+      "title": "发芽的爱",
       "href": "https://kiraequal.org/stories/35309757",
       "markdown": "/ai/stories/35309757.md",
       "date": "2026",
@@ -452,7 +452,7 @@
     },
     {
       "kind": "stories",
-      "title": "沿着风的方向牵住心里的线",
+      "title": "独自驶过的暗夜",
       "href": "https://kiraequal.org/stories/35611285",
       "markdown": "/ai/stories/35611285.md",
       "date": "2026",
@@ -460,7 +460,7 @@
     },
     {
       "kind": "stories",
-      "title": "穿过安静雨季走向自己的路",
+      "title": "平凡的忠于",
       "href": "https://kiraequal.org/stories/35706964",
       "markdown": "/ai/stories/35706964.md",
       "date": "2026",
@@ -468,7 +468,7 @@
     },
     {
       "kind": "stories",
-      "title": "听见心的回声缝好真实日常",
+      "title": "好兄弟的“黑色幽默”",
       "href": "https://kiraequal.org/stories/35982312",
       "markdown": "/ai/stories/35982312.md",
       "date": "2026",
@@ -476,7 +476,7 @@
     },
     {
       "kind": "stories",
-      "title": "在微光里留下真实脚印",
+      "title": "反抗与代价的沉重坦白",
       "href": "https://kiraequal.org/stories/36056685",
       "markdown": "/ai/stories/36056685.md",
       "date": "2026",
@@ -484,7 +484,7 @@
     },
     {
       "kind": "stories",
-      "title": "听见心的回声点亮一颗星星",
+      "title": "女孩的誓言",
       "href": "https://kiraequal.org/stories/36486719",
       "markdown": "/ai/stories/36486719.md",
       "date": "2026",
@@ -508,7 +508,7 @@
     },
     {
       "kind": "stories",
-      "title": "穿过安静雨季渡过自己的河",
+      "title": "放弃幻想之后",
       "href": "https://kiraequal.org/stories/40143115",
       "markdown": "/ai/stories/40143115.md",
       "date": "2026",
@@ -516,7 +516,7 @@
     },
     {
       "kind": "stories",
-      "title": "沿着风的方向等到天色渐亮",
+      "title": "希望大家都活得好好的",
       "href": "https://kiraequal.org/stories/40859073",
       "markdown": "/ai/stories/40859073.md",
       "date": "2026",
@@ -532,7 +532,7 @@
     },
     {
       "kind": "stories",
-      "title": "听见心的回声缝好真实日常",
+      "title": "恐惧背后的规训",
       "href": "https://kiraequal.org/stories/41946238",
       "markdown": "/ai/stories/41946238.md",
       "date": "2026",
@@ -540,7 +540,7 @@
     },
     {
       "kind": "stories",
-      "title": "在微光里走向自己的路",
+      "title": "时好时坏的阴晴",
       "href": "https://kiraequal.org/stories/42358103",
       "markdown": "/ai/stories/42358103.md",
       "date": "2026",
@@ -548,7 +548,7 @@
     },
     {
       "kind": "stories",
-      "title": "听见心的回声慢慢认出方向",
+      "title": "未被理解的诊断书",
       "href": "https://kiraequal.org/stories/43175216",
       "markdown": "/ai/stories/43175216.md",
       "date": "2026",
@@ -556,7 +556,7 @@
     },
     {
       "kind": "stories",
-      "title": "把勇气藏进走向自己的路",
+      "title": "流动的形状",
       "href": "https://kiraequal.org/stories/44001461",
       "markdown": "/ai/stories/44001461.md",
       "date": "2026",
@@ -564,7 +564,7 @@
     },
     {
       "kind": "stories",
-      "title": "在微光里走向自己的路",
+      "title": "真真假假",
       "href": "https://kiraequal.org/stories/44772025",
       "markdown": "/ai/stories/44772025.md",
       "date": "2026",
@@ -588,7 +588,7 @@
     },
     {
       "kind": "stories",
-      "title": "等一束晨光等来清澈天空",
+      "title": "云朵奶冻与晚安曲",
       "href": "https://kiraequal.org/stories/48091596",
       "markdown": "/ai/stories/48091596.md",
       "date": "2026",
@@ -596,7 +596,7 @@
     },
     {
       "kind": "stories",
-      "title": "等一束晨光看见晨光落下",
+      "title": "为了爱我们的人好好活着",
       "href": "https://kiraequal.org/stories/50242142",
       "markdown": "/ai/stories/50242142.md",
       "date": "2026",
@@ -604,7 +604,7 @@
     },
     {
       "kind": "stories",
-      "title": "在微光里走向自己的路",
+      "title": "扭转机构里的真实经历",
       "href": "https://kiraequal.org/stories/50415783",
       "markdown": "/ai/stories/50415783.md",
       "date": "2026",
@@ -612,7 +612,7 @@
     },
     {
       "kind": "stories",
-      "title": "听见心的回声看见真实自己",
+      "title": "正在削刻自己的男生",
       "href": "https://kiraequal.org/stories/50921359",
       "markdown": "/ai/stories/50921359.md",
       "date": "2026",
@@ -620,7 +620,7 @@
     },
     {
       "kind": "stories",
-      "title": "听见心的回声慢慢认出方向",
+      "title": "未被填写的性别栏",
       "href": "https://kiraequal.org/stories/53783906",
       "markdown": "/ai/stories/53783906.md",
       "date": "2026",
@@ -628,7 +628,7 @@
     },
     {
       "kind": "stories",
-      "title": "等一束晨光守住微小星火",
+      "title": "“啊，好的”",
       "href": "https://kiraequal.org/stories/54273093",
       "markdown": "/ai/stories/54273093.md",
       "date": "2026",
@@ -636,7 +636,7 @@
     },
     {
       "kind": "stories",
-      "title": "听见心的回声找到安心角落",
+      "title": "无害与平凡的愿望",
       "href": "https://kiraequal.org/stories/54545353",
       "markdown": "/ai/stories/54545353.md",
       "date": "2026",
@@ -644,7 +644,7 @@
     },
     {
       "kind": "stories",
-      "title": "等一束晨光等来清澈天空",
+      "title": "被气哭的午饭时刻",
       "href": "https://kiraequal.org/stories/55316652",
       "markdown": "/ai/stories/55316652.md",
       "date": "2026",
@@ -652,7 +652,7 @@
     },
     {
       "kind": "stories",
-      "title": "把勇气藏进走向自己的路",
+      "title": "以一個不同的身分活著",
       "href": "https://kiraequal.org/stories/55399086",
       "markdown": "/ai/stories/55399086.md",
       "date": "2026",
@@ -660,7 +660,7 @@
     },
     {
       "kind": "stories",
-      "title": "穿过安静雨季慢慢认出方向",
+      "title": "擦肩而过的镜像",
       "href": "https://kiraequal.org/stories/55610441",
       "markdown": "/ai/stories/55610441.md",
       "date": "2026",
@@ -668,7 +668,7 @@
     },
     {
       "kind": "stories",
-      "title": "沿着风的方向走向自己的路",
+      "title": "终会绽放的花期",
       "href": "https://kiraequal.org/stories/55641646",
       "markdown": "/ai/stories/55641646.md",
       "date": "2026",
@@ -676,7 +676,7 @@
     },
     {
       "kind": "stories",
-      "title": "等一束晨光走向自己的路",
+      "title": "餐桌上的温柔共振",
       "href": "https://kiraequal.org/stories/56174530",
       "markdown": "/ai/stories/56174530.md",
       "date": "2026",
@@ -692,7 +692,7 @@
     },
     {
       "kind": "stories",
-      "title": "等一束晨光守住微小星火",
+      "title": "骄傲月就要为勇敢的自己感到骄傲哦!",
       "href": "https://kiraequal.org/stories/56908870",
       "markdown": "/ai/stories/56908870.md",
       "date": "2026",
@@ -708,7 +708,7 @@
     },
     {
       "kind": "stories",
-      "title": "等一束晨光织成温柔来路",
+      "title": "文字退潮之后",
       "href": "https://kiraequal.org/stories/57765649",
       "markdown": "/ai/stories/57765649.md",
       "date": "2026",
@@ -716,7 +716,7 @@
     },
     {
       "kind": "stories",
-      "title": "听见心的回声等到天色渐亮",
+      "title": "别处的阳光与可爱",
       "href": "https://kiraequal.org/stories/58850241",
       "markdown": "/ai/stories/58850241.md",
       "date": "2026",
@@ -724,7 +724,7 @@
     },
     {
       "kind": "stories",
-      "title": "穿过安静雨季等云散成微光",
+      "title": "我希望這個世界跟社會能給我們更多的理解與包容",
       "href": "https://kiraequal.org/stories/59440074",
       "markdown": "/ai/stories/59440074.md",
       "date": "2026",
@@ -732,7 +732,7 @@
     },
     {
       "kind": "stories",
-      "title": "在微光里渡过自己的河",
+      "title": "我讨厌对别人无缘无故的恶意",
       "href": "https://kiraequal.org/stories/59535908",
       "markdown": "/ai/stories/59535908.md",
       "date": "2026",
@@ -740,7 +740,7 @@
     },
     {
       "kind": "stories",
-      "title": "在微光里望见更远的光",
+      "title": "泄洪般走出迷宫",
       "href": "https://kiraequal.org/stories/64293496",
       "markdown": "/ai/stories/64293496.md",
       "date": "2026",
@@ -772,7 +772,7 @@
     },
     {
       "kind": "stories",
-      "title": "把勇气藏进走向自己的路",
+      "title": "偷用口红的女孩终于长大了",
       "href": "https://kiraequal.org/stories/68482833",
       "markdown": "/ai/stories/68482833.md",
       "date": "2026",
@@ -780,7 +780,7 @@
     },
     {
       "kind": "stories",
-      "title": "穿过安静雨季留住温柔归处",
+      "title": "尝试理解的努力",
       "href": "https://kiraequal.org/stories/69867217",
       "markdown": "/ai/stories/69867217.md",
       "date": "2026",
@@ -796,7 +796,7 @@
     },
     {
       "kind": "stories",
-      "title": "在微光里点亮一颗星星",
+      "title": "希望各位都能完成自己的梦想",
       "href": "https://kiraequal.org/stories/70844034",
       "markdown": "/ai/stories/70844034.md",
       "date": "2026",
@@ -804,7 +804,7 @@
     },
     {
       "kind": "stories",
-      "title": "穿过安静雨季走向自己的路",
+      "title": "平凡之路才是的答案",
       "href": "https://kiraequal.org/stories/72345222",
       "markdown": "/ai/stories/72345222.md",
       "date": "2026",
@@ -812,7 +812,7 @@
     },
     {
       "kind": "stories",
-      "title": "在微光里点亮一颗星星",
+      "title": "做个普通的非二元",
       "href": "https://kiraequal.org/stories/72410973",
       "markdown": "/ai/stories/72410973.md",
       "date": "2026",
@@ -820,7 +820,7 @@
     },
     {
       "kind": "stories",
-      "title": "沿着风的方向点亮一颗星星",
+      "title": "没有一个人必须为自己的认同道歉",
       "href": "https://kiraequal.org/stories/72802446",
       "markdown": "/ai/stories/72802446.md",
       "date": "2026",
@@ -836,7 +836,7 @@
     },
     {
       "kind": "stories",
-      "title": "等一束晨光走向自己的路",
+      "title": "为了明天的太阳",
       "href": "https://kiraequal.org/stories/76487328",
       "markdown": "/ai/stories/76487328.md",
       "date": "2026",
@@ -852,7 +852,7 @@
     },
     {
       "kind": "stories",
-      "title": "等一束晨光点亮一颗星星",
+      "title": "好好活就是有意义",
       "href": "https://kiraequal.org/stories/77875857",
       "markdown": "/ai/stories/77875857.md",
       "date": "2026",
@@ -860,7 +860,7 @@
     },
     {
       "kind": "stories",
-      "title": "穿过安静雨季慢慢认出方向",
+      "title": "十六岁破茧",
       "href": "https://kiraequal.org/stories/78483768",
       "markdown": "/ai/stories/78483768.md",
       "date": "2026",
@@ -868,7 +868,7 @@
     },
     {
       "kind": "stories",
-      "title": "在微光里等到天色渐亮",
+      "title": "从“成为自己”到“过好余生”",
       "href": "https://kiraequal.org/stories/78940430",
       "markdown": "/ai/stories/78940430.md",
       "date": "2026",
@@ -876,7 +876,7 @@
     },
     {
       "kind": "stories",
-      "title": "把勇气藏进为自己撑把伞",
+      "title": "感谢寒姐姐",
       "href": "https://kiraequal.org/stories/79489960",
       "markdown": "/ai/stories/79489960.md",
       "date": "2026",
@@ -884,7 +884,7 @@
     },
     {
       "kind": "stories",
-      "title": "把勇气藏进守住微小星火",
+      "title": "Love is as ferocious as birth and death.",
       "href": "https://kiraequal.org/stories/79717410",
       "markdown": "/ai/stories/79717410.md",
       "date": "2026",
@@ -892,15 +892,7 @@
     },
     {
       "kind": "stories",
-      "title": "沿着风的方向走向自己的路",
-      "href": "https://kiraequal.org/stories/80041004",
-      "markdown": "/ai/stories/80041004.md",
-      "date": "2026",
-      "language": "zh-CN"
-    },
-    {
-      "kind": "stories",
-      "title": "等一束晨光认出自己的光",
+      "title": "我们的存在,就是对恶意最大的反抗",
       "href": "https://kiraequal.org/stories/80737619",
       "markdown": "/ai/stories/80737619.md",
       "date": "2026",
@@ -908,7 +900,7 @@
     },
     {
       "kind": "stories",
-      "title": "沿着风的方向迎来新的清晨",
+      "title": "把名字还给自己",
       "href": "https://kiraequal.org/stories/81126703",
       "markdown": "/ai/stories/81126703.md",
       "date": "2026",
@@ -916,7 +908,7 @@
     },
     {
       "kind": "stories",
-      "title": "穿过安静雨季等到天色渐亮",
+      "title": "愿你真的清楚这是你自己",
       "href": "https://kiraequal.org/stories/83112997",
       "markdown": "/ai/stories/83112997.md",
       "date": "2026",
@@ -932,7 +924,7 @@
     },
     {
       "kind": "stories",
-      "title": "沿着风的方向找到安心角落",
+      "title": "向地底深处扎根的坚韧",
       "href": "https://kiraequal.org/stories/84093490",
       "markdown": "/ai/stories/84093490.md",
       "date": "2026",
@@ -940,7 +932,7 @@
     },
     {
       "kind": "stories",
-      "title": "等一束晨光留住温柔归处",
+      "title": "彼此守护的旅程",
       "href": "https://kiraequal.org/stories/84305393",
       "markdown": "/ai/stories/84305393.md",
       "date": "2026",
@@ -948,7 +940,7 @@
     },
     {
       "kind": "stories",
-      "title": "在微光里留下真实脚印",
+      "title": "酒泡针、大仙与荒诞的执念",
       "href": "https://kiraequal.org/stories/84554452",
       "markdown": "/ai/stories/84554452.md",
       "date": "2026",
@@ -956,7 +948,7 @@
     },
     {
       "kind": "stories",
-      "title": "等一束晨光看见晨光落下",
+      "title": "希望世界更包容",
       "href": "https://kiraequal.org/stories/86000382",
       "markdown": "/ai/stories/86000382.md",
       "date": "2026",
@@ -964,7 +956,7 @@
     },
     {
       "kind": "stories",
-      "title": "听见心的回声走向自己的路",
+      "title": "熬过长夜，终见曙光",
       "href": "https://kiraequal.org/stories/86903651",
       "markdown": "/ai/stories/86903651.md",
       "date": "2026",
@@ -972,7 +964,7 @@
     },
     {
       "kind": "stories",
-      "title": "在微光里迎来新的清晨",
+      "title": "雨停之后，收伞成剑",
       "href": "https://kiraequal.org/stories/88151880",
       "markdown": "/ai/stories/88151880.md",
       "date": "2026",
@@ -980,7 +972,7 @@
     },
     {
       "kind": "stories",
-      "title": "把勇气藏进走向自己的路",
+      "title": "超越二元的光谱",
       "href": "https://kiraequal.org/stories/88256438",
       "markdown": "/ai/stories/88256438.md",
       "date": "2026",
@@ -988,7 +980,7 @@
     },
     {
       "kind": "stories",
-      "title": "穿过安静雨季找到安心角落",
+      "title": "希望其他宝宝幸福一点",
       "href": "https://kiraequal.org/stories/89669315",
       "markdown": "/ai/stories/89669315.md",
       "date": "2026",
@@ -996,7 +988,7 @@
     },
     {
       "kind": "stories",
-      "title": "沿着风的方向等到天色渐亮",
+      "title": "在都市繁华深处，寻一角落安生",
       "href": "https://kiraequal.org/stories/91227189",
       "markdown": "/ai/stories/91227189.md",
       "date": "2026",
@@ -1004,7 +996,7 @@
     },
     {
       "kind": "stories",
-      "title": "沿着风的方向迎来新的清晨",
+      "title": "共鸣的音叉与发芽的枝条",
       "href": "https://kiraequal.org/stories/92331844",
       "markdown": "/ai/stories/92331844.md",
       "date": "2026",
@@ -1012,7 +1004,7 @@
     },
     {
       "kind": "stories",
-      "title": "沿着风的方向等到天色渐亮",
+      "title": "给疲惫灵魂的一个拥抱",
       "href": "https://kiraequal.org/stories/92336782",
       "markdown": "/ai/stories/92336782.md",
       "date": "2026",
@@ -1020,7 +1012,7 @@
     },
     {
       "kind": "stories",
-      "title": "听见心的回声为自己撑把伞",
+      "title": "我好想被爱好想好想被爱",
       "href": "https://kiraequal.org/stories/92374930",
       "markdown": "/ai/stories/92374930.md",
       "date": "2026",
@@ -1028,7 +1020,7 @@
     },
     {
       "kind": "stories",
-      "title": "把勇气藏进等到天色渐亮",
+      "title": "想睡个大觉，想吃顿好的",
       "href": "https://kiraequal.org/stories/92571571",
       "markdown": "/ai/stories/92571571.md",
       "date": "2026",
@@ -1036,7 +1028,7 @@
     },
     {
       "kind": "stories",
-      "title": "穿过安静雨季留住温柔归处",
+      "title": "披萨摊前遇到的那缕阳光",
       "href": "https://kiraequal.org/stories/93405263",
       "markdown": "/ai/stories/93405263.md",
       "date": "2026",
@@ -1060,7 +1052,7 @@
     },
     {
       "kind": "stories",
-      "title": "沿着风的方向看见晨光落下",
+      "title": "嘲笑声中静悄悄萌芽的答案",
       "href": "https://kiraequal.org/stories/95487679",
       "markdown": "/ai/stories/95487679.md",
       "date": "2026",
@@ -1076,7 +1068,7 @@
     },
     {
       "kind": "stories",
-      "title": "听见心的回声推开一扇心窗",
+      "title": "裙子、娃娃与迟到的自洽",
       "href": "https://kiraequal.org/stories/95658751",
       "markdown": "/ai/stories/95658751.md",
       "date": "2026",
@@ -1100,11 +1092,20 @@
     },
     {
       "kind": "stories",
-      "title": "听见心的回声牵住心里的线",
+      "title": "即使是跨也不要给跨贴上跨的标签",
       "href": "https://kiraequal.org/stories/99994835",
       "markdown": "/ai/stories/99994835.md",
       "date": "2026",
       "language": "zh-CN"
+    },
+    {
+      "kind": "report",
+      "title": "2026 中文在线社区跨性别群体生活状况调研报告",
+      "href": "https://kiraequal.org/report/2026-transgender-life-survey-reader-edition",
+      "markdown": "/ai/report/2026-transgender-life-survey-reader-edition.md",
+      "date": "2026.08.10",
+      "language": "zh-CN",
+      "description": "《2026 中文在线社区跨性别群体生活状况调研报告》v1.1 完整版全文在线阅读：12 章、32 张图表（含 5 组交叉对比图）、执行摘要、方法边界、敏感性分析与附录，排版与正式 PDF 一致。"
     },
     {
       "kind": "report",
@@ -1132,6 +1133,24 @@
       "date": "2025.11.19",
       "language": "zh-CN",
       "description": "每个人都有对自我身份的深刻认知。了解跨性别人群面临的生存现状、暴力威胁、法律承认缺失，以及我们能采取的共同行动。"
+    },
+    {
+      "kind": "documents",
+      "title": "2026 中国跨性别群体生活状况调研报告（完整版）",
+      "href": "https://kiraequal.org/documents/2026-transgender-life-survey-full-report",
+      "markdown": "/ai/documents/2026-transgender-life-survey-full-report.md",
+      "date": "2026.08.10",
+      "language": "zh-CN",
+      "description": "《2026 中文在线社区跨性别群体生活状况调研报告》v1.1 完整 101 页 PDF：12 章、32 张图表、附录与公开结果追踪表，附 SHA-256 校验。"
+    },
+    {
+      "kind": "documents",
+      "title": "IKEA BLÅHAJ《同理心使用说明书》简体中文译制版",
+      "href": "https://kiraequal.org/documents/ikea-blahaj-empathy-manual-zh-cn",
+      "markdown": "/ai/documents/ikea-blahaj-empathy-manual-zh-cn.md",
+      "date": "2026.06.01",
+      "language": "zh-CN",
+      "description": "IKEA 西班牙在骄傲月推出的 BLÅHAJ 鲨鲨《同理心使用说明书》的简体中文译制版 PDF，供给简体中文读者。"
     }
   ]
 }

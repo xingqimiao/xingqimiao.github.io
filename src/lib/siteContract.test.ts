@@ -10,7 +10,7 @@ const read = (relative: string) => readFile(path.join(root, relative), "utf8");
 
 describe("equal-next requested public contract", () => {
   it("uses the exact Chinese section headings", () => {
-    expect(articleListCopy("zh", "blog")).toMatchObject({ title: "猫窝碎碎念", subtitle: undefined });
+    expect(articleListCopy("zh", "blog")).toMatchObject({ title: "猫窝，碎碎念", subtitle: undefined });
     expect(articleListCopy("zh", "documents")).toMatchObject({ title: "资料，让事实有出处", subtitle: undefined });
     expect(storyListCopy("zh")).toMatchObject({ heading: "经历", subtitle: "值得被看见" });
   });
@@ -68,22 +68,20 @@ describe("equal-next requested public contract", () => {
     const config = JSON.parse(await read("src/data/homepage.json"));
     expect(config).toMatchObject({
       title: "KiraEqual",
-      description: "KiraEqual是一个关注性别多元群体的独立研究、公共知识与数字公益项目",
-      statement: "让真实经历成为改变社会的证据",
       joinButton: { label: "Join Us", href: "/join" },
       video: { source: "local" },
     });
+    expect(typeof config.description).toBe("string");
+    expect(config.description.trim().length).toBeGreaterThan(0);
     expect(config.video.url).toMatch(/^\/video\/[^/]+\.(?:mp4|webm)$/);
     expect((await stat(path.join(root, "public", config.video.url.slice(1)))).isFile()).toBe(true);
     const presentation = buildHomePresentation("zh", [], [], {
       ...config,
       description: "可编辑后的简介",
-      statement: "可编辑后的宣言",
     });
     expect(presentation).toMatchObject({
       title: "KiraEqual",
       description: "可编辑后的简介",
-      statement: "可编辑后的宣言",
       joinLabel: "Join Us",
     });
   });

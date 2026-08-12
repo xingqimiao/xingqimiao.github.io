@@ -106,7 +106,7 @@ export function ArticleIndex({ locale = "zh", articles, type, searchPlaceholder,
     }, {});
   }, [filteredArticles]);
 
-  const visibleYears = Object.keys(groupedArticles);
+  const visibleYears = Object.keys(groupedArticles).sort((a, b) => (a === 'Undated' ? 1 : 0) - (b === 'Undated' ? 1 : 0) || b.localeCompare(a, undefined, { numeric: true }));
 
   return (
     <div className="space-y-6">
@@ -230,7 +230,7 @@ export function ArticleIndex({ locale = "zh", articles, type, searchPlaceholder,
               <a
                 key={year}
                 href={`#${type}-${year}`}
-                className="rounded-full px-4 py-2 text-label-large text-text-sub transition-colors hover:bg-black/5 hover:text-text-main"
+                className="rounded-full px-4 py-2 text-label-large text-text-sub transition-colors hover:bg-black/5 hover:text-text-main dark:hover:bg-white/10"
               >
                 {year}
               </a>

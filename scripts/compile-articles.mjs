@@ -46,6 +46,7 @@ export function parseArticleSource(raw, fallbackSlug, type, fallback = {}) {
     keywords: Array.isArray(data.keywords) ? data.keywords.map(String) : Array.isArray(fallback.keywords) ? fallback.keywords.map(String) : [],
   }
   if (type !== 'stories') {
+    article.grid_span = String(data.gridSpan || data.grid_span || 'normal')
     article.desc = String(data.description || data.desc || fallback.desc || '')
   }
   return article
@@ -66,7 +67,7 @@ export async function compileArticles() {
       delete next.englishTitle
       delete next.englishDescription
       delete next.englishContentHtml
-      if (type === 'stories') delete next.desc
+      if (type === 'stories') { delete next.desc; delete next.grid_span }
       compiled.push(next)
     }
   }

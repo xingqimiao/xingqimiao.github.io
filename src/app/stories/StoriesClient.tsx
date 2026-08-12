@@ -48,7 +48,15 @@ function readBookmarks() {
   }
 }
 
-type StoryView = "all" | "bookmarked";
+type StoryView = "all" | "bookmarked" | "longform";
+
+// A story counts as long-form when its rendered body has 100+ characters.
+function isLongFormStory(story: StoryItem) {
+  const text = String(story.contentHtml ?? "")
+    .replace(/<[^>]+>/g, "")
+    .replace(/\s+/g, "");
+  return text.length >= 100;
+}
 
 function IconBookmark({ filled = false }: { filled?: boolean }) {
   return (
@@ -302,7 +310,7 @@ export default function StoriesClient({
         { y: 0, opacity: 1, rotateX: 0, duration: 0.65, stagger: 0.045, ease: "power3.out", delay: 0.15 },
       );
     },
-    { scope: containerRef, dependencies: [page, activeView, submittedSearch] },
+    { scope: containerRef },
   );
 
   function toggleBookmark(slug: string) {
@@ -324,13 +332,15 @@ export default function StoriesClient({
     setPage(1);
   }
 
-  const views: StoryView[] = ["all", "bookmarked"];
+  const views: StoryView[] = ["all", "bookmarked", "longform"];
 
   const filteredStories = useMemo(() => {
     let result = stories;
 
     if (activeView === "bookmarked") {
       result = result.filter((story) => bookmarks.includes(story.slug));
+    } else if (activeView === "longform") {
+      result = result.filter(isLongFormStory);
     }
 
     if (submittedSearch) {
@@ -374,9 +384,9 @@ export default function StoriesClient({
                   {views.map((view) => (
                     <FilterButton
                       key={view}
-                      label={view === "all" ? copy.all : copy.bookmarked}
+                      label={view === "all" ? copy.all : view === "bookmarked" ? copy.bookmarked : copy.longForm}
                       active={activeView === view}
-                      count={view === "all" ? stories.length : stories.filter((story) => bookmarks.includes(story.slug)).length}
+                      count={view === "all" ? stories.length : view === "bookmarked" ? stories.filter((story) => bookmarks.includes(story.slug)).length : stories.filter(isLongFormStory).length}
                       onClick={() => {
                         setActiveView(view);
                         setPage(1);
@@ -398,7 +408,11 @@ export default function StoriesClient({
                 <input
                   type="search"
                   value={searchInput}
-                  onChange={(event) => setSearchInput(event.target.value)}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    setSearchInput(value);
+                    setSubmittedSearch(value.trim());
+                  }}
                   onKeyDown={(event) => {
                     if (event.key === "Enter") {
                       event.preventDefault();

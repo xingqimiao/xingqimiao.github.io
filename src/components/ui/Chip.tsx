@@ -9,7 +9,7 @@ const Chip = React.forwardRef<HTMLSpanElement, ChipProps>(
       <span
         ref={ref}
         className={cn(
-          "inline-flex items-center px-3 py-1 rounded-full bg-surface-light text-text-sub text-[12px] leading-[16px] font-medium",
+          "inline-flex items-center px-3 py-1 rounded-full bg-surface-light text-text-sub dark:bg-white/10 text-[12px] leading-[16px] font-medium",
           className
         )}
         {...props}

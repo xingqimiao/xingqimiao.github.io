@@ -1,7 +1,6 @@
 {
   "title": "KiraEqual",
-  "description": "KiraEqual是一个关注性别多元群体的独立研究、公共知识与数字公益项目",
-  "statement": "让真实经历成为改变社会的证据",
+  "description": "KiraEqual是一个关注性别多元群体的独立研究、公共知识与数字公益项目。\n我们希望有一天，那些今天还需要反复证明自己的人，不必再依靠沉默来换取理解。",
   "joinButton": {
     "label": "Join Us",
     "href": "/join"

@@ -21,7 +21,7 @@ const copy: Record<ArticleListType, ArticleListCopy> = {
     metadataDescription: '阅读 KiraMyao Equal 发布的跨性别与性少数群体研究、数据与报告。',
   },
   blog: {
-    title: '猫窝碎碎念',
+    title: '猫窝，碎碎念',
     subtitle: undefined,
     searchPlaceholder: '搜索猫窝文章',
     emptyText: '没有找到匹配的猫窝文章。',

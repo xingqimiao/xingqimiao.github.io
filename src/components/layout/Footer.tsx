@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import globalConfig from "@/data/global_config.json";
 import { stripLocalePath, toLocalePath, uiDictionary, type Locale } from "@/i18n/locale";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 interface FooterProps {
   locale: Locale;
@@ -85,6 +86,13 @@ export default function Footer({ locale }: FooterProps) {
           >
             {dictionary.footer.twitter}
           </a>
+          <ThemeToggle
+            className={
+              isStoriesArea
+                ? "text-white/56 hover:text-white"
+                : "text-text-sub hover:text-text-main dark:text-white/56 dark:hover:text-white"
+            }
+          />
         </nav>
       </div>
     </footer>

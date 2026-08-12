@@ -25,7 +25,7 @@ export function PrivacyPolicyContent({
   )
 
   return (
-    <main className="min-h-screen bg-white px-6 pb-24 pt-32 dark:bg-background">
+    <main className="min-h-screen bg-background px-6 pb-24 pt-32">
       <div className="page-enter mx-auto max-w-3xl">
         <h1 className="mb-8 text-display-medium font-medium tracking-tight text-text-main">
           {content.title || '隐私政策'}

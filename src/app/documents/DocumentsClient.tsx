@@ -23,7 +23,7 @@ export default function DocumentsClient({ locale = "zh" }: { locale?: Locale }) 
   }, { scope: containerRef });
 
   return (
-    <main ref={containerRef} className="min-h-screen bg-white px-6 pb-24 pt-32">
+    <main ref={containerRef} className="min-h-screen bg-background px-6 pb-24 pt-32">
       <div className="mx-auto max-w-7xl">
         <h1 className="fade-in mb-3 text-display-medium font-medium tracking-tight text-text-main md:text-display-large">
           {copy.title}

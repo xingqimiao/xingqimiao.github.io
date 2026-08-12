@@ -1,6 +1,7 @@
 import { SiteDocument } from '@/app/SiteDocument'
 import { buildSiteMetadata } from '@/lib/siteMetadata'
 import '../globals.css'
+import '../report-full.css'
 
 export const metadata = buildSiteMetadata('zh')
 
