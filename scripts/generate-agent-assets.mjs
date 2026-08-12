@@ -893,14 +893,14 @@ Sitemap: ${SITE_URL}/sitemap.xml
 function dnsAidExample() {
   return `# DNS-AID publication notes for ${SITE_HOST}
 #
-# These records cannot be shipped by the static website itself. Publish them in
-# the authoritative DNS zone for ${SITE_HOST}, then enable DNSSEC on the zone.
-# DNS-AID is still an Internet-Draft, so confirm the exact SVCB/HTTPS parameter
-# support in your DNS provider before deploying.
+# Published as HTTPS (SVCB) records in the Cloudflare zone for ${SITE_HOST}
+# with DNSSEC enabled on the zone (verified AD=true by isitagentready.com).
+# These records cannot be shipped by the static website itself; manage them
+# in the Cloudflare dashboard under DNS > Records, type HTTPS.
+# See https://datatracker.ietf.org/doc/draft-mozleywilliams-dnsop-dnsaid/
 
-_index._agents.${SITE_HOST}. 3600 IN HTTPS 1 ${SITE_HOST}. alpn="h2,h3" endpoint="https://${SITE_HOST}/.well-known/api-catalog"
-_a2a._agents.${SITE_HOST}. 3600 IN HTTPS 1 ${SITE_HOST}. alpn="h2,h3" endpoint="https://${SITE_HOST}/.well-known/agent-card.json"
-_service-doc._agents.${SITE_HOST}. 3600 IN HTTPS 1 ${SITE_HOST}. alpn="h2,h3" endpoint="https://${SITE_HOST}/.well-known/service-doc.md"
+_index._agents.${SITE_HOST}. 300 IN HTTPS 1 ${SITE_HOST}. alpn="h2,h3" port=443
+_a2a._agents.${SITE_HOST}. 300 IN HTTPS 1 ${SITE_HOST}. alpn="h2,h3" port=443
 `;
 }
 

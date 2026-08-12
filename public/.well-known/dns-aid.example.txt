@@ -1,10 +1,10 @@
 # DNS-AID publication notes for kiraequal.org
 #
-# These records cannot be shipped by the static website itself. Publish them in
-# the authoritative DNS zone for kiraequal.org, then enable DNSSEC on the zone.
-# DNS-AID is still an Internet-Draft, so confirm the exact SVCB/HTTPS parameter
-# support in your DNS provider before deploying.
+# Published as HTTPS (SVCB) records in the Cloudflare zone for kiraequal.org
+# with DNSSEC enabled on the zone (verified AD=true by isitagentready.com).
+# These records cannot be shipped by the static website itself; manage them
+# in the Cloudflare dashboard under DNS > Records, type HTTPS.
+# See https://datatracker.ietf.org/doc/draft-mozleywilliams-dnsop-dnsaid/
 
-_index._agents.kiraequal.org. 3600 IN HTTPS 1 kiraequal.org. alpn="h2,h3" endpoint="https://kiraequal.org/.well-known/api-catalog"
-_a2a._agents.kiraequal.org. 3600 IN HTTPS 1 kiraequal.org. alpn="h2,h3" endpoint="https://kiraequal.org/.well-known/agent-card.json"
-_service-doc._agents.kiraequal.org. 3600 IN HTTPS 1 kiraequal.org. alpn="h2,h3" endpoint="https://kiraequal.org/.well-known/service-doc.md"
+_index._agents.kiraequal.org. 300 IN HTTPS 1 kiraequal.org. alpn="h2,h3" port=443
+_a2a._agents.kiraequal.org. 300 IN HTTPS 1 kiraequal.org. alpn="h2,h3" port=443
