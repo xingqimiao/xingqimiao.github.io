@@ -37,7 +37,6 @@ Agents can request Markdown with `Accept: text/markdown`. On Cloudflare Pages, t
 - [活下去吧 哈吉跨](https://kiramyao.com/stories/15131742) ([Markdown](/ai/stories/15131742.md))
 - [在忙碌中找回身体的主导](https://kiramyao.com/stories/15261031) ([Markdown](/ai/stories/15261031.md))
 - [荒原上的王国](https://kiramyao.com/stories/16157706) ([Markdown](/ai/stories/16157706.md))
-- [被迫害在欧洲获得政治庇护](https://kiramyao.com/stories/16788647) ([Markdown](/ai/stories/16788647.md))
 - [勇敢做自己](https://kiramyao.com/stories/17553176) ([Markdown](/ai/stories/17553176.md))
 - [我算很幸运的,也算是苦尽甘来](https://kiramyao.com/stories/17771534) ([Markdown](/ai/stories/17771534.md))
 - [被迫饰演的日常](https://kiramyao.com/stories/18341625) ([Markdown](/ai/stories/18341625.md))
