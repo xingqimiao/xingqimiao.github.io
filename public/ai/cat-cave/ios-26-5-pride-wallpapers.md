@@ -4,7 +4,7 @@ description: "苹果发布全新 Pride 表带、表盘与壁纸：Pride Luminanc
 title_zh: "ios26.5 Pride壁纸"
 description_zh: "Apple Pride2026壁纸"
 keywords: "苹果, 骄傲月, Pride, LGBTQ+, 壁纸"
-canonical: "https://kiraequal.org/cat-cave/ios-26-5-pride-wallpapers"
+canonical: "https://equal.kiramyao.com/cat-cave/ios-26-5-pride-wallpapers"
 content_signal: "ai-train=no, search=yes, ai-input=yes"
 date: "2026.05.08"
 type: "blog"

@@ -4,7 +4,7 @@ description: "写给中国 MTF（跨性别女性）的生存指南：从身份�
 title_zh: "中国MTF生存指南：喵呜，一起在当下活下去"
 description_zh: "我们在国际反恐同日、国际不再恐同日写下了这篇文章作为一个小礼物"
 keywords: "MTF生存指南, 跨性别女性, 激素治疗, 互助手册"
-canonical: "https://kiraequal.org/cat-cave/china-mtf-survival-guide"
+canonical: "https://equal.kiramyao.com/cat-cave/china-mtf-survival-guide"
 content_signal: "ai-train=no, search=yes, ai-input=yes"
 date: "2026-05-18"
 type: "blog"

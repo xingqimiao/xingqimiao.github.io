@@ -4,7 +4,7 @@ description: "评估中国跨性别医疗制度：以“病理化”认定为基
 title_zh: "中国跨性别医疗评估报告"
 description_zh: "中国跨性别医疗体系仍以“病理化+高门槛+家庭控制+高成本”构成"
 keywords: "跨性别医疗, 性别肯定医疗, 医疗制度评估, 病理化"
-canonical: "https://kiraequal.org/report/china-transgender-healthcare-assessment-report"
+canonical: "https://equal.kiramyao.com/report/china-transgender-healthcare-assessment-report"
 content_signal: "ai-train=no, search=yes, ai-input=yes"
 date: "2026.04.26"
 type: "report"

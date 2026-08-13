@@ -1,10 +1,11 @@
 import type { MetadataRoute } from 'next'
 import compiledArticles from '@/data/compiled_articles.json'
+import globalConfig from '@/data/global_config.json'
 import { getArticleHref } from '@/lib/articleRoute'
 
 export const dynamic = 'force-static'
 
-const BASE_URL = 'https://kiraequal.org'
+const BASE_URL = String(globalConfig.website_url || 'https://kiraequal.org').replace(/\/+$/, '')
 
 const staticPages = [
   { path: '/', priority: 1 },

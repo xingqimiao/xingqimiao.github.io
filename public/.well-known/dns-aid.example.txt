@@ -1,10 +1,10 @@
-# DNS-AID publication notes for kiraequal.org
+# DNS-AID publication notes for equal.kiramyao.com
 #
-# Published as HTTPS (SVCB) records in the Cloudflare zone for kiraequal.org
+# Published as HTTPS (SVCB) records in the Cloudflare zone for equal.kiramyao.com
 # with DNSSEC enabled on the zone (verified AD=true by isitagentready.com).
 # These records cannot be shipped by the static website itself; manage them
 # in the Cloudflare dashboard under DNS > Records, type HTTPS.
 # See https://datatracker.ietf.org/doc/draft-mozleywilliams-dnsop-dnsaid/
 
-_index._agents.kiraequal.org. 300 IN HTTPS 1 kiraequal.org. alpn="h2,h3" port=443
-_a2a._agents.kiraequal.org. 300 IN HTTPS 1 kiraequal.org. alpn="h2,h3" port=443
+_index._agents.equal.kiramyao.com. 300 IN HTTPS 1 equal.kiramyao.com. alpn="h2,h3" port=443
+_a2a._agents.equal.kiramyao.com. 300 IN HTTPS 1 equal.kiramyao.com. alpn="h2,h3" port=443

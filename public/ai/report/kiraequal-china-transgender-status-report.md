@@ -4,7 +4,7 @@ description: "基于2019-2025年多项定量调研与定性访谈，系统审视
 title_zh: "KiraMyao Equal：中国跨性别者现状报告"
 description_zh: "“中国跨性别群体仍生活在水深火热中”由KiraMyao Equal整理"
 keywords: "中国跨性别, 生存现状报告, 跨性别调研, 系统性壁垒"
-canonical: "https://kiraequal.org/report/kiraequal-china-transgender-status-report"
+canonical: "https://equal.kiramyao.com/report/kiraequal-china-transgender-status-report"
 content_signal: "ai-train=no, search=yes, ai-input=yes"
 date: "2026.04.27"
 type: "report"

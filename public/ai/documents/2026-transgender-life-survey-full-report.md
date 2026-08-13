@@ -4,7 +4,7 @@ description: "下载《2026 中文在线社区跨性别群体生活状况调研�
 title_zh: "2026 中国跨性别群体生活状况调研报告（完整版）"
 description_zh: "《2026 中文在线社区跨性别群体生活状况调研报告》v1.1 完整 101 页 PDF：12 章、32 张图表、附录与公开结果追踪表，附 SHA-256 校验。"
 keywords: "跨性别调研报告, 2026调研, 完整报告PDF, 性别多元, 调查报告下载"
-canonical: "https://kiraequal.org/documents/2026-transgender-life-survey-full-report"
+canonical: "https://equal.kiramyao.com/documents/2026-transgender-life-survey-full-report"
 content_signal: "ai-train=no, search=yes, ai-input=yes"
 date: "2026.08.10"
 type: "documents"

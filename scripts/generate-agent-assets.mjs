@@ -8,8 +8,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");
 const publicDir = path.join(rootDir, "public");
 
-const SITE_URL = "https://kiraequal.org";
-const SITE_HOST = "kiraequal.org";
+const globalConfig = JSON.parse(
+  await readFile(path.join(rootDir, "src", "data", "global_config.json"), "utf8"),
+);
+export const SITE_URL = String(globalConfig.website_url || "https://kiraequal.org").replace(/\/+$/, "");
+export const SITE_HOST = new URL(SITE_URL).host;
 const SITE_TITLE = "KiraMyao Equal";
 const SITE_DESCRIPTION =
   "KiraMyao Equal 关注中国跨性别与性别多元群体的生存处境、社群故事、资料整理和公共倡议，发布调查、报告、文章与参与方式。";

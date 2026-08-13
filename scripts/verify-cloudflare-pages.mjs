@@ -6,6 +6,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");
 const outDir = path.join(rootDir, "out");
 
+const globalConfig = JSON.parse(await readFile(path.join(rootDir, "src", "data", "global_config.json"), "utf8"));
+const SITE_URL = String(globalConfig.website_url || "https://kiraequal.org").replace(/\/+$/, "");
+
 const REQUIRED_FILES = [
   "index.html",
   "robots.txt",
@@ -196,7 +199,7 @@ export async function verifyCloudflarePages(outputDir = outDir) {
   ]);
   await mustContain(outputDir, "robots.txt", [
     "Content-Signal: ai-train=no, search=yes, ai-input=yes",
-    "Sitemap: https://kiraequal.org/sitemap.xml",
+    `Sitemap: ${SITE_URL}/sitemap.xml`,
   ]);
 
   const zhCatalog = await readJson(outputDir, ".well-known/api-catalog.json");
