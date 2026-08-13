@@ -27,11 +27,13 @@ export function buildSiteMetadata(_locale: Locale): Metadata {
       siteName: 'KiraMyao Equal',
       locale: rootCopy.locale,
       type: 'website',
+      images: [{ url: '/pic/index/og-home.png', alt: 'KiraMyao Equal' }],
     },
     twitter: {
       card: 'summary_large_image',
       title: rootCopy.defaultTitle,
       description: rootCopy.description,
+      images: ['/pic/index/og-home.png'],
     },
     robots: { index: true, follow: true },
   }
