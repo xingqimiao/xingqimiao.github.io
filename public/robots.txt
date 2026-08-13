@@ -3,5 +3,5 @@ Allow: /
 
 Content-Signal: ai-train=no, search=yes, ai-input=yes
 
-Host: kiraequal.org
-Sitemap: https://kiraequal.org/sitemap.xml
+Host: kiramyao.com
+Sitemap: https://kiramyao.com/sitemap.xml
