@@ -21,5 +21,7 @@ export function buildArticleListMetadata(
     chinesePath,
     title: copy.metadataTitle,
     description: copy.metadataDescription,
+    openGraphImage: '/pic/index/og-home.png',
+    openGraphImageAlt: copy.metadataTitle,
   })
 }

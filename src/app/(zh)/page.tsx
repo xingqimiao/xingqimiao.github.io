@@ -8,6 +8,9 @@ export const metadata = buildLocalizedMetadata({
   chinesePath: '/',
   title: '跨性别与性少数群体公益信息与倡导',
   description,
+  openGraphImage: '/pic/index/og-home.png',
+  openGraphImageAlt: 'KiraMyao Equal',
+  openGraphType: 'website',
 })
 
 export default function DefaultHomePage() {
