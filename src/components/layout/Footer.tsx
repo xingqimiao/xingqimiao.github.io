@@ -58,6 +58,15 @@ export default function Footer({ locale }: FooterProps) {
           >
             CC BY-NC 4.0
           </a>
+          <span className={cn("px-2", isStoriesArea ? "text-white/24" : "text-black/25")}>{" · "}</span>
+          <a
+            href="https://icp.gov.moe/?keyword=20260771"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`transition-colors hover:underline ${subtleLink}`}
+          >
+            萌ICP备20260771号
+          </a>
         </div>
 
         <nav

@@ -64,5 +64,7 @@ describe('Chinese-content site navigation', () => {
     expect(markup).toContain('whitespace-nowrap')
     expect(markup).toContain('<span>© 2026 KiraMyao Equal</span>')
     expect(markup).toContain('CC BY-NC 4.0')
+    expect(markup).toContain('href="https://icp.gov.moe/?keyword=20260771"')
+    expect(markup).toContain('萌ICP备20260771号')
   })
 })
