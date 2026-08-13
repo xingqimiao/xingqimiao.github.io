@@ -4,7 +4,7 @@ description: "在线阅读 2026 中国跨性别群体生活状况调研报告 v1
 title_zh: "2026 中文在线社区跨性别群体生活状况调研报告"
 description_zh: "《2026 中文在线社区跨性别群体生活状况调研报告》v1.1 完整版全文在线阅读：12 章、32 张图表（含 5 组交叉对比图）、执行摘要、方法边界、敏感性分析与附录，排版与正式 PDF 一致。"
 keywords: "跨性别调研, 2026调研, 完整报告, 跨性别生活状况, 性别多元, HRT, 家庭支持, 心理健康"
-canonical: "https://equal.kiramyao.com/report/2026-transgender-life-survey-reader-edition"
+canonical: "https://kiramyao.com/report/2026-transgender-life-survey-reader-edition"
 content_signal: "ai-train=no, search=yes, ai-input=yes"
 date: "2026.08.10"
 type: "report"

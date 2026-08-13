@@ -4,7 +4,7 @@ description: "什么是跨性别？什么是性别认同与性别表达？一篇
 title_zh: "联合国自由和平等：跨性别人群现状与挑战"
 description_zh: "每个人都有对自我身份的深刻认知。了解跨性别人群面临的生存现状、暴力威胁、法律承认缺失，以及我们能采取的共同行动。"
 keywords: "跨性别科普, 性别认同, 性别表达, 人权"
-canonical: "https://equal.kiramyao.com/report/un-free-and-equal-transgender-status-and-challenges"
+canonical: "https://kiramyao.com/report/un-free-and-equal-transgender-status-and-challenges"
 content_signal: "ai-train=no, search=yes, ai-input=yes"
 date: "2025.11.19"
 type: "report"

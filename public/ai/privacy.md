@@ -1,7 +1,7 @@
 ---
 title: "隐私与数据处理说明 | KiraMyao Equal"
 description: "KiraMyao Equal 的隐私、数据处理、问卷和公开资料整理说明。"
-canonical: "https://equal.kiramyao.com/privacy"
+canonical: "https://kiramyao.com/privacy"
 content_signal: "ai-train=no, search=yes, ai-input=yes"
 language: "zh-CN"
 ---

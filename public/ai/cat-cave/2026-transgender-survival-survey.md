@@ -4,7 +4,7 @@ description: "一起完成《2026 中国跨性别者生存处境调查》：一�
 title_zh: "一起完成《2026 中国跨性别者生存处境调查》"
 description_zh: "这是一份面向中国跨性别与性别多元群体的匿名问卷。我们希望记录医疗、家庭、教育、就业、心理健康与社群支持等真实处境，让更多经验被看见，也让后续报告和倡议有更扎实的依据。"
 keywords: "2026中国跨性别者生存处境调查, 跨性别, 问卷调查, 生存现状"
-canonical: "https://equal.kiramyao.com/cat-cave/2026-transgender-survival-survey"
+canonical: "https://kiramyao.com/cat-cave/2026-transgender-survival-survey"
 content_signal: "ai-train=no, search=yes, ai-input=yes"
 date: "2026.06.03"
 type: "blog"

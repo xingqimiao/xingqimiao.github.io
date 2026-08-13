@@ -1,7 +1,7 @@
 ---
 title: "加入我们 | KiraMyao Equal"
 description: "参与调查、关注项目、支持 KiraMyao Equal。"
-canonical: "https://equal.kiramyao.com/join"
+canonical: "https://kiramyao.com/join"
 content_signal: "ai-train=no, search=yes, ai-input=yes"
 language: "zh-CN"
 ---

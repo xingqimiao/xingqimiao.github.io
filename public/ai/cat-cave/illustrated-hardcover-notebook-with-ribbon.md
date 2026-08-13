@@ -4,7 +4,7 @@ description: "我们天生就被赋予了细腻的底色：偏爱柔软的色彩
 title_zh: "“带有精美插画和丝带的精装本”"
 description_zh: "所谓男娘测试题中的故事"
 keywords: "跨性别, 性别多元, 自我认同, 温柔"
-canonical: "https://equal.kiramyao.com/cat-cave/illustrated-hardcover-notebook-with-ribbon"
+canonical: "https://kiramyao.com/cat-cave/illustrated-hardcover-notebook-with-ribbon"
 content_signal: "ai-train=no, search=yes, ai-input=yes"
 date: "2026.05.05"
 type: "blog"

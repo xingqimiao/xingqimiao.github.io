@@ -4,7 +4,7 @@ description: "下载 IKEA 西班牙骄傲月 BLÅHAJ 鲨鲨《同理心使用说
 title_zh: "IKEA BLÅHAJ《同理心使用说明书》简体中文译制版"
 description_zh: "IKEA 西班牙在骄傲月推出的 BLÅHAJ 鲨鲨《同理心使用说明书》的简体中文译制版 PDF，供给简体中文读者。"
 keywords: "IKEA BLÅHAJ, 同理心使用说明书, 骄傲月, LGBTQ, 简体中文译制版, PDF下载"
-canonical: "https://equal.kiramyao.com/documents/ikea-blahaj-empathy-manual-zh-cn"
+canonical: "https://kiramyao.com/documents/ikea-blahaj-empathy-manual-zh-cn"
 content_signal: "ai-train=no, search=yes, ai-input=yes"
 date: "2026.06.01"
 type: "documents"

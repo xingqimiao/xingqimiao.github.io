@@ -4,7 +4,7 @@ description: "查资料时被一篇“出发去泰国做变猫手术”的博客
 title_zh: "“变成猫猫啦”一篇关于SRS的故事"
 description_zh: "“出发去泰国做变猫手术啦……” “变成猫猫啦！”"
 keywords: "SRS, 性别重置手术, 跨性别, 泰国"
-canonical: "https://equal.kiramyao.com/cat-cave/becoming-a-cat-a-story-about-srs"
+canonical: "https://kiramyao.com/cat-cave/becoming-a-cat-a-story-about-srs"
 content_signal: "ai-train=no, search=yes, ai-input=yes"
 date: "2026.05.01"
 type: "blog"
