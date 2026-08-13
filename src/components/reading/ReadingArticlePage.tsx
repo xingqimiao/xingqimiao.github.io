@@ -144,9 +144,11 @@ export function ReadingArticlePage({
               className={`grid transition-all duration-300 ${disclaimerOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
             >
               <div className="overflow-hidden">
-                <p className="reading-subtle pt-3 text-label-medium leading-relaxed text-text-sub/85">
-                  {disclaimer}
-                </p>
+                {disclaimer.split(/\n\n+/).map((paragraph, index) => (
+                  <p key={index} className="reading-subtle pt-3 text-label-medium leading-relaxed text-text-sub/85">
+                    {paragraph}
+                  </p>
+                ))}
               </div>
             </div>
           </div>

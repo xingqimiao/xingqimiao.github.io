@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import compiledArticles from '@/data/compiled_articles.json'
+import storyContentNotes from '@/data/story_content_notes.json'
 import type { Locale } from '@/i18n/locale'
 import { getArticleHref, normalizeRouteSlug } from '@/lib/articleRoute'
 import { stripDuplicateLeadImage } from '@/lib/articleContent'
@@ -13,6 +14,11 @@ export const ARTICLE_PLACEHOLDER_SLUG = '__placeholder'
 
 export const STORY_DISCLAIMER =
   '内容来自用户匿名投稿，不代表 KiraEqual 立场或支持其观点、行为。经基本筛查与匿名化处理，如有不当请联系report@kiramyao.com。感谢每一位投稿者。'
+
+export function storyDisclaimer(slug: string) {
+  const note = (storyContentNotes as Record<string, string | undefined>)[slug]
+  return note ? `${STORY_DISCLAIMER}\n\n${note}` : STORY_DISCLAIMER
+}
 
 export type SiteArticle = LocalizableArticle & {
   slug: string
@@ -106,7 +112,7 @@ export function ArticleRouteView({
       contentHtml={stripDuplicateLeadImage(presentation.contentHtml, article.cover_name)}
       contentLanguage={presentation.contentLanguage}
       initialTheme={article.type === 'stories' ? 'dark' : 'light'}
-      disclaimer={article.type === 'stories' ? STORY_DISCLAIMER : undefined}
+      disclaimer={article.type === 'stories' ? storyDisclaimer(article.slug) : undefined}
     />
   )
 }

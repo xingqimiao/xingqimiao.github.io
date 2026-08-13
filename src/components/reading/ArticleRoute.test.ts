@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildArticleRouteMetadata } from './ArticleRoute'
+import { buildArticleRouteMetadata, storyDisclaimer, STORY_DISCLAIMER } from './ArticleRoute'
 
 const report = {
   type: 'report',
@@ -78,5 +78,12 @@ describe('Chinese-only article route metadata', () => {
 
     expect(metadata.description).toBe('中文摘要')
     expect(metadata).not.toHaveProperty('keywords')
+  })
+
+  it('appends disclosed content notes to the Story disclaimer without touching other articles', () => {
+    expect(storyDisclaimer('27873052')).toContain(STORY_DISCLAIMER)
+    expect(storyDisclaimer('27873052')).toContain('中性化处理')
+    expect(storyDisclaimer('92331844')).toContain('错误的逃生方式')
+    expect(storyDisclaimer('45648863')).toBe(STORY_DISCLAIMER)
   })
 })
