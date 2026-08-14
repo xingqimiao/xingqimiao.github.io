@@ -1,6 +1,7 @@
 const LINK_HEADER = "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/json\", </.well-known/service-doc.md>; rel=\"service-doc\"; type=\"text/markdown\", </llms.txt>; rel=\"alternate\"; type=\"text/markdown\"";
 const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
 export const STORY_SLUG_ALIASES = Object.freeze({"88737526":"45648863","cat-birthday-17-kira":"45648863"});
+export const CAT_CAVE_SLUG_ALIASES = Object.freeze({"2026-trans-survival-survey":"2026-transgender-survival-survey","Becoming-a-Cat-cat!":"becoming-a-cat-a-story-about-srs"});
 const MARKDOWN_ROUTES = new Map([
   ["/", "/ai/index.md"],
   ["/index.html", "/ai/index.md"],
@@ -50,10 +51,24 @@ function markdownPathFor(pathname) {
   return null;
 }
 
-function storyAliasRedirect(url) {
+function slugAliasRedirect(url) {
   const segments = url.pathname.replace(/\/$/, "").split("/").filter(Boolean);
-  if (segments.length !== 2 || segments[0] !== "stories") return null;
-  const replacement = STORY_SLUG_ALIASES[segments[1]];
+  if (segments.length !== 2) return null;
+  const aliases =
+    segments[0] === "stories"
+      ? STORY_SLUG_ALIASES
+      : segments[0] === "cat-cave"
+        ? CAT_CAVE_SLUG_ALIASES
+        : null;
+  if (!aliases) return null;
+  let replacement = aliases[segments[1]];
+  if (!replacement) {
+    let decoded = segments[1];
+    try {
+      decoded = decodeURIComponent(segments[1]);
+    } catch {}
+    replacement = aliases[decoded];
+  }
   if (!replacement) return null;
   segments[1] = replacement;
   url.pathname = `/${segments.join("/")}`;
@@ -66,7 +81,7 @@ function storyAliasRedirect(url) {
 const worker = {
   async fetch(request, env) {
     const url = new URL(request.url);
-    const aliasRedirect = storyAliasRedirect(url);
+    const aliasRedirect = slugAliasRedirect(url);
     if (aliasRedirect) return aliasRedirect;
 
     if (request.method === "GET" && wantsMarkdown(request)) {

@@ -243,12 +243,32 @@ describe('agent Markdown localization', () => {
         '88737526': '45648863',
         'cat-birthday-17-kira': '45648863',
       })
+      expect(generatedWorker.CAT_CAVE_SLUG_ALIASES).toEqual({
+        '2026-trans-survival-survey': '2026-transgender-survival-survey',
+        'Becoming-a-Cat-cat!': 'becoming-a-cat-a-story-about-srs',
+      })
       const redirect = await generatedWorker.default.fetch(
         new Request('https://kiraequal.org/stories/88737526?source=old'),
         {},
       )
       expect(redirect.status).toBe(308)
       expect(redirect.headers.get('location')).toBe('https://kiraequal.org/stories/45648863?source=old')
+      const catRedirect = await generatedWorker.default.fetch(
+        new Request('https://kiraequal.org/cat-cave/2026-trans-survival-survey'),
+        {},
+      )
+      expect(catRedirect.status).toBe(308)
+      expect(catRedirect.headers.get('location')).toBe(
+        'https://kiraequal.org/cat-cave/2026-transgender-survival-survey',
+      )
+      const catRedirectEncoded = await generatedWorker.default.fetch(
+        new Request('https://kiraequal.org/cat-cave/Becoming-a-Cat-cat%21'),
+        {},
+      )
+      expect(catRedirectEncoded.status).toBe(308)
+      expect(catRedirectEncoded.headers.get('location')).toBe(
+        'https://kiraequal.org/cat-cave/becoming-a-cat-a-story-about-srs',
+      )
 
       const englishRouteRequests = []
       const removedEnglishRoute = await generatedWorker.default.fetch(
