@@ -37,7 +37,7 @@ export function SiteDocument({
   return (
     <html
       lang={htmlLanguage(locale)}
-      className={`${googleSans.variable} ${harmonyOSSans.variable} h-full antialiased`}
+      className={`${googleSans.variable} ${harmonyOSSans.variable} h-full overflow-x-clip antialiased`}
       suppressHydrationWarning
     >
       <head>
@@ -47,7 +47,7 @@ export function SiteDocument({
           }}
         />
       </head>
-      <body className="relative flex min-h-full flex-col overflow-x-hidden bg-background font-sans text-text-main">
+      <body className="relative flex min-h-full flex-col overflow-x-clip bg-background font-sans text-text-main">
         <SiteThemeBootstrap />
         <CanvasBackground />
         <Navbar locale={locale} />

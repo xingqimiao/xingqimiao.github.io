@@ -50,7 +50,7 @@ describe('Chinese-content site navigation', () => {
     expect(markup).not.toContain('>English</a>')
   })
 
-  it('renders the English footer links and an unbreakable license group', () => {
+  it('renders the English footer links and a wrapping license group', () => {
     const markup = renderToStaticMarkup(<Footer locale="zh" />)
 
     expect(markup).toContain('aria-label="Footer navigation"')
@@ -61,7 +61,7 @@ describe('Chinese-content site navigation', () => {
     expect(markup).not.toContain('隐私政策')
     expect(markup).not.toContain('href="/about"')
     expect(markup).not.toContain('aria-label="语言"')
-    expect(markup).toContain('whitespace-nowrap')
+    expect(markup).toContain('flex-wrap')
     expect(markup).toContain('<span>© 2026 KiraMyao Equal</span>')
     expect(markup).toContain('CC BY-NC 4.0')
     expect(markup).toContain('href="https://icp.gov.moe/?keyword=20260771"')

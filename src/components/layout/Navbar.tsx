@@ -103,7 +103,7 @@ export default function Navbar({ locale }: NavbarProps) {
             <button
               onClick={toggleMenu}
               className={cn(
-                "flex h-8 w-8 cursor-pointer flex-col items-center justify-center rounded-full transition-colors md:hidden",
+                "flex h-11 w-11 cursor-pointer flex-col items-center justify-center rounded-full transition-colors md:hidden",
                 isStoriesArea ? "hover:bg-white/10" : "hover:bg-black/5 dark:hover:bg-white/5",
               )}
               aria-label={isOpen ? dictionary.accessibility.closeMenu : dictionary.accessibility.openMenu}

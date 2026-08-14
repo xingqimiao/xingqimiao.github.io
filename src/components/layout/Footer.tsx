@@ -45,7 +45,7 @@ export default function Footer({ locale }: FooterProps) {
         )}
       >
         <div className={cn(
-          "inline-flex shrink-0 items-baseline whitespace-nowrap text-center text-body-large md:text-left",
+          "inline-flex max-w-full flex-wrap items-baseline justify-center text-center text-body-large md:justify-start md:text-left",
           isStoriesArea ? "text-white/56" : "text-text-sub",
         )}>
           <span>&copy; {currentYear} KiraMyao Equal</span>
