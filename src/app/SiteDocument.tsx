@@ -46,6 +46,12 @@ export function SiteDocument({
             __html: `(function(){try{var t=localStorage.getItem("kira-site-theme");var d=t?t==="dark":window.matchMedia("(prefers-color-scheme: dark)").matches;document.documentElement.classList.toggle("dark",d);}catch(e){}})();`,
           }}
         />
+        {/* Privacy-friendly analytics (Umami Cloud, cookieless) */}
+        <script
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id="42307541-bc01-4467-bb2b-2212c5dad23d"
+        />
       </head>
       <body className="relative flex min-h-full flex-col overflow-x-clip bg-background font-sans text-text-main">
         <SiteThemeBootstrap />
