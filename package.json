@@ -23,7 +23,8 @@
     "images:migrate:apply": "node scripts/migrate-article-images.mjs --apply",
     "images:verify": "node scripts/verify-article-images.mjs",
     "slugs:migrate:dry": "node scripts/migrate-slugs.mjs",
-    "slugs:migrate:apply": "node scripts/migrate-slugs.mjs --apply"
+    "slugs:migrate:apply": "node scripts/migrate-slugs.mjs --apply",
+    "indexnow": "node scripts/ping-indexnow.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
