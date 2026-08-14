@@ -11,7 +11,7 @@ KiraMyao Equal 关注中国跨性别与性别多元群体的生存处境、社�
 
 ## 核心页面
 
-- [About KiraMyao](https://kiramyao.com/about-kiramyao) ([Markdown](/ai/about-kiramyao.md))
+- [About us](https://kiramyao.com/about) ([Markdown](/ai/about.md))
 - [Stories](https://kiramyao.com/stories) ([Markdown](/ai/stories.md))
 - [Reports](https://kiramyao.com/report) ([Markdown](/ai/report.md))
 - [Documents](https://kiramyao.com/documents) ([Markdown](/ai/documents.md))

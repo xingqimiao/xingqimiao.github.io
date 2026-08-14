@@ -90,7 +90,7 @@ describe("equal-next requested public contract", () => {
     const rootRoutes = [
       "src/app/(zh)/layout.tsx",
       "src/app/(zh)/page.tsx",
-      "src/app/(zh)/about-kiramyao/page.tsx",
+      "src/app/(zh)/about/page.tsx",
       "src/app/(zh)/action/page.tsx",
       "src/app/(zh)/cat-cave/page.tsx",
       "src/app/(zh)/cat-cave/[slug]/page.tsx",
@@ -112,8 +112,7 @@ describe("equal-next requested public contract", () => {
     }
   });
 
-  it("does not expose English routes or the organization About route", async () => {
+  it("does not expose English routes", async () => {
     await expect(stat(path.join(root, "src/app/(en)/layout.tsx"))).rejects.toMatchObject({ code: "ENOENT" });
-    await expect(stat(path.join(root, "src/app/(zh)/about/page.tsx"))).rejects.toMatchObject({ code: "ENOENT" });
   });
 });

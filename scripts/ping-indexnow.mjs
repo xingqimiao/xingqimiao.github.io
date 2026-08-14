@@ -18,7 +18,7 @@ const KEY = readFileSync(join(rootDir, "public", "c3d7885f033d4f83be3e6213c1df46
 
 const STATIC_PAGES = [
   "/",
-  "/about-kiramyao",
+  "/about",
   "/action",
   "/cat-cave",
   "/documents",

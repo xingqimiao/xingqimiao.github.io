@@ -1,7 +1,7 @@
 ---
 title: "关于 KiraMyao | KiraMyao Equal"
 description: "KiraMyao Equal 网站维护者与项目整理者简介。"
-canonical: "https://kiramyao.com/about-kiramyao"
+canonical: "https://kiramyao.com/about"
 content_signal: "ai-train=no, search=yes, ai-input=yes"
 language: "zh-CN"
 ---

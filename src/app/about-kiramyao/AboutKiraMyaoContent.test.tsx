@@ -2,7 +2,7 @@ import React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { AboutKiraMyaoContent } from './AboutKiraMyaoContent'
-import AboutKiraMyaoPage from '@/app/(zh)/about-kiramyao/page'
+import AboutKiraMyaoPage from '@/app/(zh)/about/page'
 
 const content = {
   title: '团结起来',

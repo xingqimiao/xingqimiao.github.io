@@ -73,7 +73,7 @@ export default function Footer({ locale }: FooterProps) {
           aria-label={dictionary.accessibility.footerNavigation}
           className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 md:justify-end"
         >
-          <Link href={toLocalePath("/about-kiramyao", locale)} className={`text-body-large transition-colors hover:underline ${subtleLink}`} prefetch={false}>
+          <Link href={toLocalePath("/about", locale)} className={`text-body-large transition-colors hover:underline ${subtleLink}`} prefetch={false}>
             {dictionary.footer.aboutKiramyao}
           </Link>
           <Link href={toLocalePath("/privacy", locale)} className={`text-body-large transition-colors hover:underline ${subtleLink}`} prefetch={false}>

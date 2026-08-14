@@ -9,7 +9,7 @@ const BASE_URL = String(globalConfig.website_url || 'https://kiraequal.org').rep
 
 const staticPages = [
   { path: '/', priority: 1 },
-  { path: '/about-kiramyao', priority: 0.8 },
+  { path: '/about', priority: 0.8 },
   { path: '/action', priority: 0.8 },
   { path: '/cat-cave', priority: 0.8 },
   { path: '/documents', priority: 0.8 },

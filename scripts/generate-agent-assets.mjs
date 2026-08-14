@@ -525,7 +525,7 @@ export function aboutKiraMarkdown(about, locale = "zh") {
     description: locale === "en"
       ? about.englishDescription || "About the maintainer and project organizer of KiraMyao Equal."
       : about.seoDescription || "KiraMyao Equal 网站维护者与项目整理者简介。",
-    canonical: canonical(locale === "en" ? "/en/about-kiramyao" : "/about-kiramyao"),
+    canonical: canonical(locale === "en" ? "/en/about" : "/about"),
     content_signal: CONTENT_SIGNAL,
     language: locale === "en" ? "en" : "zh-CN",
   })}# ${title}
@@ -594,7 +594,7 @@ ${description}
 
 ## ${isEnglish ? "Core pages" : "核心页面"}
 
-- [About KiraMyao](${canonical(`${routePrefix}/about-kiramyao`)}) ([Markdown](${aiPrefix}/about-kiramyao.md))
+- [About us](${canonical(`${routePrefix}/about`)}) ([Markdown](${aiPrefix}/about.md))
 - [Stories](${canonical(`${routePrefix}/stories`)}) ([Markdown](${aiPrefix}/stories.md))
 - [Reports](${canonical(`${routePrefix}/report`)}) ([Markdown](${aiPrefix}/report.md))
 - [Documents](${canonical(`${routePrefix}/documents`)}) ([Markdown](${aiPrefix}/documents.md))
@@ -638,8 +638,8 @@ function coreResourcesFor(locale, about, join, privacy) {
       isEnglish
         ? about.englishDescription || "About the maintainer and project organizer of KiraMyao Equal."
         : about.seoDescription || "KiraMyao Equal 网站维护者与项目整理者简介。",
-      "/about-kiramyao",
-      "/about-kiramyao.md",
+      "/about",
+      "/about.md",
     ),
     page(isEnglish ? "Stories" : "故事", undefined, "/stories", "/stories.md"),
     page(isEnglish ? "Reports" : "报告", isEnglish
@@ -758,11 +758,15 @@ export function workerSource() {
 const CONTENT_SIGNAL = ${JSON.stringify(CONTENT_SIGNAL)};
 export const STORY_SLUG_ALIASES = Object.freeze(${JSON.stringify(STORY_SLUG_ALIASES)});
 export const CAT_CAVE_SLUG_ALIASES = Object.freeze(${JSON.stringify(CAT_CAVE_SLUG_ALIASES)});
+const PAGE_PATH_ALIASES = Object.freeze({
+  "/about-kiramyao": "/about",
+  "/about-kiramyao.html": "/about",
+});
 const MARKDOWN_ROUTES = new Map([
   ["/", "/ai/index.md"],
   ["/index.html", "/ai/index.md"],
-  ["/about-kiramyao", "/ai/about-kiramyao.md"],
-  ["/about-kiramyao.html", "/ai/about-kiramyao.md"],
+  ["/about", "/ai/about.md"],
+  ["/about.html", "/ai/about.md"],
   ["/action", "/ai/action.md"],
   ["/action.html", "/ai/action.md"],
   ["/cat-cave", "/ai/cat-cave.md"],
@@ -834,11 +838,23 @@ function slugAliasRedirect(url) {
   });
 }
 
+function pagePathRedirect(url) {
+  const target = PAGE_PATH_ALIASES[url.pathname];
+  if (!target) return null;
+  url.pathname = target;
+  return new Response(null, {
+    status: 308,
+    headers: { Location: url.toString() },
+  });
+}
+
 const worker = {
   async fetch(request, env) {
     const url = new URL(request.url);
     const aliasRedirect = slugAliasRedirect(url);
     if (aliasRedirect) return aliasRedirect;
+    const pageRedirect = pagePathRedirect(url);
+    if (pageRedirect) return pageRedirect;
 
     if (request.method === "GET" && wantsMarkdown(request)) {
       const markdownPath = markdownPathFor(url.pathname);
@@ -998,7 +1014,7 @@ export async function generateAgentAssets({
   ];
   const prefix = "ai";
   await write(`${prefix}/index.md`, indexMarkdown(homepageCards, compiledArticles, actions, "zh"));
-  await write(`${prefix}/about-kiramyao.md`, aboutKiraMarkdown(about, "zh"));
+  await write(`${prefix}/about.md`, aboutKiraMarkdown(about, "zh"));
   await write(`${prefix}/action.md`, actionMarkdown(actions, "zh"));
   for (const [type, zhTitle, , zhDescription] of listSpecs) {
     const section = type === "blog" ? "cat-cave" : type;

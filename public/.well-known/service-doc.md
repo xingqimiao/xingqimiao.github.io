@@ -16,7 +16,7 @@ Agents can request Markdown with `Accept: text/markdown`. On Cloudflare Pages, t
 ## Resources
 
 - [KiraMyao Equal](https://kiramyao.com/) ([Markdown](/ai/index.md))
-- [关于 KiraMyao](https://kiramyao.com/about-kiramyao) ([Markdown](/ai/about-kiramyao.md))
+- [关于 KiraMyao](https://kiramyao.com/about) ([Markdown](/ai/about.md))
 - [故事](https://kiramyao.com/stories) ([Markdown](/ai/stories.md))
 - [报告](https://kiramyao.com/report) ([Markdown](/ai/report.md))
 - [资料](https://kiramyao.com/documents) ([Markdown](/ai/documents.md))
