@@ -7,6 +7,7 @@ import { getArticleHref, normalizeRouteSlug } from '@/lib/articleRoute'
 import { stripDuplicateLeadImage } from '@/lib/articleContent'
 import { buildArticlePagePresentation } from '@/lib/articlePagePresentation'
 import { buildLocalizedMetadata } from '@/lib/localizedMetadata'
+import { articleJsonLd } from '@/lib/jsonLd'
 import type { LocalizableArticle } from '@/lib/localizedArticle'
 import { ReadingArticlePage } from './ReadingArticlePage'
 
@@ -100,19 +101,36 @@ export function ArticleRouteView({
   const presentation = buildArticlePagePresentation(locale, article)
 
   return (
-    <ReadingArticlePage
-      locale={locale}
-      backHref={presentation.backHref}
-      backLabel={presentation.backLabel}
-      categoryLabel={presentation.categoryLabel}
-      kicker={presentation.kicker}
-      title={presentation.title}
-      date={article.date}
-      coverName={article.cover_name}
-      contentHtml={stripDuplicateLeadImage(presentation.contentHtml, article.cover_name)}
-      contentLanguage={presentation.contentLanguage}
-      initialTheme={article.type === 'stories' ? 'dark' : 'light'}
-      disclaimer={article.type === 'stories' ? storyDisclaimer(article.slug) : undefined}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            articleJsonLd({
+              type: article.type,
+              slug: article.slug,
+              title: article.title,
+              description: article.seoDescription,
+              cover: article.cover_name,
+              date: article.date,
+            }),
+          ),
+        }}
+      />
+      <ReadingArticlePage
+        locale={locale}
+        backHref={presentation.backHref}
+        backLabel={presentation.backLabel}
+        categoryLabel={presentation.categoryLabel}
+        kicker={presentation.kicker}
+        title={presentation.title}
+        date={article.date}
+        coverName={article.cover_name}
+        contentHtml={stripDuplicateLeadImage(presentation.contentHtml, article.cover_name)}
+        contentLanguage={presentation.contentLanguage}
+        initialTheme={article.type === 'stories' ? 'dark' : 'light'}
+        disclaimer={article.type === 'stories' ? storyDisclaimer(article.slug) : undefined}
+      />
+    </>
   )
 }

@@ -1,5 +1,6 @@
 import HomePage from '@/components/home/HomePage'
 import { buildLocalizedMetadata } from '@/lib/localizedMetadata'
+import { siteJsonLd } from '@/lib/jsonLd'
 
 const description = 'KiraMyao Equal 是一个关注性别多元群体的独立研究、公共知识与数字公益项目。'
 
@@ -14,5 +15,13 @@ export const metadata = buildLocalizedMetadata({
 })
 
 export default function DefaultHomePage() {
-  return <HomePage locale="zh" />
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd()) }}
+      />
+      <HomePage locale="zh" />
+    </>
+  )
 }
