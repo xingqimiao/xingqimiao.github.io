@@ -54,7 +54,7 @@ describe('Chinese-content site navigation', () => {
     const markup = renderToStaticMarkup(<Footer locale="zh" />)
 
     expect(markup).toContain('aria-label="Footer navigation"')
-    expect(anchorAttributes(markup, 'About KiraMyao')).toContain('href="/about-kiramyao"')
+    expect(anchorAttributes(markup, 'About us')).toContain('href="/about-kiramyao"')
     expect(anchorAttributes(markup, 'Privacy Policy')).toContain('href="/privacy"')
     expect(anchorAttributes(markup, 'Project Trans')).toContain('href="https://2345.lgbt/zh-cn/"')
     expect(markup).not.toContain('关于 KiraMyao')

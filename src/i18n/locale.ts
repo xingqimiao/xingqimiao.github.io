@@ -17,7 +17,7 @@ export const uiDictionary = {
     join: 'Join Us',
   },
   footer: {
-    aboutKiramyao: 'About KiraMyao',
+    aboutKiramyao: 'About us',
     privacy: 'Privacy Policy',
     projectTrans: 'Project Trans',
     twitter: 'Twitter',
