@@ -14,7 +14,7 @@ const globalConfig = JSON.parse(
 const BASE_URL = String(globalConfig.website_url || "https://kiramyao.com").replace(/\/+$/, "");
 const HOST = new URL(BASE_URL).host;
 
-const KEY = readFileSync(join(rootDir, "public", "ae7e1d5303fd6ef916a0b7a7524b114c.txt"), "utf8").trim();
+const KEY = readFileSync(join(rootDir, "public", "c3d7885f033d4f83be3e6213c1df46fb.txt"), "utf8").trim();
 
 const STATIC_PAGES = [
   "/",
