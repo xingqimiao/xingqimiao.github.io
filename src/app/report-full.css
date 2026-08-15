@@ -945,3 +945,43 @@
 .reading-page[data-theme="dark"] .report-full img {
   border-color: rgba(255, 255, 255, 0.12);
 }
+
+/* ── 移动端适配（≤640px，375px 视口下正文容器约 327px） ───────────────────── */
+@media (max-width: 640px) {
+  /* 执行摘要统计卡：3 列 → 2 列，避免数字与标签被挤压 */
+  .reading-page .report-full .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .reading-page .report-full .stat-card {
+    padding: 12px 14px;
+  }
+  .reading-page .report-full .stat-card .num {
+    font-size: 26px;
+  }
+
+  /* cross-bars：双列组 → 单列，否则条形只剩十几像素 */
+  .reading-page .report-full .cross-bars .xgrid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  /* 步骤 / 限制 / 行动卡片：双列 → 单列 */
+  .reading-page .report-full .steps-grid,
+  .reading-page .report-full .limit-grid,
+  .reading-page .report-full .action-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  /* 第 11 章总览双列 → 单列 */
+  .reading-page .report-full .ch11-overview .row {
+    grid-template-columns: 1fr;
+  }
+
+  /* 致谢三列 → 两列 */
+  .reading-page .report-full .thanks-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 12px;
+  }
+}
