@@ -7,7 +7,7 @@ const description = 'KiraMyao Equal 是一个关注性别多元群体的独立�
 export const metadata = buildLocalizedMetadata({
   locale: 'zh',
   chinesePath: '/',
-  title: '跨性别与性少数群体公益信息与倡导',
+  title: 'KiraEqual 跨性别研究 ·报告与故事',
   description,
   openGraphImage: '/pic/index/og-home.png',
   openGraphImageAlt: 'KiraMyao Equal',
