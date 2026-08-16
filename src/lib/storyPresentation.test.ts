@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { selectRandomStory, sortStoriesByYearDescending, storyYear } from "./storyPresentation";
+import { selectRandomStory, sortStoriesByDateDescending, storyYear } from "./storyPresentation";
 
 describe("story presentation contract", () => {
   it("shows only a four-digit year", () => {
@@ -8,16 +8,31 @@ describe("story presentation contract", () => {
     expect(storyYear({ date: "unknown" })).toBe("");
   });
 
-  it("sorts descending by year and stays stable within the same year", () => {
+  it("sorts descending by full date and stays stable for equal dates", () => {
     const stories = [
-      { slug: "same-year-first", date: "2024-01-01" },
-      { slug: "newest", date: "2026-01-01" },
-      { slug: "same-year-second", experience_date: "2024-12-31" },
+      { slug: "same-date-first", date: "2024-01-01" },
+      { slug: "newest", date: "2026-08-16" },
+      { slug: "same-date-second", experience_date: "2024-01-01" },
+      { slug: "later-2024", date: "2024-12-31" },
     ];
-    expect(sortStoriesByYearDescending(stories).map((story) => story.slug)).toEqual([
+    expect(sortStoriesByDateDescending(stories).map((story) => story.slug)).toEqual([
       "newest",
-      "same-year-first",
-      "same-year-second",
+      "later-2024",
+      "same-date-first",
+      "same-date-second",
+    ]);
+  });
+
+  it("ranks dotted dates above year-only dates within the same year", () => {
+    const stories = [
+      { slug: "year-only", date: "2026" },
+      { slug: "spring", date: "2026.06.29" },
+      { slug: "today", date: "2026.08.16" },
+    ];
+    expect(sortStoriesByDateDescending(stories).map((story) => story.slug)).toEqual([
+      "today",
+      "spring",
+      "year-only",
     ]);
   });
 

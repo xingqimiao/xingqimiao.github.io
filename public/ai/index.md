@@ -135,6 +135,7 @@ KiraMyao Equal 关注中国跨性别与性别多元群体的生存处境、社�
 - [我们的存在,就是对恶意最大的反抗](https://kiramyao.com/stories/80737619) ([Markdown](/ai/stories/80737619.md))
 - [把名字还给自己](https://kiramyao.com/stories/81126703) ([Markdown](/ai/stories/81126703.md))
 - [愿你真的清楚这是你自己](https://kiramyao.com/stories/83112997) ([Markdown](/ai/stories/83112997.md))
+- [一个花了十七年才认出自己的人](https://kiramyao.com/stories/83512914) ([Markdown](/ai/stories/83512914.md))
 - [希望我们大家可以不再离开](https://kiramyao.com/stories/83802008) ([Markdown](/ai/stories/83802008.md))
 - [向地底深处扎根的坚韧](https://kiramyao.com/stories/84093490) ([Markdown](/ai/stories/84093490.md))
 - [彼此守护的旅程](https://kiramyao.com/stories/84305393) ([Markdown](/ai/stories/84305393.md))

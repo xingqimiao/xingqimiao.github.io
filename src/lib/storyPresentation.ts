@@ -6,10 +6,21 @@ export function storyYear(story: DatedStory): string {
   return match?.[1] || "";
 }
 
-export function sortStoriesByYearDescending<T extends DatedStory>(stories: readonly T[]): T[] {
+/** "2026.08.16" -> 20260816, "2026" -> 20260101, invalid -> -Infinity */
+export function articleDateValue(story: DatedStory): number {
+  const source = story.experience_date || story.date || "";
+  const match = source.match(/(\d{4})(?:[-.](\d{1,2}))?(?:[-.](\d{1,2}))?/);
+  if (!match) return Number.NEGATIVE_INFINITY;
+  const year = Number(match[1]);
+  const month = match[2] ? Number(match[2]) : 1;
+  const day = match[3] ? Number(match[3]) : 1;
+  return year * 10000 + month * 100 + day;
+}
+
+export function sortStoriesByDateDescending<T extends DatedStory>(stories: readonly T[]): T[] {
   return stories
-    .map((story, index) => ({ story, index, year: Number(storyYear(story)) || Number.NEGATIVE_INFINITY }))
-    .sort((a, b) => b.year - a.year || a.index - b.index)
+    .map((story, index) => ({ story, index, value: articleDateValue(story) }))
+    .sort((a, b) => b.value - a.value || a.index - b.index)
     .map(({ story }) => story);
 }
 

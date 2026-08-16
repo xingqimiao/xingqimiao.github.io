@@ -121,6 +121,7 @@ Content-Signal: ai-train=no, search=yes, ai-input=yes
 - [我们的存在,就是对恶意最大的反抗](/ai/stories/80737619.md): https://kiramyao.com/stories/80737619
 - [把名字还给自己](/ai/stories/81126703.md): https://kiramyao.com/stories/81126703
 - [愿你真的清楚这是你自己](/ai/stories/83112997.md): https://kiramyao.com/stories/83112997
+- [一个花了十七年才认出自己的人](/ai/stories/83512914.md): https://kiramyao.com/stories/83512914
 - [希望我们大家可以不再离开](/ai/stories/83802008.md): https://kiramyao.com/stories/83802008
 - [向地底深处扎根的坚韧](/ai/stories/84093490.md): https://kiramyao.com/stories/84093490
 - [彼此守护的旅程](/ai/stories/84305393.md): https://kiramyao.com/stories/84305393

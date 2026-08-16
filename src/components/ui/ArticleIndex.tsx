@@ -6,6 +6,7 @@ import { SearchBox } from "@/components/ui/SearchBox";
 import { cn } from "@/lib/utils";
 import { getArticleHref } from "@/lib/articleRoute";
 import { searchItems } from "@/lib/search";
+import { articleDateValue } from "@/lib/storyPresentation";
 import type { Locale } from "@/i18n/locale";
 import { toLocalePath } from "@/i18n/locale";
 import { resolveLocalizedArticle } from "@/lib/localizedArticle";
@@ -98,13 +99,20 @@ export function ArticleIndex({ locale = "zh", articles, type, searchPlaceholder,
   }, [localizedArticles]);
 
   const groupedArticles = useMemo(() => {
-    return filteredArticles.reduce<Record<string, LocalizedArticleIndexItem[]>>((groups, article) => {
+    const groups = filteredArticles.reduce<Record<string, LocalizedArticleIndexItem[]>>((groups, article) => {
       const year = getYear(article.date);
       groups[year] = groups[year] || [];
       groups[year].push(article);
       return groups;
     }, {});
-  }, [filteredArticles]);
+    // Newest first within each year; keep relevance order while searching
+    if (!activeQuery) {
+      for (const year of Object.keys(groups)) {
+        groups[year].sort((a, b) => articleDateValue(b) - articleDateValue(a));
+      }
+    }
+    return groups;
+  }, [filteredArticles, activeQuery]);
 
   const visibleYears = Object.keys(groupedArticles).sort((a, b) => (a === 'Undated' ? 1 : 0) - (b === 'Undated' ? 1 : 0) || b.localeCompare(a, undefined, { numeric: true }));
 

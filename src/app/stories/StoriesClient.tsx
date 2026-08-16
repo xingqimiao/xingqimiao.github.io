@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import compiledArticles from "@/data/compiled_articles.json";
 import { searchItems } from "@/lib/search";
-import { selectRandomStory, sortStoriesByYearDescending, storyYear } from "@/lib/storyPresentation";
+import { selectRandomStory, sortStoriesByDateDescending, storyYear } from "@/lib/storyPresentation";
 import { localizeStoryItems, storyListCopy, type StoryListCopy } from "@/lib/storyListPresentation";
 import { getArticleHref } from "@/lib/articleRoute";
 import { migrateStoryBookmarks } from "@/lib/storySlugAliases";
@@ -282,7 +282,7 @@ export default function StoriesClient({
 
   const stories = useMemo(
     () =>
-      sortStoriesByYearDescending(
+      sortStoriesByDateDescending(
         localizeStoryItems(
           locale,
           articles.filter((article) => article.type === "stories"),
