@@ -84,6 +84,7 @@ describe('Chinese-only article route metadata', () => {
     expect(storyDisclaimer('27873052')).toContain(STORY_DISCLAIMER)
     expect(storyDisclaimer('27873052')).toContain('中性化处理')
     expect(storyDisclaimer('92331844')).toContain('错误的逃生方式')
+    expect(storyDisclaimer('83512914')).toContain('中性化处理')
     expect(storyDisclaimer('45648863')).toBe(STORY_DISCLAIMER)
   })
 })
