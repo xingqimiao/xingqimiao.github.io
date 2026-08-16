@@ -14,7 +14,7 @@ import { ReadingArticlePage } from './ReadingArticlePage'
 export const ARTICLE_PLACEHOLDER_SLUG = '__placeholder'
 
 export const STORY_DISCLAIMER =
-  '内容来自用户匿名投稿，不代表 KiraEqual 立场或支持其观点、行为。经基本筛查与匿名化处理，如有不当请联系report@kiramyao.com。感谢每一位投稿者。'
+  '内容来自用户匿名投稿，不代表 KiraEqual 立场或支持其观点、行为。经基本筛查与匿名化处理，如有不当请联系report@kiramyao.com。感谢每一位投稿者。除非作者自愿公开其社交媒体或昵称。'
 
 export function storyDisclaimer(slug: string) {
   const note = (storyContentNotes as Record<string, string | undefined>)[slug]
