@@ -7,7 +7,7 @@
     "dev": "next dev",
     "content:compile": "node scripts/compile-articles.mjs",
     "logo:migrate": "node scripts/migrate-site-logo.mjs",
-    "build": "npm run content:compile && node scripts/generate-agent-assets.mjs && next build",
+    "build": "npm run content:compile && node scripts/generate-agent-assets.mjs && next build && node scripts/clean-export.mjs",
     "pages:verify": "node scripts/verify-cloudflare-pages.mjs",
     "pages:deploy": "npm run build && npm run pages:verify && npx wrangler pages deploy out --project-name kiraequal",
     "start": "next start",

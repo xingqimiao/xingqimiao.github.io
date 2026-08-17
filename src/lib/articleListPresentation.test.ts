@@ -8,8 +8,8 @@ describe('article list copy', () => {
       subtitle: undefined,
       searchPlaceholder: '搜索报告标题或关键词',
       emptyText: '没有找到匹配的报告，请尝试其他关键词',
-      metadataTitle: '研究、数据与报告',
-      metadataDescription: '阅读 KiraMyao Equal 发布的跨性别与性少数群体研究、数据与报告。',
+      metadataTitle: '跨性别研究与调研报告 · 核心数据',
+      metadataDescription: '阅读 KiraMyao Equal 发布的中国跨性别与性少数群体研究、调研数据与深度报告。',
     })
   })
 

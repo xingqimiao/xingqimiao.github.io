@@ -5,7 +5,7 @@ describe('Front Matter content compiler', () => {
   it('compiles Story Markdown while removing every summary and English field', () => {
     const article = parseArticleSource(`---\ntitle: 一只猫\nslug: "12345678"\nyear: "2026"\nregion: 浙江\ndescription: 不应存在\nseoDescription: 搜索摘要\nkeywords: [猫, 经历]\nenglishTitle: A Cat\nenglishDescription: Must not exist\nenglishMarkdown: |\n  # Full story\n\n  ![image](/pic/stories/cat.webp)\n---\n# 正文`, 'fallback', 'stories', { desc: '旧故事摘要', englishDescription: 'Old summary' })
     expect(article).toMatchObject({ slug: '12345678', date: '2026', seoDescription: '搜索摘要', keywords: ['猫', '经历'] })
-    expect(article.contentHtml).toContain('<h1>正文</h1>')
+    expect(article.contentHtml).toContain('<h1 id="正文">正文</h1>')
     expect(article).not.toHaveProperty('desc')
     expect(article).not.toHaveProperty('englishTitle')
     expect(article).not.toHaveProperty('englishDescription')
@@ -38,6 +38,13 @@ describe('Front Matter content compiler', () => {
     // it does NOT inherit a previously-compiled featured value from the fallback object.
     const noFallback = parseArticleSource(`---\ntitle: 报告\ndate: "2026-08-10"\ndescription: 摘要\n---\n# 正文`, 'keep', 'report', { grid_span: 'featured' })
     expect(noFallback).toMatchObject({ grid_span: 'normal' })
+  })
+
+  it('gives every heading a stable lowercase id so in-page anchors resolve', () => {
+    const article = parseArticleSource('## 转学\n\n### ZTZJ\n\n#### 睿', 'anchor-test', 'stories')
+    expect(article.contentHtml).toContain('<h2 id="转学">转学</h2>')
+    expect(article.contentHtml).toContain('<h3 id="ztzj">ZTZJ</h3>')
+    expect(article.contentHtml).toContain('<h4 id="睿">睿</h4>')
   })
 
   it('repairs legacy indented Chinese prose while preserving explicit code blocks', () => {

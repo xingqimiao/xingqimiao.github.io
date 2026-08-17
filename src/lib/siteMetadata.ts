@@ -5,9 +5,26 @@ import globalConfig from '@/data/global_config.json'
 const siteUrl = String(globalConfig.website_url || 'https://kiraequal.org').replace(/\/+$/, '')
 
 const rootCopy = {
-  defaultTitle: 'KiraMyao Equal | 跨性别与性少数群体公益信息与倡导网站',
-  description: 'KiraMyao Equal 是一个关注性别多元群体的独立研究、公共知识与数字公益项目。',
-  keywords: ['KiraMyao Equal', 'KiraEqual', 'kiramyao.com', '跨性别', 'LGBTQ+', '性少数群体', '公益信息', '性别平等'],
+  defaultTitle: 'KiraEqual · 跨性别研究报告与真实故事文集',
+  description: 'KiraMyao Equal 是一个关注性别多元群体的独立研究、公共知识与数字公益项目，提供跨性别生活现状调研报告与真实经历叙事。',
+  keywords: [
+    'KiraEqual',
+    'KiraMyao Equal',
+    'kiramyao.com',
+    '跨性别',
+    '跨性别报告',
+    '跨性别故事',
+    '中国跨性别报告',
+    '性别多元群体',
+    'LGBTQ+',
+    '性少数群体',
+    'MtF',
+    'FtM',
+    'Non-binary',
+    '性别认同',
+    '公益信息',
+    '性别平等',
+  ],
   locale: 'zh_CN',
 } as const
 

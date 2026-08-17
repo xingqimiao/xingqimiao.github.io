@@ -17,6 +17,7 @@ const staticPages = [
   { path: '/privacy', priority: 0.8 },
   { path: '/report', priority: 0.8 },
   { path: '/stories', priority: 0.8 },
+  { path: '/stories/policy', priority: 0.8 },
 ] as const
 
 function articleDate(value: string | undefined, fallback: Date) {

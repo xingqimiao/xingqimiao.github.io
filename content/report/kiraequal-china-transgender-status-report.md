@@ -1,12 +1,12 @@
 ---
-title: 'KiraMyao Equal：中国跨性别者现状报告'
+title: '中国跨性别者现状报告 · KiraMyao Equal 综合研究'
 slug: "kiraequal-china-transgender-status-report"
 cover: '/pic/report/kiraequal-china-transgender-status-report-cover.jpeg'
 type: report
 date: "2026.04.27"
 description: '中国跨性别群体仍面临多方面现实困难——由KiraMyao Equal整理'
-seoDescription: '基于2019-2025年多项定量调研与定性访谈，系统审视中国跨性别群体生存现状：医疗、家庭、教育与就业领域的系统性壁垒与群体的隐秘脆弱。'
-keywords: [中国跨性别, 生存现状报告, 跨性别调研, 系统性壁垒]
+seoDescription: '系统审视中国跨性别群体生存现状与中国跨性别报告：基于多项定量调研与定性访谈，涵盖医疗资源、家庭接纳、教育与就业壁垒及心理健康。'
+keywords: [中国跨性别报告, 中国跨性别, 跨性别现状报告, 跨性别调研, 跨性别生存现状, 跨性别医疗]
 ---
 
 ![KiraMyao_Equal__China](/pic/report/kiraequal-china-transgender-status-report-cover.jpeg)

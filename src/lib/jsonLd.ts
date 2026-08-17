@@ -53,6 +53,7 @@ export type JsonLdArticle = {
   description?: string
   cover?: string
   date?: string
+  keywords?: readonly string[]
 }
 
 /** Article/Report/BlogPosting schema for article pages. */
@@ -64,6 +65,7 @@ export function articleJsonLd(article: JsonLdArticle) {
     '@type': TYPE_TO_SCHEMA[article.type] ?? 'Article',
     headline: article.title,
     description: article.description?.trim() || undefined,
+    keywords: article.keywords && article.keywords.length > 0 ? article.keywords : undefined,
     image: article.cover ? `${BASE_URL}${article.cover}` : undefined,
     datePublished: datePublished ?? undefined,
     dateModified: datePublished ?? undefined,
@@ -71,5 +73,42 @@ export function articleJsonLd(article: JsonLdArticle) {
     author: { '@type': 'Organization', name: 'KiraMyao Equal', url: BASE_URL },
     publisher: { '@id': `${BASE_URL}/#organization` },
     mainEntityOfPage: { '@type': 'WebPage', '@id': pageUrl },
+  }
+}
+
+export type CollectionItem = {
+  title: string
+  path: string
+}
+
+export type CollectionParams = {
+  name: string
+  description: string
+  path: string
+  items: readonly CollectionItem[]
+}
+
+/** CollectionPage and ItemList schema for index/list pages. */
+export function collectionJsonLd({ name, description, path, items }: CollectionParams) {
+  const pageUrl = `${BASE_URL}${path}`
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    '@id': pageUrl,
+    url: pageUrl,
+    name,
+    description,
+    inLanguage: 'zh-CN',
+    publisher: { '@id': `${BASE_URL}/#organization` },
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: items.length,
+      itemListElement: items.map((item, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: item.title,
+        url: `${BASE_URL}${item.path}`,
+      })),
+    },
   }
 }

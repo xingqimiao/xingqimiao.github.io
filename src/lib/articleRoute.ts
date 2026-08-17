@@ -1,4 +1,4 @@
-export function encodeArticleSlug(slug: string) {
+function encodeArticleSlug(slug: string) {
   return encodeURIComponent(slug);
 }
 

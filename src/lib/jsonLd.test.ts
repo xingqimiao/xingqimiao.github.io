@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { articleJsonLd, siteJsonLd, toIsoDate } from './jsonLd'
+import { articleJsonLd, collectionJsonLd, siteJsonLd, toIsoDate } from './jsonLd'
 
 describe('toIsoDate', () => {
   it('converts year-only dates', () => {
@@ -63,5 +63,49 @@ describe('articleJsonLd', () => {
     expect(jsonLd.description).toBeUndefined()
     expect(jsonLd.image).toBeUndefined()
     expect(jsonLd.datePublished).toBeUndefined()
+  })
+
+  it('includes keywords and inLanguage when available', () => {
+    const jsonLd = articleJsonLd({
+      ...base,
+      keywords: ['跨性别', '中国跨性别报告'],
+    })
+    expect(jsonLd.keywords).toEqual(['跨性别', '中国跨性别报告'])
+    expect(jsonLd.inLanguage).toBe('zh-CN')
+  })
+})
+
+describe('collectionJsonLd', () => {
+  it('generates CollectionPage and ItemList for article list pages', () => {
+    const jsonLd = collectionJsonLd({
+      name: '跨性别真实故事与经历文集',
+      description: '阅读由 KiraMyao Equal 收集的中国跨性别群体真实经历。',
+      path: '/stories',
+      items: [
+        { title: '故事一', path: '/stories/1' },
+        { title: '故事二', path: '/stories/2' },
+      ],
+    })
+
+    expect(jsonLd['@type']).toBe('CollectionPage')
+    expect(jsonLd.url).toBe('https://kiramyao.com/stories')
+    expect(jsonLd.name).toBe('跨性别真实故事与经历文集')
+    expect(jsonLd.mainEntity).toMatchObject({
+      '@type': 'ItemList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: '故事一',
+          url: 'https://kiramyao.com/stories/1',
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: '故事二',
+          url: 'https://kiramyao.com/stories/2',
+        },
+      ],
+    })
   })
 })

@@ -8,6 +8,8 @@ describe('root metadata locale boundary', () => {
 
       expect(metadata.description).toContain('性别多元群体')
       expect(metadata.keywords).toContain('跨性别')
+      expect(metadata.keywords).toContain('跨性别报告')
+      expect(metadata.keywords).toContain('跨性别故事')
       expect(metadata.openGraph).toMatchObject({ locale: 'zh_CN' })
     }
   })

@@ -463,7 +463,7 @@ export default function StoriesClient({
             </button>
 
             <Link
-              href={toLocalePath("/join", locale)}
+              href={toLocalePath("/stories/policy", locale)}
               className="inline-flex shrink-0 items-center justify-center rounded-full border border-white/12 bg-white/[0.035] px-6 py-4 text-label-large font-semibold text-white/82 transition-all hover:border-[#d77abd]/45 hover:text-white"
               prefetch={false}
             >

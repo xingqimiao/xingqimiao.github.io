@@ -26,7 +26,15 @@ function renderMarkdown(markdown) {
       tokens: marked.Lexer.lexInline(text),
     }
   }
-  return marked.parser(tokens)
+  const renderer = new marked.Renderer()
+  const heading = renderer.heading.bind(renderer)
+  renderer.heading = ({ tokens: headingTokens, depth }) => {
+    const text = headingTokens.map((item) => item.text || '').join('')
+    const id = text.trim().toLowerCase().replace(/\s+/g, '-')
+    const html = heading({ tokens: headingTokens, depth })
+    return id ? html.replace(/^<h([1-6])/, `<h$1 id="${id.replace(/"/g, '&quot;')}"`) : html
+  }
+  return marked.parser(tokens, { renderer })
 }
 
 export function parseArticleSource(raw, fallbackSlug, type, fallback = {}) {

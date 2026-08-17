@@ -13,6 +13,8 @@ language: "zh-CN"
 
 KiraEqual 为独立运营的公益项目，不代表任何政府、社会组织或其他机构，亦不受其控制、指示或代表其立场。KiraEqual 不从事或宣传危害公共安全、暴力、恐怖主义、反人类及其他违法行为，不以任何形式鼓励对他人的伤害。
 
+投稿前请阅读我们的 [Stories 内容政策](/stories/policy)，以确保您的内容准确无害地展示在 Stories 页面。
+
 ## 参与入口
 
 - 加入 KiraMyao Equal｜志愿者招募表 (Google Forms): https://forms.gle/yJY2ZnawLLdgPnws7
