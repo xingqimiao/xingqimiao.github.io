@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { articleJsonLd, collectionJsonLd, siteJsonLd, toIsoDate } from './jsonLd'
+import { articleJsonLd, collectionJsonLd, pageJsonLd, siteJsonLd, toIsoDate } from './jsonLd'
 
 describe('toIsoDate', () => {
   it('converts year-only dates', () => {
@@ -107,5 +107,19 @@ describe('collectionJsonLd', () => {
         },
       ],
     })
+  })
+})
+
+describe('pageJsonLd', () => {
+  it('emits WebPage with a two-level BreadcrumbList for static pages', () => {
+    const ld = pageJsonLd({ title: '隐私与数据处理说明', description: '隐私说明', path: '/privacy' })
+    expect(ld['@type']).toBe('WebPage')
+    expect(ld.url).toBe('https://kiramyao.com/privacy')
+    expect(ld['@id']).toBe('https://kiramyao.com/privacy')
+    expect(ld.inLanguage).toBe('zh-CN')
+    expect(ld.breadcrumb['@type']).toBe('BreadcrumbList')
+    expect(ld.breadcrumb.itemListElement).toHaveLength(2)
+    expect(ld.breadcrumb.itemListElement[0]).toMatchObject({ position: 1, name: '首页', item: 'https://kiramyao.com' })
+    expect(ld.breadcrumb.itemListElement[1]).toMatchObject({ position: 2, name: '隐私与数据处理说明', item: 'https://kiramyao.com/privacy' })
   })
 })

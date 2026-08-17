@@ -26,7 +26,7 @@ export function buildLocalizedMetadata({
 }: BuildLocalizedMetadataInput): Metadata {
   const images = openGraphImage
     ? [{ url: openGraphImage, alt: openGraphImageAlt }]
-    : undefined
+    : [{ url: '/pic/index/og-home.png', alt: title }]
   const visibleKeywords = keywords?.length ? keywords : undefined
 
   return {

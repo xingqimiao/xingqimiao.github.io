@@ -51,6 +51,22 @@ describe('localized metadata contract', () => {
     })
   })
 
+  it('falls back to the site-wide share image when no openGraphImage is given', () => {
+    const metadata = buildLocalizedMetadata({
+      locale: 'zh',
+      chinesePath: '/privacy',
+      title: '隐私与数据处理说明',
+      description: '隐私说明',
+    })
+
+    expect(metadata.openGraph?.images).toEqual([
+      { url: '/pic/index/og-home.png', alt: '隐私与数据处理说明' },
+    ])
+    expect(metadata.twitter?.images).toEqual([
+      { url: '/pic/index/og-home.png', alt: '隐私与数据处理说明' },
+    ])
+  })
+
   it('never emits language alternates, alternate locales or English paths', () => {
     const metadata = buildLocalizedMetadata({
       locale: 'zh',

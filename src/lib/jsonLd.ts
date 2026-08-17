@@ -112,3 +112,32 @@ export function collectionJsonLd({ name, description, path, items }: CollectionP
     },
   }
 }
+
+export type StaticPageParams = {
+  title: string
+  description: string
+  path: string
+}
+
+/** WebPage (with breadcrumb) schema for static pages: about / action / join /
+ * privacy / stories policy / list pages without a collection schema. */
+export function pageJsonLd({ title, description, path }: StaticPageParams) {
+  const pageUrl = `${BASE_URL}${path}`
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': pageUrl,
+    url: pageUrl,
+    name: title,
+    description,
+    inLanguage: 'zh-CN',
+    publisher: { '@id': `${BASE_URL}/#organization` },
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: '首页', item: BASE_URL },
+        { '@type': 'ListItem', position: 2, name: title, item: pageUrl },
+      ],
+    },
+  }
+}

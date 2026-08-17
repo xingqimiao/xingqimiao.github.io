@@ -1,5 +1,6 @@
 import ActionClient from "@/app/action/ActionClient";
 import { buildLocalizedMetadata } from "@/lib/localizedMetadata";
+import { pageJsonLd } from "@/lib/jsonLd";
 import { buildActionPresentation } from "@/lib/actionPresentation";
 import actionsData from "@/data/actions.json";
 
@@ -13,5 +14,21 @@ export const metadata = buildLocalizedMetadata({
 });
 
 export default function ActionPage() {
-  return <ActionClient locale="zh" />;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            pageJsonLd({
+              title: copy.metadataTitle,
+              description: copy.metadataDescription,
+              path: "/action",
+            }),
+          ),
+        }}
+      />
+      <ActionClient locale="zh" />
+    </>
+  );
 }
