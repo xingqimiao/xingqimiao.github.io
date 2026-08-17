@@ -22,7 +22,6 @@ export const STORY_SLUG_ALIASES = Object.freeze({
   "cat-birthday-17-kira": "45648863",
 });
 export const CAT_CAVE_SLUG_ALIASES = Object.freeze({
-  "2026-trans-survival-survey": "2026-transgender-survival-survey",
   "Becoming-a-Cat-cat!": "becoming-a-cat-a-story-about-srs",
 });
 const LINK_HEADER = [
@@ -758,10 +757,6 @@ export function workerSource() {
 const CONTENT_SIGNAL = ${JSON.stringify(CONTENT_SIGNAL)};
 export const STORY_SLUG_ALIASES = Object.freeze(${JSON.stringify(STORY_SLUG_ALIASES)});
 export const CAT_CAVE_SLUG_ALIASES = Object.freeze(${JSON.stringify(CAT_CAVE_SLUG_ALIASES)});
-const PAGE_PATH_ALIASES = Object.freeze({
-  "/about-kiramyao": "/about",
-  "/about-kiramyao.html": "/about",
-});
 const MARKDOWN_ROUTES = new Map([
   ["/", "/ai/index.md"],
   ["/index.html", "/ai/index.md"],
@@ -838,23 +833,11 @@ function slugAliasRedirect(url) {
   });
 }
 
-function pagePathRedirect(url) {
-  const target = PAGE_PATH_ALIASES[url.pathname];
-  if (!target) return null;
-  url.pathname = target;
-  return new Response(null, {
-    status: 308,
-    headers: { Location: url.toString() },
-  });
-}
-
 const worker = {
   async fetch(request, env) {
     const url = new URL(request.url);
     const aliasRedirect = slugAliasRedirect(url);
     if (aliasRedirect) return aliasRedirect;
-    const pageRedirect = pagePathRedirect(url);
-    if (pageRedirect) return pageRedirect;
 
     if (request.method === "GET" && wantsMarkdown(request)) {
       const markdownPath = markdownPathFor(url.pathname);
