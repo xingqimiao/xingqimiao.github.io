@@ -20,11 +20,15 @@ const types = {
 const root = path.resolve(process.argv[2] || process.cwd());
 const PORT = Number(process.env.PORT || 8790);
 
+function respondError(res, status, message) {
+  res.writeHead(status, { "Content-Type": "text/plain; charset=utf-8" });
+  res.end(message);
+}
+
 function respond(res, file) {
   fs.readFile(file, (error, data) => {
     if (error) {
-      res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
-      res.end("404 not found");
+      respondError(res, 404, "404 not found");
       return;
     }
     res.writeHead(200, { "Content-Type": types[path.extname(file)] || "application/octet-stream" });
@@ -32,15 +36,40 @@ function respond(res, file) {
   });
 }
 
+// Resolve a request path against the site root, refusing any path that would
+// escape it (".." segments, backslash tricks, NUL bytes, absolute rewrites).
+function resolveWithinRoot(requestPath) {
+  const clean = String(requestPath).replace(/^[/\\]+/, "");
+  if (clean.includes("..") || clean.includes("\0") || clean.includes("\\")) {
+    return null;
+  }
+  const resolved = path.resolve(root, clean);
+  const relative = path.relative(root, resolved);
+  if (relative.startsWith("..") || path.isAbsolute(relative)) {
+    return null;
+  }
+  return resolved;
+}
+
 http
   .createServer((req, res) => {
-    const urlPath = decodeURIComponent((req.url || "/").split("?")[0]);
+    const rawUrl = String(req.url || "/").split("?")[0];
+    let urlPath;
+    try {
+      urlPath = decodeURIComponent(rawUrl);
+    } catch {
+      respondError(res, 400, "Bad request");
+      return;
+    }
     if (urlPath === "/" || urlPath === "/index.html") {
       respond(res, path.join(root, "index.html"));
       return;
     }
-    const clean = urlPath.replace(/^\/+/, "");
-    const file = path.join(root, clean);
+    const file = resolveWithinRoot(urlPath);
+    if (!file) {
+      respondError(res, 400, "Bad request");
+      return;
+    }
     fs.stat(file, (error, stat) => {
       if (!error && stat.isFile() && path.extname(file)) {
         respond(res, file);
@@ -57,8 +86,7 @@ http
             respond(res, path.join(file, "index.html"));
             return;
           }
-          res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
-          res.end("404 not found");
+          respondError(res, 404, "404 not found");
         });
         return;
       }
