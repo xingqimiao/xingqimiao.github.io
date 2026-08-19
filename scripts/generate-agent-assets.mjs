@@ -17,10 +17,6 @@ const SITE_TITLE = "KiraMyao Equal";
 const SITE_DESCRIPTION =
   "KiraMyao Equal 关注中国跨性别与性别多元群体的生存处境、社群故事、资料整理和公共倡议，发布调查、报告、文章与参与方式。";
 const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
-export const STORY_SLUG_ALIASES = Object.freeze({
-  "88737526": "45648863",
-  "cat-birthday-17-kira": "45648863",
-});
 export const CAT_CAVE_SLUG_ALIASES = Object.freeze({
   "Becoming-a-Cat-cat!": "becoming-a-cat-a-story-about-srs",
 });
@@ -755,7 +751,6 @@ ${section("Documents", "documents")}
 export function workerSource() {
   return `const LINK_HEADER = ${JSON.stringify(LINK_HEADER)};
 const CONTENT_SIGNAL = ${JSON.stringify(CONTENT_SIGNAL)};
-export const STORY_SLUG_ALIASES = Object.freeze(${JSON.stringify(STORY_SLUG_ALIASES)});
 export const CAT_CAVE_SLUG_ALIASES = Object.freeze(${JSON.stringify(CAT_CAVE_SLUG_ALIASES)});
 const MARKDOWN_ROUTES = new Map([
   ["/", "/ai/index.md"],
@@ -809,13 +804,8 @@ function markdownPathFor(pathname) {
 function slugAliasRedirect(url) {
   const segments = url.pathname.replace(/\\\/$/, "").split("/").filter(Boolean);
   if (segments.length !== 2) return null;
-  const aliases =
-    segments[0] === "stories"
-      ? STORY_SLUG_ALIASES
-      : segments[0] === "cat-cave"
-        ? CAT_CAVE_SLUG_ALIASES
-        : null;
-  if (!aliases) return null;
+  if (segments[0] !== "cat-cave") return null;
+  const aliases = CAT_CAVE_SLUG_ALIASES;
   let replacement = aliases[segments[1]];
   if (!replacement) {
     let decoded = segments[1];
@@ -903,12 +893,20 @@ function headersFile() {
 function robotsTxt() {
   return `User-Agent: *
 Allow: /
+# Frequently-probed path that never existed on this site (bots keep requesting
+it and burning crawl budget). Returning an honest 404 + blocking here lets
+search engines stop re-crawling it.
+Disallow: /fetch
 
 Content-Signal: ${CONTENT_SIGNAL}
 
 Host: ${SITE_HOST}
 Sitemap: ${SITE_URL}/sitemap.xml
 `;
+}
+
+export function getGeneratedRobotsTxt() {
+  return robotsTxt();
 }
 
 function dnsAidExample() {

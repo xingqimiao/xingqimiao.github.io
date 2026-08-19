@@ -28,13 +28,8 @@ const REQUIRED_FILES = [
 
 const REMOVED_PUBLIC_ROUTES = [
   "en/index.html",
-  "about/index.html",
 ];
 
-const STORY_SLUG_ALIASES = Object.freeze({
-  "88737526": "45648863",
-  "cat-birthday-17-kira": "45648863",
-});
 
 async function outputPath(outputDir, relativePath) {
   const candidates = [relativePath];
@@ -134,8 +129,36 @@ async function importWorker(outputDir) {
 
 async function verifyWorkerNegotiation(outputDir) {
   const workerModule = await importWorker(outputDir);
-  if (JSON.stringify(workerModule.STORY_SLUG_ALIASES) !== JSON.stringify(STORY_SLUG_ALIASES)) {
-    throw new Error("_worker.js does not export the current STORY_SLUG_ALIASES");
+  // Story slug aliases were removed: old story URLs must no longer 308-redirect.
+  for (const oldSlug of ["88737526", "cat-birthday-17-kira"]) {
+    const response = await workerModule.default.fetch(
+      new Request(`https://kiraequal.org/stories/${oldSlug}`),
+      {
+        ASSETS: {
+          async fetch() {
+            return new Response("Not found", { status: 404 });
+          },
+        },
+      },
+    );
+    if (response.status === 308 || response.headers.get("location")) {
+      throw new Error(`Story alias redirect still active for /stories/${oldSlug}`);
+    }
+  }
+
+  // Legacy /fetch path is not redirected: it stays an honest 404 (never existed).
+  const fetchProbe = await workerModule.default.fetch(
+    new Request("https://kiraequal.org/fetch"),
+    {
+      ASSETS: {
+        async fetch() {
+          return new Response("Not found", { status: 404 });
+        },
+      },
+    },
+  );
+  if (fetchProbe.status === 301 || fetchProbe.status === 308 || fetchProbe.headers.get("location")) {
+    throw new Error("Legacy /fetch should stay a plain 404 (no redirect)");
   }
 
   const requestedPaths = [];
@@ -155,17 +178,6 @@ async function verifyWorkerNegotiation(outputDir) {
     }), env);
     if (response.status !== 200 || requestedPaths.at(-1) !== markdownPath) {
       throw new Error(`Markdown negotiation failed for ${htmlPath}`);
-    }
-  }
-
-  for (const [oldSlug, newSlug] of Object.entries(STORY_SLUG_ALIASES)) {
-    const response = await workerModule.default.fetch(
-      new Request(`https://kiraequal.org/stories/${oldSlug}?source=bookmark`),
-      env,
-    );
-    const expected = `https://kiraequal.org/stories/${newSlug}?source=bookmark`;
-    if (response.status !== 308 || response.headers.get("location") !== expected) {
-      throw new Error(`Story alias redirect failed for /stories/${oldSlug}`);
     }
   }
 

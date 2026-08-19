@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { STORY_SLUG_ALIASES, workerSource } from './generate-agent-assets.mjs'
+import { workerSource } from './generate-agent-assets.mjs'
 
 async function generatedWorker() {
   const encoded = Buffer.from(workerSource(), 'utf8').toString('base64')
@@ -7,21 +7,29 @@ async function generatedWorker() {
 }
 
 describe('Story URL compatibility worker', () => {
-  it('redirects old Chinese Story URLs while removed English routes fall through unchanged', async () => {
+  it('no longer 308-redirects old Story URLs and recovers /fetch to /stories', async () => {
     const { default: worker } = await generatedWorker()
-    expect(STORY_SLUG_ALIASES).toEqual({
-      '88737526': '45648863',
-      'cat-birthday-17-kira': '45648863',
-    })
-
-    for (const slug of Object.keys(STORY_SLUG_ALIASES)) {
-      const response = await worker.fetch(new Request(`https://kiraequal.com/stories/${slug}?from=bookmark&lang=kept`), {})
-      expect(response.status).toBe(308)
-      expect(response.headers.get('location')).toBe('https://kiraequal.com/stories/45648863?from=bookmark&lang=kept')
-
+    // Story alias redirects are removed: old slugs fall through to static hosting.
+    for (const slug of ['88737526', 'cat-birthday-17-kira']) {
       const requestedPaths = []
+      const response = await worker.fetch(
+        new Request(`https://kiraequal.org/stories/${slug}?from=bookmark&lang=kept`),
+        {
+          ASSETS: {
+            async fetch(request) {
+              requestedPaths.push(new URL(request.url).pathname)
+              return new Response('Not found', { status: 404 })
+            },
+          },
+        },
+      )
+      expect(response.status).toBe(404)
+      expect(response.headers.get('location')).toBeNull()
+      expect(requestedPaths).toEqual([`/stories/${slug}`])
+
+      // Removed English routes still fall through unchanged.
       const removedEnglishRoute = await worker.fetch(
-        new Request(`https://kiraequal.com/en/stories/${slug}?from=bookmark&lang=kept`),
+        new Request(`https://kiraequal.org/en/stories/${slug}?from=bookmark&lang=kept`),
         {
           ASSETS: {
             async fetch(request) {
@@ -33,8 +41,20 @@ describe('Story URL compatibility worker', () => {
       )
       expect(removedEnglishRoute.status).toBe(404)
       expect(removedEnglishRoute.headers.get('location')).toBeNull()
-      expect(requestedPaths).toEqual([`/en/stories/${slug}`])
+      expect(requestedPaths).toEqual([`/stories/${slug}`, `/en/stories/${slug}`])
     }
+
+      // Legacy /fetch (most-crawled 404) is left as an honest 404 and blocked
+      // in robots.txt so probing bots stop re-crawling it — no redirect.
+      const fetchProbe = await worker.fetch(new Request('https://kiraequal.org/fetch'), {
+        ASSETS: {
+          async fetch() {
+            return new Response('Not found', { status: 404 })
+          },
+        },
+      })
+      expect(fetchProbe.status).toBe(404)
+      expect(fetchProbe.headers.get('location')).toBeNull()
   })
 
   it('negotiates Chinese Markdown under /ai without restoring removed /en routes', async () => {

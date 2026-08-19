@@ -239,19 +239,51 @@ describe('agent Markdown localization', () => {
       expect(allStoryResources).not.toContain('SECRET ENGLISH STORY DESC')
       expect(allStoryResources).not.toContain('SECRET STORY SUMMARY')
       expect(zhSearch.language).toBe('zh-CN')
-      expect(generatedWorker.STORY_SLUG_ALIASES).toEqual({
-        '88737526': '45648863',
-        'cat-birthday-17-kira': '45648863',
-      })
       expect(generatedWorker.CAT_CAVE_SLUG_ALIASES).toEqual({
         'Becoming-a-Cat-cat!': 'becoming-a-cat-a-story-about-srs',
       })
-      const redirect = await generatedWorker.default.fetch(
-        new Request('https://kiraequal.org/stories/88737526?source=old'),
-        {},
+      // Story slug aliases were removed: old URLs must NOT 308-redirect anymore
+      // and must fall through to static hosting (the page simply doesn't exist).
+      const removedStoryFallthrough = await generatedWorker.default.fetch(
+        new Request('https://kiraequal.org/stories/88737526?source=old', {
+          headers: { Accept: 'text/html' },
+        }),
+        {
+          ASSETS: {
+            async fetch() {
+              return new Response('Not found', { status: 404 })
+            },
+          },
+        },
       )
-      expect(redirect.status).toBe(308)
-      expect(redirect.headers.get('location')).toBe('https://kiraequal.org/stories/45648863?source=old')
+      expect(removedStoryFallthrough.status).toBe(404)
+      expect(removedStoryFallthrough.headers.get('location')).toBeNull()
+      const removedCatBirthdayFallthrough = await generatedWorker.default.fetch(
+        new Request('https://kiraequal.org/stories/cat-birthday-17-kira'),
+        {
+          ASSETS: {
+            async fetch() {
+              return new Response('Not found', { status: 404 })
+            },
+          },
+        },
+      )
+      expect(removedCatBirthdayFallthrough.status).toBe(404)
+      expect(removedCatBirthdayFallthrough.headers.get('location')).toBeNull()
+      // Legacy /fetch (most-crawled 404) stays an honest 404 in the worker
+      // (blocked in robots.txt elsewhere) — it must not redirect.
+      const fetchProbe = await generatedWorker.default.fetch(
+        new Request('https://kiraequal.org/fetch'),
+        {
+          ASSETS: {
+            async fetch() {
+              return new Response('Not found', { status: 404 })
+            },
+          },
+        },
+      )
+      expect(fetchProbe.status).toBe(404)
+      expect(fetchProbe.headers.get('location')).toBeNull()
       expect(generatedWorker.CAT_CAVE_SLUG_ALIASES['2026-trans-survival-survey']).toBeUndefined()
       const catRedirectEncoded = await generatedWorker.default.fetch(
         new Request('https://kiraequal.org/cat-cave/Becoming-a-Cat-cat%21'),

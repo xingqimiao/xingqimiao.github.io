@@ -46,6 +46,7 @@ Content-Signal: ai-train=no, search=yes, ai-input=yes
 - [被赶出家门了唉,心理状态越来越差了](/ai/stories/23866319.md): https://kiramyao.com/stories/23866319
 - [希望所有酷儿们都可以像普通人一样幸福地活下去](/ai/stories/23925115.md): https://kiramyao.com/stories/23925115
 - [至少我的朋友们都很好](/ai/stories/24674470.md): https://kiramyao.com/stories/24674470
+- [生根发芽的毅力](/ai/stories/24688445.md): https://kiramyao.com/stories/24688445
 - [竭尽所能不要忘记过去](/ai/stories/24696582.md): https://kiramyao.com/stories/24696582
 - [相信自己终达理想终的终点](/ai/stories/26660035.md): https://kiramyao.com/stories/26660035
 - [我舉過白紙,結果這個世界還是很糟](/ai/stories/26898184.md): https://kiramyao.com/stories/26898184

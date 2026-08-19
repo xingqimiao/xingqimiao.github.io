@@ -1,6 +1,5 @@
 const LINK_HEADER = "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/json\", </.well-known/service-doc.md>; rel=\"service-doc\"; type=\"text/markdown\", </llms.txt>; rel=\"alternate\"; type=\"text/markdown\"";
 const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
-export const STORY_SLUG_ALIASES = Object.freeze({"88737526":"45648863","cat-birthday-17-kira":"45648863"});
 export const CAT_CAVE_SLUG_ALIASES = Object.freeze({"Becoming-a-Cat-cat!":"becoming-a-cat-a-story-about-srs"});
 const MARKDOWN_ROUTES = new Map([
   ["/", "/ai/index.md"],
@@ -54,13 +53,8 @@ function markdownPathFor(pathname) {
 function slugAliasRedirect(url) {
   const segments = url.pathname.replace(/\/$/, "").split("/").filter(Boolean);
   if (segments.length !== 2) return null;
-  const aliases =
-    segments[0] === "stories"
-      ? STORY_SLUG_ALIASES
-      : segments[0] === "cat-cave"
-        ? CAT_CAVE_SLUG_ALIASES
-        : null;
-  if (!aliases) return null;
+  if (segments[0] !== "cat-cave") return null;
+  const aliases = CAT_CAVE_SLUG_ALIASES;
   let replacement = aliases[segments[1]];
   if (!replacement) {
     let decoded = segments[1];

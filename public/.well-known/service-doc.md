@@ -49,6 +49,7 @@ Agents can request Markdown with `Accept: text/markdown`. On Cloudflare Pages, t
 - [被赶出家门了唉,心理状态越来越差了](https://kiramyao.com/stories/23866319) ([Markdown](/ai/stories/23866319.md))
 - [希望所有酷儿们都可以像普通人一样幸福地活下去](https://kiramyao.com/stories/23925115) ([Markdown](/ai/stories/23925115.md))
 - [至少我的朋友们都很好](https://kiramyao.com/stories/24674470) ([Markdown](/ai/stories/24674470.md))
+- [生根发芽的毅力](https://kiramyao.com/stories/24688445) ([Markdown](/ai/stories/24688445.md))
 - [竭尽所能不要忘记过去](https://kiramyao.com/stories/24696582) ([Markdown](/ai/stories/24696582.md))
 - [相信自己终达理想终的终点](https://kiramyao.com/stories/26660035) ([Markdown](/ai/stories/26660035.md))
 - [我舉過白紙,結果這個世界還是很糟](https://kiramyao.com/stories/26898184) ([Markdown](/ai/stories/26898184.md))
