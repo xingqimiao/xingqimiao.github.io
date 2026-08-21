@@ -894,8 +894,8 @@ function robotsTxt() {
   return `User-Agent: *
 Allow: /
 # Frequently-probed path that never existed on this site (bots keep requesting
-it and burning crawl budget). Returning an honest 404 + blocking here lets
-search engines stop re-crawling it.
+# it and burning crawl budget). Returning an honest 404 + blocking here lets
+# search engines stop re-crawling it.
 Disallow: /fetch
 
 Content-Signal: ${CONTENT_SIGNAL}
