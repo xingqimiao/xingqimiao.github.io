@@ -111,25 +111,49 @@ export function CommentsSection({
     // The widget never posts its content height back (its resize messages do
     // not reach this page), so the iframe would stay pinned at 150px with an
     // inner scrollbar. Tune the iframe to the inner document height instead.
+    let observedBody: HTMLElement | null = null;
+    let heightObserver: MutationObserver | null = null;
     const tuneHeight = () => {
       widgetStyles();
       syncWidgetCanvas();
       const iframe = container.querySelector("iframe") as HTMLIFrameElement | null;
       const doc = iframe?.contentDocument;
       if (!iframe || !doc?.body) return;
+      // The widget re-renders its body as it works (submitting a comment swaps
+      // in a confirmation message), so mirror height changes the moment they
+      // land — waiting for the poll below is what let the inner scrollbar
+      // flash for up to a second and a half. Re-arm the observer whenever the
+      // inner document is replaced (e.g. the srcdoc reloads after render).
+      if (doc.body !== observedBody) {
+        heightObserver?.disconnect();
+        heightObserver = new MutationObserver(tuneHeight);
+        heightObserver.observe(doc.body, {
+          childList: true,
+          subtree: true,
+          characterData: true,
+        });
+        observedBody = doc.body;
+      }
       const available = Math.max(320, Math.min(2400, Math.ceil(doc.body.scrollHeight)));
       if (iframe.style.height !== `${available}px`) {
         iframe.style.height = `${available}px`;
       }
     };
+    // Polling stays as a fallback for height changes that mutate no DOM (font
+    // loading, images decoding)…
     const heightTimer = window.setInterval(tuneHeight, 1500);
+    // …while the call below sizes the iframe before the first poll fires, and
+    // the observer makes content-driven changes instant.
+    tuneHeight();
 
     const cusdis = cusdisApi();
     if (cusdis?.renderTo) {
       cusdis.renderTo(container);
+      tuneHeight();
       return () => {
         themeObserver.disconnect();
         window.clearInterval(heightTimer);
+        heightObserver?.disconnect();
       };
     }
     const script = document.createElement("script");
@@ -137,11 +161,13 @@ export function CommentsSection({
     script.async = true;
     script.onload = () => {
       (window as unknown as { CUSDIS?: { renderTo?: (el: HTMLElement) => void } }).CUSDIS?.renderTo?.(container);
+      tuneHeight();
     };
     document.body.appendChild(script);
     return () => {
       themeObserver.disconnect();
       window.clearInterval(heightTimer);
+      heightObserver?.disconnect();
     };
   }, [appId]);
 

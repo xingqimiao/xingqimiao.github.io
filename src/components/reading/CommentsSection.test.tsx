@@ -1,6 +1,10 @@
+// @vitest-environment jsdom
+;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 import React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it } from 'vitest'
+import { createRoot, type Root } from 'react-dom/client'
+import { act } from 'react'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { CommentsSection, CUSDIS_ZH_CN_LOCALE } from './CommentsSection'
 
 describe('CommentsSection (Cusdis)', () => {
@@ -40,3 +44,82 @@ describe('CommentsSection (Cusdis)', () => {
     expect(html).toContain('id="cusdis_thread"')
   })
 })
+
+describe('CommentsSection (Cusdis) widget height sync', () => {
+  const base = {
+    appId: '12345',
+    pageId: 'stories:47228326',
+    pageUrl: 'https://kiramyao.com/stories/47228326',
+    pageTitle: '逃离上精卫',
+  }
+  let root: Root
+  let container: HTMLDivElement
+
+  const mount = async () => {
+    container = document.createElement('div')
+    document.body.appendChild(container)
+    root = createRoot(container)
+    await act(async () => {
+      root.render(<CommentsSection {...base} />)
+    })
+  }
+
+  beforeEach(() => {
+    ;(window as unknown as { CUSDIS?: unknown }).CUSDIS = {
+      renderTo: (el: HTMLElement) => {
+        const iframe = document.createElement('iframe')
+        el.appendChild(iframe)
+      },
+      setTheme: () => {},
+    }
+  })
+
+  afterEach(async () => {
+    delete (window as unknown as { CUSDIS?: unknown }).CUSDIS
+    container?.remove()
+    if (root) {
+      await act(async () => {
+        root.unmount()
+      })
+    }
+  })
+
+  it('sizes the widget iframe as soon as the widget renders', async () => {
+    await mount()
+    const iframe = container.querySelector('iframe')
+    expect(iframe).toBeTruthy()
+    await waitForAssert(() => {
+      if (iframe!.style.height !== '320px') {
+        throw new Error(`iframe height still ${iframe!.style.height}`)
+      }
+    })
+  }, 4000)
+
+  it('grows the iframe immediately when the widget content changes', async () => {
+    await mount()
+    const iframe = container.querySelector('iframe')!
+    const body = iframe.contentDocument!.body
+    Object.defineProperty(body, 'scrollHeight', { get: () => 600, configurable: true })
+    body.appendChild(document.createElement('p'))
+    await waitForAssert(() => {
+      if (iframe.style.height !== '600px') {
+        throw new Error(`iframe height still ${iframe.style.height}`)
+      }
+    })
+  }, 4000)
+})
+
+async function waitForAssert(assert: () => void, timeoutMs = 500) {
+  const start = Date.now()
+  let lastError: unknown
+  while (Date.now() - start < timeoutMs) {
+    try {
+      assert()
+      return
+    } catch (error) {
+      lastError = error
+    }
+    await new Promise((resolve) => setTimeout(resolve, 10))
+  }
+  throw lastError
+}
