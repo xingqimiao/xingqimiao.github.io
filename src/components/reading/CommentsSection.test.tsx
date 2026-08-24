@@ -19,6 +19,7 @@ describe('CommentsSection (Cusdis)', () => {
   it('renders the Cusdis thread with language and theme settings once configured', () => {
     const html = renderToStaticMarkup(<CommentsSection {...base} />)
     expect(html).toContain('id="cusdis_thread"')
+    expect(html).toContain('data-host="https://cusdis.com"')
     expect(html).toContain('data-app-id="12345"')
     expect(html).toContain('data-page-id="stories:47228326"')
     expect(html).toContain('data-page-url="https://kiramyao.com/stories/47228326"')

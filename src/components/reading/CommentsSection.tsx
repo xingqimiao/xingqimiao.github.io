@@ -54,6 +54,7 @@ export function CommentsSection({
       <div
         id="cusdis_thread"
         ref={containerRef}
+        data-host="https://cusdis.com"
         data-app-id={appId}
         data-page-id={pageId}
         data-page-url={pageUrl}
