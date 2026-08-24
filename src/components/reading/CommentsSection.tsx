@@ -47,6 +47,27 @@ export function CommentsSection({
     // data-lang alone is not honoured by the widget script.
     (window as unknown as { CUSDIS_LOCALE?: unknown }).CUSDIS_LOCALE = CUSDIS_ZH_CN_LOCALE;
 
+    // data-theme="auto" would follow the OS scheme; the reader's own toggle is
+    // the source of truth here, so keep the widget in sync with main[data-theme].
+    const cusdisApi = () => (
+      window as unknown as {
+        CUSDIS?: { renderTo?: (el: HTMLElement) => void; setTheme?: (theme: string) => void };
+      }
+    ).CUSDIS;
+    const readerTheme = () => {
+      const main = container.closest("main[data-theme]") as HTMLElement | null;
+      return main?.dataset.theme === "dark" ? "dark" : "light";
+    };
+    container.dataset.theme = readerTheme();
+    const themeObserver = new MutationObserver(() => {
+      container.dataset.theme = readerTheme();
+      cusdisApi().setTheme?.(readerTheme());
+    });
+    const readerMain = container.closest("main[data-theme]");
+    if (readerMain) {
+      themeObserver.observe(readerMain, { attributes: true, attributeFilter: ["data-theme"] });
+    }
+
     // The widget never posts its content height back (its resize messages do
     // not reach this page), so the iframe would stay pinned at 150px with an
     // inner scrollbar. Tune the iframe to the inner document height instead.
@@ -61,14 +82,13 @@ export function CommentsSection({
     };
     const heightTimer = window.setInterval(tuneHeight, 1500);
 
-    const cusdis = (
-      window as unknown as {
-        CUSDIS?: { renderOnce?: () => void; renderTo?: (el: HTMLElement) => void };
-      }
-    ).CUSDIS;
+    const cusdis = cusdisApi();
     if (cusdis?.renderTo) {
       cusdis.renderTo(container);
-      return () => window.clearInterval(heightTimer);
+      return () => {
+        themeObserver.disconnect();
+        window.clearInterval(heightTimer);
+      };
     }
     const script = document.createElement("script");
     script.src = CUSDIS_SCRIPT;
@@ -77,7 +97,10 @@ export function CommentsSection({
       (window as unknown as { CUSDIS?: { renderTo?: (el: HTMLElement) => void } }).CUSDIS?.renderTo?.(container);
     };
     document.body.appendChild(script);
-    return () => window.clearInterval(heightTimer);
+    return () => {
+      themeObserver.disconnect();
+      window.clearInterval(heightTimer);
+    };
   }, [appId]);
 
   if (!appId) return null;
