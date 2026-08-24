@@ -85,8 +85,7 @@ export function CommentsSection({
         "input, textarea { border-radius: 12px !important; }",
         "button { border-radius: 9999px !important; }",
         "input:focus, textarea:focus { outline-offset: 2px; }",
-      ].join("
-");
+      ].join("\n");
       doc.head.appendChild(style);
     };
 
@@ -132,19 +131,17 @@ export function CommentsSection({
     <section className="reading-rule mx-auto mt-16 max-w-[720px] border-t border-black/5 pt-6">
       <h2 className="mb-1 text-title-medium font-semibold text-text-main">评论区</h2>
       <p className="reading-subtle mb-4 text-label-medium text-text-sub/85">取个昵称即可参与讨论，无需注册；请友善发言，我们共同维护这个空间。</p>
-      <div className="overflow-hidden rounded-[28px] border border-black/10 dark:border-white/10">
-        <div
-          id="cusdis_thread"
-          ref={containerRef}
-          data-host="https://cusdis.com"
-          data-app-id={appId}
-          data-page-id={pageId}
-          data-page-url={pageUrl}
-          data-page-title={pageTitle}
-          data-lang="zh-CN"
-          data-theme="auto"
-        />
-      </div>
+      <div
+        id="cusdis_thread"
+        ref={containerRef}
+        data-host="https://cusdis.com"
+        data-app-id={appId}
+        data-page-id={pageId}
+        data-page-url={pageUrl}
+        data-page-title={pageTitle}
+        data-lang="zh-CN"
+        data-theme="auto"
+      />
     </section>
   );
 }
