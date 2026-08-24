@@ -107,6 +107,34 @@ describe('CommentsSection (Cusdis) widget height sync', () => {
       }
     })
   }, 4000)
+
+  it('re-sizes the widget once its inner document finishes loading', async () => {
+    // The widget first renders a temporary document and swaps in the real
+    // srcdoc document after it loads, so the height observer armed at render
+    // time watches a dead document. The iframe load event must re-tune.
+    let innerDoc: Document | null = null
+    ;(window as unknown as { CUSDIS?: unknown }).CUSDIS = {
+      renderTo: (el: HTMLElement) => {
+        const iframe = document.createElement('iframe')
+        Object.defineProperty(iframe, 'contentDocument', {
+          get: () => innerDoc,
+          configurable: true,
+        })
+        el.appendChild(iframe)
+      },
+      setTheme: () => {},
+    }
+    await mount()
+    const iframe = container.querySelector('iframe')!
+    expect(iframe.style.height).toBe('')
+    innerDoc = document.implementation.createHTMLDocument('widget')
+    iframe.dispatchEvent(new Event('load'))
+    await waitForAssert(() => {
+      if (iframe.style.height !== '320px') {
+        throw new Error(`iframe height still ${iframe.style.height}`)
+      }
+    })
+  }, 4000)
 })
 
 async function waitForAssert(assert: () => void, timeoutMs = 500) {

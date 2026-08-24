@@ -149,6 +149,12 @@ export function CommentsSection({
     const cusdis = cusdisApi();
     if (cusdis?.renderTo) {
       cusdis.renderTo(container);
+      // The widget swaps its temporary blank document for the real srcdoc one
+      // asynchronously, and armed the observer inside tuneHeight on the
+      // temp document it dies with it — so the first tune above can fix an
+      // empty doc and leave a scrollbar up to the next poll. Re-tune when the
+      // iframe finishes loading (also re-arms the observer on the live body).
+      container.querySelector("iframe")?.addEventListener("load", tuneHeight);
       tuneHeight();
       return () => {
         themeObserver.disconnect();
@@ -161,6 +167,7 @@ export function CommentsSection({
     script.async = true;
     script.onload = () => {
       (window as unknown as { CUSDIS?: { renderTo?: (el: HTMLElement) => void } }).CUSDIS?.renderTo?.(container);
+      container.querySelector("iframe")?.addEventListener("load", tuneHeight);
       tuneHeight();
     };
     document.body.appendChild(script);
