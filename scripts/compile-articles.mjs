@@ -108,7 +108,7 @@ export async function compileEnglishTranslations() {
     const directory = path.join(root, 'translations', 'en', type)
     let names = []
     try { names = (await readdir(directory)).filter((name) => name.endsWith('.md')).sort() } catch (error) {
-      if (error.code !== 'ENOENT') continue
+      if (error.code === 'ENOENT') continue
       throw error
     }
     for (const name of names) {
