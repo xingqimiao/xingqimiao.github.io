@@ -21,7 +21,7 @@ describe('siteJsonLd', () => {
   it('exposes Organization and WebSite in a graph', () => {
     const graph = siteJsonLd()['@graph']
     expect(graph.map((node) => node['@type'])).toEqual(['Organization', 'WebSite'])
-    const organization = graph[0]
+    const organization = graph[0] as { '@id': string; logo: string }
     expect(organization['@id']).toBe('https://kiramyao.com/#organization')
     expect(organization.logo).toContain('/pic/logo/Logo.png')
   })
@@ -73,6 +73,14 @@ describe('articleJsonLd', () => {
     expect(jsonLd.keywords).toEqual(['跨性别', '中国跨性别报告'])
     expect(jsonLd.inLanguage).toBe('zh-CN')
   })
+  it('declares both languages when an English title exists', () => {
+    const ld = articleJsonLd({ ...base, title: '性别审判庭', alternateTitle: 'The Gender Courtroom' })
+    expect(ld.inLanguage).toEqual(['zh-CN', 'en'])
+    expect(ld.alternateName).toBe('The Gender Courtroom')
+    const zhOnly = articleJsonLd(base)
+    expect(zhOnly.inLanguage).toBe('zh-CN')
+    expect(zhOnly.alternateName).toBeUndefined()
+  })
 })
 
 describe('collectionJsonLd', () => {
@@ -123,3 +131,4 @@ describe('pageJsonLd', () => {
     expect(ld.breadcrumb.itemListElement[1]).toMatchObject({ position: 2, name: '隐私与数据处理说明', item: 'https://kiramyao.com/privacy' })
   })
 })
+

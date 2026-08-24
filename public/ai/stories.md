@@ -62,6 +62,7 @@ KiraMyao Equal 收录的个人故事与记忆卡。
 - [流动的形状](https://kiramyao.com/stories/44001461) ([Markdown](/ai/stories/44001461.md))
 - [真真假假](https://kiramyao.com/stories/44772025) ([Markdown](/ai/stories/44772025.md))
 - [一只猫的1岁生日](https://kiramyao.com/stories/45648863) ([Markdown](/ai/stories/45648863.md))
+- [逃离上精卫](https://kiramyao.com/stories/47228326) ([Markdown](/ai/stories/47228326.md))
 - [希望这个世界能多一份理解少一份歧视](https://kiramyao.com/stories/47398867) ([Markdown](/ai/stories/47398867.md))
 - [云朵奶冻与晚安曲](https://kiramyao.com/stories/48091596) ([Markdown](/ai/stories/48091596.md))
 - [为了爱我们的人好好活着](https://kiramyao.com/stories/50242142) ([Markdown](/ai/stories/50242142.md))

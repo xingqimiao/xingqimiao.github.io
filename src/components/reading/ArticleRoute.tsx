@@ -116,6 +116,7 @@ export function ArticleRouteView({
               description: article.seoDescription,
               cover: article.cover_name,
               date: article.date,
+              alternateTitle: enArticleByKey.get(`${article.type}:${article.slug}`)?.title,
             }),
           ),
         }}

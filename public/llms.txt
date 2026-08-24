@@ -80,6 +80,7 @@ Content-Signal: ai-train=no, search=yes, ai-input=yes
 - [流动的形状](/ai/stories/44001461.md): https://kiramyao.com/stories/44001461
 - [真真假假](/ai/stories/44772025.md): https://kiramyao.com/stories/44772025
 - [一只猫的1岁生日](/ai/stories/45648863.md): https://kiramyao.com/stories/45648863
+- [逃离上精卫](/ai/stories/47228326.md): https://kiramyao.com/stories/47228326
 - [希望这个世界能多一份理解少一份歧视](/ai/stories/47398867.md): https://kiramyao.com/stories/47398867
 - [云朵奶冻与晚安曲](/ai/stories/48091596.md): https://kiramyao.com/stories/48091596
 - [为了爱我们的人好好活着](/ai/stories/50242142.md): https://kiramyao.com/stories/50242142

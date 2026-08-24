@@ -54,22 +54,26 @@ export type JsonLdArticle = {
   cover?: string
   date?: string
   keywords?: readonly string[]
+  /** English title, present when an English translation of the body exists. */
+  alternateTitle?: string
 }
 
 /** Article/Report/BlogPosting schema for article pages. */
 export function articleJsonLd(article: JsonLdArticle) {
   const pageUrl = `${BASE_URL}${getArticleHref(article.type, article.slug)}`
   const datePublished = toIsoDate(article.date)
+  const hasTranslation = Boolean(article.alternateTitle?.trim())
   return {
     '@context': 'https://schema.org',
     '@type': TYPE_TO_SCHEMA[article.type] ?? 'Article',
     headline: article.title,
+    alternateName: hasTranslation ? article.alternateTitle : undefined,
     description: article.description?.trim() || undefined,
     keywords: article.keywords && article.keywords.length > 0 ? article.keywords : undefined,
     image: article.cover ? `${BASE_URL}${article.cover}` : undefined,
     datePublished: datePublished ?? undefined,
     dateModified: datePublished ?? undefined,
-    inLanguage: 'zh-CN',
+    inLanguage: hasTranslation ? ['zh-CN', 'en'] : 'zh-CN',
     author: { '@type': 'Organization', name: 'KiraMyao Equal', url: BASE_URL },
     publisher: { '@id': `${BASE_URL}/#organization` },
     mainEntityOfPage: { '@type': 'WebPage', '@id': pageUrl },
