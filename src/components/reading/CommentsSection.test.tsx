@@ -1,7 +1,7 @@
 import React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
-import { CommentsSection } from './CommentsSection'
+import { CommentsSection, CUSDIS_ZH_CN_LOCALE } from './CommentsSection'
 
 describe('CommentsSection (Cusdis)', () => {
   const base = {
@@ -27,6 +27,12 @@ describe('CommentsSection (Cusdis)', () => {
     expect(html).toContain('data-lang="zh-CN"')
     expect(html).toContain('评论区')
     expect(html).toContain('data-theme="auto"')
+  })
+
+  it('ships the full Simplified Chinese pack for the widget', () => {
+    expect(CUSDIS_ZH_CN_LOCALE.nickname).toBe('昵称')
+    expect(CUSDIS_ZH_CN_LOCALE.powered_by).toBe('评论由 Cusdis 提供')
+    expect(CUSDIS_ZH_CN_LOCALE.reply_placeholder).toBe('回复内容…')
   })
 
   it('keeps the comment thread out of the server HTML when comments are off', () => {
