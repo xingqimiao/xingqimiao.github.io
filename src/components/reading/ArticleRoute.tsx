@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import compiledArticles from '@/data/compiled_articles.json'
 import compiledEnArticles from '@/data/compiled_articles_en.json'
+import globalConfig from '@/data/global_config.json'
 import storyContentNotes from '@/data/story_content_notes.json'
 import type { Locale } from '@/i18n/locale'
 import { getArticleHref, normalizeRouteSlug } from '@/lib/articleRoute'
@@ -28,6 +29,7 @@ export type SiteArticle = LocalizableArticle & {
   cover_name?: string
   seoDescription?: string
   keywords?: string[]
+  allowComments?: boolean
 }
 
 const siteArticles = compiledArticles as SiteArticle[]
@@ -102,6 +104,11 @@ export function ArticleRouteView({
   if (!article) notFound()
 
   const presentation = buildArticlePagePresentation(locale, article)
+  const commentAppId = article.allowComments
+    ? String((globalConfig as { cusdis_app_id?: string }).cusdis_app_id ?? '').trim()
+    : ''
+  const siteUrl = String(globalConfig.website_url || 'https://kiramyao.com').replace(/\/+$/, '')
+  const commentPageUrl = commentAppId ? `${siteUrl}${getArticleHref(article.type, article.slug)}` : ''
 
   return (
     <>
@@ -135,6 +142,9 @@ export function ArticleRouteView({
         enArticle={enArticleByKey.get(`${article.type}:${article.slug}`) ?? null}
         initialTheme={article.type === 'stories' ? 'dark' : 'light'}
         disclaimer={article.type === 'stories' ? storyDisclaimer(article.slug) : undefined}
+        commentAppId={commentAppId}
+        commentPageId={`${article.type}:${article.slug}`}
+        commentPageUrl={commentPageUrl}
       />
     </>
   )

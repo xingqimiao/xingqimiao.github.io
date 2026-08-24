@@ -57,6 +57,8 @@ export function parseArticleSource(raw, fallbackSlug, type, fallback = {}) {
   if (type !== 'stories') {
     article.grid_span = String(data.gridSpan || data.grid_span || 'normal')
     article.desc = String(data.description || data.desc || fallback.desc || '')
+  } else {
+    article.allowComments = data.comments !== false
   }
   return article
 }

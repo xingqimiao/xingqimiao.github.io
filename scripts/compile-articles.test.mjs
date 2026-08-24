@@ -12,6 +12,15 @@ describe('Front Matter content compiler', () => {
     expect(article).not.toHaveProperty('englishContentHtml')
     expect(article).not.toHaveProperty('region')
   })
+
+  it('marks stories commentable by default and honors comments: false', () => {
+    const on = parseArticleSource('---\ntitle: 猫\nyear: "2026"\n---\n正文', 'a', 'stories')
+    const off = parseArticleSource('---\ntitle: 猫\nyear: "2026"\ncomments: false\n---\n正文', 'b', 'stories')
+    const report = parseArticleSource('---\ntitle: 报告\ndate: "2026"\n---\n正文', 'r', 'report')
+    expect(on.allowComments).toBe(true)
+    expect(off.allowComments).toBe(false)
+    expect(report.allowComments).toBeUndefined()
+  })
   it('preserves existing metadata when a legacy Markdown file has no Front Matter', () => {
     expect(parseArticleSource('# 正文', 'new-slug', 'blog', { title: '原标题', desc: '原摘要', date: '2026.05', cover_name: '/cover.png' })).toMatchObject({ slug: 'new-slug', title: '原标题', desc: '原摘要', date: '2026.05', cover_name: '/cover.png' })
   })

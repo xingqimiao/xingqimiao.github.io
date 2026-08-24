@@ -10,6 +10,7 @@ import {
 } from "@/i18n/language";
 import { prefersSiteDark } from "@/components/layout/ThemeToggle";
 import { LanguageToggle } from "./LanguageToggle";
+import { CommentsSection } from "./CommentsSection";
 
 type ReadingTheme = "light" | "dark";
 
@@ -26,6 +27,10 @@ interface ReadingArticlePageProps {
   contentLanguage?: "zh-CN" | "en";
   /** English translation of the article body; readers without one hide the switch. */
   enArticle?: { title: string; contentHtml: string } | null;
+  /** Comment thread (Cusdis) config; empty appId keeps the section hidden. */
+  commentAppId?: string;
+  commentPageId?: string;
+  commentPageUrl?: string;
   initialTheme?: ReadingTheme;
   /** Small print rendered at the bottom of the reader (e.g. stories disclaimer). */
   disclaimer?: string;
@@ -46,6 +51,9 @@ export function ReadingArticlePage({
   contentHtml,
   contentLanguage,
   enArticle,
+  commentAppId,
+  commentPageId,
+  commentPageUrl,
   initialTheme = "light",
   disclaimer,
 }: ReadingArticlePageProps) {
@@ -197,6 +205,15 @@ export function ReadingArticlePage({
             </div>
           </div>
         )}
+
+        {commentAppId ? (
+          <CommentsSection
+            appId={commentAppId}
+            pageId={commentPageId ?? ""}
+            pageUrl={commentPageUrl ?? ""}
+            pageTitle={shownTitle}
+          />
+        ) : null}
 
         <div className="reading-rule mx-auto mt-10 flex max-w-[720px] justify-end">
           <Link
