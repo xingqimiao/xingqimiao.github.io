@@ -58,11 +58,14 @@ export function CommentsSection({
       const main = container.closest("main[data-theme]") as HTMLElement | null;
       return main?.dataset.theme === "dark" ? "dark" : "light";
     };
-    container.dataset.theme = readerTheme();
-    const themeObserver = new MutationObserver(() => {
-      container.dataset.theme = readerTheme();
-      cusdisApi().setTheme?.(readerTheme());
-    });
+    const applyTheme = () => {
+      const theme = readerTheme();
+      container.dataset.theme = theme;
+      const cusdis = cusdisApi().CUSDIS;
+      if (cusdis?.setTheme) cusdis.setTheme(theme);
+    };
+    applyTheme();
+    const themeObserver = new MutationObserver(applyTheme);
     const readerMain = container.closest("main[data-theme]");
     if (readerMain) {
       themeObserver.observe(readerMain, { attributes: true, attributeFilter: ["data-theme"] });
