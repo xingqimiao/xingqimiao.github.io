@@ -61,7 +61,7 @@ export function CommentsSection({
     const applyTheme = () => {
       const theme = readerTheme();
       container.dataset.theme = theme;
-      const cusdis = cusdisApi().CUSDIS;
+      const cusdis = cusdisApi();
       if (cusdis?.setTheme) cusdis.setTheme(theme);
     };
     applyTheme();
