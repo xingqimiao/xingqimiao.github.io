@@ -30,10 +30,6 @@ export function CommentsSection({
         CUSDIS?: { renderOnce?: () => void; renderTo?: (el: HTMLElement) => void };
       }
     ).CUSDIS;
-    if (cusdis?.renderOnce) {
-      cusdis.renderOnce();
-      return;
-    }
     if (cusdis?.renderTo) {
       cusdis.renderTo(container);
       return;
@@ -42,7 +38,7 @@ export function CommentsSection({
     script.src = CUSDIS_SCRIPT;
     script.async = true;
     script.onload = () => {
-      (window as unknown as { CUSDIS?: { renderOnce?: () => void } }).CUSDIS?.renderOnce?.();
+      (window as unknown as { CUSDIS?: { renderTo?: (el: HTMLElement) => void } }).CUSDIS?.renderTo?.(container);
     };
     document.body.appendChild(script);
   }, [appId]);
