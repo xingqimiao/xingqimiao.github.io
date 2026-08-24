@@ -58,11 +58,30 @@ export function CommentsSection({
       const main = container.closest("main[data-theme]") as HTMLElement | null;
       return main?.dataset.theme === "dark" ? "dark" : "light";
     };
+    // The widget sets color-scheme: dark on its document, which makes the
+    // browser paint an opaque dark canvas behind the transparent content —
+    // visible as a tinted block against the reading page. Sync the iframe
+    // canvas with the reader's own background colour to blend it in.
+    const syncWidgetCanvas = () => {
+      const iframe = container.querySelector("iframe") as HTMLIFrameElement | null;
+      const doc = iframe?.contentDocument;
+      if (!doc?.documentElement) return;
+      const reader = container.closest("main[data-theme]");
+      const computed = reader ? getComputedStyle(reader).backgroundColor : "rgba(0, 0, 0, 0)";
+      const solid = computed !== "rgba(0, 0, 0, 0)" && computed !== "transparent"
+        ? computed
+        : readerTheme() === "dark"
+          ? "rgb(13, 13, 18)"
+          : "rgb(255, 255, 255)";
+      doc.documentElement.style.backgroundColor = solid;
+    };
+
     const applyTheme = () => {
       const theme = readerTheme();
       container.dataset.theme = theme;
       const cusdis = cusdisApi();
       if (cusdis?.setTheme) cusdis.setTheme(theme);
+      syncWidgetCanvas();
     };
     applyTheme();
     const themeObserver = new MutationObserver(applyTheme);
@@ -94,6 +113,7 @@ export function CommentsSection({
     // inner scrollbar. Tune the iframe to the inner document height instead.
     const tuneHeight = () => {
       widgetStyles();
+      syncWidgetCanvas();
       const iframe = container.querySelector("iframe") as HTMLIFrameElement | null;
       const doc = iframe?.contentDocument;
       if (!iframe || !doc?.body) return;
