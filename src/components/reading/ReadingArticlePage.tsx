@@ -1,9 +1,15 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { Locale } from "@/i18n/locale";
+import {
+  applyDocumentLanguage,
+  detectInitialLanguage,
+  storeLanguage,
+} from "@/i18n/language";
 import { prefersSiteDark } from "@/components/layout/ThemeToggle";
+import { LanguageToggle } from "./LanguageToggle";
 
 type ReadingTheme = "light" | "dark";
 
@@ -18,12 +24,15 @@ interface ReadingArticlePageProps {
   coverName?: string;
   contentHtml: string;
   contentLanguage?: "zh-CN" | "en";
+  /** English translation of the article body; readers without one hide the switch. */
+  enArticle?: { title: string; contentHtml: string } | null;
   initialTheme?: ReadingTheme;
   /** Small print rendered at the bottom of the reader (e.g. stories disclaimer). */
   disclaimer?: string;
 }
 
 const STORAGE_KEY = "kira-reading-theme";
+const TRANSLATION_NOTICE = "AI translation of the Chinese original — may not be fully accurate.";
 
 export function ReadingArticlePage({
   locale = "zh",
@@ -36,6 +45,7 @@ export function ReadingArticlePage({
   coverName,
   contentHtml,
   contentLanguage,
+  enArticle,
   initialTheme = "light",
   disclaimer,
 }: ReadingArticlePageProps) {
@@ -51,17 +61,42 @@ export function ReadingArticlePage({
     return prefersSiteDark() ? "dark" : initialTheme;
   });
   const [disclaimerOpen, setDisclaimerOpen] = useState(false);
+  const [language, setLanguage] = useState<Locale>("zh");
+
+  // First visit picks the language from the stored preference or the system
+  // language list (Chinese conditions → zh, otherwise the English translation).
+  useEffect(() => {
+    const id = requestAnimationFrame(() => {
+      const initial = detectInitialLanguage();
+      setLanguage(initial);
+      applyDocumentLanguage(initial);
+    });
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   const toggleLabel = useMemo(
     () => theme === "dark" ? "Switch to light reading" : "Switch to dark reading",
     [theme]
   );
   const resolvedContentLanguage = contentLanguage ?? "zh-CN";
+  const showEnglish = language === "en" && Boolean(enArticle);
+  const shownTitle = showEnglish && enArticle ? enArticle.title : title;
+  const shownContentHtml = showEnglish && enArticle ? enArticle.contentHtml : contentHtml;
+  const shownContentLanguage = showEnglish ? "en" : resolvedContentLanguage;
 
   function toggleTheme() {
     setTheme((current) => {
       const next = current === "dark" ? "light" : "dark";
       window.localStorage.setItem(STORAGE_KEY, next);
+      return next;
+    });
+  }
+
+  function toggleLanguage() {
+    setLanguage((current) => {
+      const next = current === "zh" ? "en" : "zh";
+      storeLanguage(next);
+      applyDocumentLanguage(next);
       return next;
     });
   }
@@ -80,6 +115,9 @@ export function ReadingArticlePage({
             <span className="reading-chip rounded-full bg-primary/10 px-3 py-1 text-label-large font-medium text-primary">
               {categoryLabel}
             </span>
+            {enArticle && (
+              <LanguageToggle language={language} onToggle={toggleLanguage} />
+            )}
             <button
               type="button"
               aria-label={toggleLabel}
@@ -92,8 +130,8 @@ export function ReadingArticlePage({
           </div>
         </div>
 
-        <h1 lang={resolvedContentLanguage} className="article-title mb-4 text-center text-display-medium font-medium leading-tight md:text-display-medium">
-          {title}
+        <h1 lang={shownContentLanguage} className="article-title mb-4 text-center text-display-medium font-medium leading-tight md:text-display-medium">
+          {shownTitle}
         </h1>
 
         <div className="reading-subtle mb-12 flex items-center justify-center gap-4 text-label-large text-text-sub">
@@ -102,16 +140,22 @@ export function ReadingArticlePage({
           <span>{date}</span>
         </div>
 
+        {showEnglish && (
+          <p role="note" className="reading-subtle mx-auto -mt-6 mb-12 max-w-[720px] text-center text-label-medium text-text-sub/85">
+            {TRANSLATION_NOTICE}
+          </p>
+        )}
+
         {coverName && (
           <div className="reading-rule mb-12 aspect-video w-full overflow-hidden rounded-[32px] border border-black/5 shadow-soft-giant">
-            <img src={coverName} alt={title} className="h-full w-full object-cover" />
+            <img src={coverName} alt={shownTitle} className="h-full w-full object-cover" />
           </div>
         )}
 
         <article
-          lang={resolvedContentLanguage}
+          lang={shownContentLanguage}
           className="g2-markdown prose prose-lg mx-auto max-w-[720px] text-body-large leading-[1.85] text-text-main"
-          dangerouslySetInnerHTML={{ __html: contentHtml }}
+          dangerouslySetInnerHTML={{ __html: shownContentHtml }}
         />
 
         {disclaimer && (

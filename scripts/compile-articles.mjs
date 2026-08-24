@@ -6,6 +6,7 @@ import YAML from 'yaml'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const compiledPath = path.join(root, 'src', 'data', 'compiled_articles.json')
+const compiledEnPath = path.join(root, 'src', 'data', 'compiled_articles_en.json')
 const folders = ['blog', 'stories', 'report', 'documents']
 
 function renderMarkdown(markdown) {
@@ -85,6 +86,44 @@ export async function compileArticles() {
   return compiled
 }
 
+// English translations live outside content/ so the zh pipeline stays untouched.
+// Each file mirrors its zh source: frontmatter `title` + translated markdown body.
+export function parseEnglishSource(raw, slug) {
+  const normalized = raw.replace(/\r\n?/g, '\n')
+  let data = {}; let markdown = normalized
+  if (normalized.startsWith('---\n')) {
+    const end = normalized.indexOf('\n---\n', 4)
+    if (end >= 0) { data = YAML.parse(normalized.slice(4, end)) || {}; markdown = normalized.slice(end + 5).replace(/^\s+/, '') }
+  }
+  return {
+    slug,
+    title: String(data.title || slug),
+    contentHtml: renderMarkdown(markdown),
+  }
+}
+
+export async function compileEnglishTranslations() {
+  const compiled = []
+  for (const type of ['stories', 'report', 'blog', 'documents']) {
+    const directory = path.join(root, 'translations', 'en', type)
+    let names = []
+    try { names = (await readdir(directory)).filter((name) => name.endsWith('.md')).sort() } catch (error) {
+      if (error.code !== 'ENOENT') continue
+      throw error
+    }
+    for (const name of names) {
+      const slug = path.basename(name, '.md')
+      compiled.push({ type, ...parseEnglishSource(await readFile(path.join(directory, name), 'utf8'), slug) })
+    }
+  }
+  const temporary = `${compiledEnPath}.${process.pid}.${Date.now()}.tmp`
+  await writeFile(temporary, `${JSON.stringify(compiled, null, 2)}\n`, { encoding: 'utf8', flag: 'wx' })
+  await rename(temporary, compiledEnPath)
+  return compiled
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const compiled = await compileArticles(); console.log(`Compiled ${compiled.length} articles.`)
+  const compiled = await compileArticles()
+  const compiledEn = await compileEnglishTranslations()
+  console.log(`Compiled ${compiled.length} articles (+${compiledEn.length} English translations).`)
 }

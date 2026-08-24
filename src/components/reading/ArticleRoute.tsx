@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import compiledArticles from '@/data/compiled_articles.json'
+import compiledEnArticles from '@/data/compiled_articles_en.json'
 import storyContentNotes from '@/data/story_content_notes.json'
 import type { Locale } from '@/i18n/locale'
 import { getArticleHref, normalizeRouteSlug } from '@/lib/articleRoute'
@@ -30,6 +31,8 @@ export type SiteArticle = LocalizableArticle & {
 }
 
 const siteArticles = compiledArticles as SiteArticle[]
+const siteEnArticles = compiledEnArticles as { type: string; slug: string; title: string; contentHtml: string }[]
+const enArticleByKey = new Map(siteEnArticles.map((article) => [`${article.type}:${article.slug}`, article]))
 
 export function findSiteArticle(type: string, routeSlug: string) {
   const slug = normalizeRouteSlug(routeSlug)
@@ -128,6 +131,7 @@ export function ArticleRouteView({
         coverName={article.cover_name}
         contentHtml={stripDuplicateLeadImage(presentation.contentHtml, article.cover_name)}
         contentLanguage={presentation.contentLanguage}
+        enArticle={enArticleByKey.get(`${article.type}:${article.slug}`) ?? null}
         initialTheme={article.type === 'stories' ? 'dark' : 'light'}
         disclaimer={article.type === 'stories' ? storyDisclaimer(article.slug) : undefined}
       />

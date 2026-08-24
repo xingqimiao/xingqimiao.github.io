@@ -197,33 +197,32 @@ function searchTokensFor(text) {
   }
 }
 
-export function articleSearchIndex(articles, locale = "zh", now = () => new Date()) {
+export function articleSearchIndex(articles, _locale = "zh", now = () => new Date()) {
   const tokens = {};
   for (const article of articles) {
-    const usesEnglish = locale === "en" && hasCompleteEnglishArticle(article);
     const isStory = article.type === "stories";
     const metadata = isStory
       ? [
-          usesEnglish ? article.englishTitle : article.title,
+          article.title,
           article.date,
           article.type,
           ...(Array.isArray(article.keywords) ? article.keywords : []),
         ]
       : [
-          usesEnglish ? article.englishTitle : article.title,
-          usesEnglish ? article.englishDescription : article.desc,
+          article.title,
+          article.desc,
           article.date,
           article.type,
           article.seoDescription,
           ...(Array.isArray(article.keywords) ? article.keywords : []),
         ];
-    const body = usesEnglish ? article.englishContentHtml : article.contentHtml;
+    const body = article.contentHtml;
     tokens[article.slug] = searchTokensFor(`${metadata.join(" ")} ${body || ""}`);
   }
 
   return {
     version: 1,
-    language: locale === "en" ? "en" : "zh-CN",
+    language: "zh-CN",
     generatedAt: now().toISOString(),
     tokens,
   };
@@ -254,77 +253,53 @@ export async function reconcileMarkdownDirectory(directoryPath, expectedFileName
   }));
 }
 
-function routeForArticle(article, locale = "zh") {
+function routeForArticle(article, _locale = "zh") {
   const section = article.type === "blog" ? "cat-cave" : article.type;
   const route = `/${section}/${article.slug}`;
-  return locale === "en" ? `/en${route}` : route;
+  return route;
 }
 
-function markdownRouteForArticle(article, locale = "zh") {
+function markdownRouteForArticle(article, _locale = "zh") {
   const section = article.type === "blog" ? "cat-cave" : article.type;
-  return `/ai/${locale === "en" ? "en/" : ""}${section}/${article.slug}.md`;
+  return `/ai/${section}/${article.slug}.md`;
 }
 
 export function articleResource(article, locale = "zh") {
-  const usesEnglish = locale === "en" && hasCompleteEnglishArticle(article);
   const resource = {
     kind: article.type,
-    title: usesEnglish ? article.englishTitle : article.title,
+    title: article.title,
     href: canonical(routeForArticle(article, locale)),
     markdown: markdownRouteForArticle(article, locale),
     date: article.date,
-    language: locale === "en" ? "en" : "zh-CN",
+    language: "zh-CN",
   };
   if (article.type !== "stories") {
-    resource.description = usesEnglish
-      ? article.englishDescription || article.seoDescription
-      : article.desc || article.seoDescription;
-  }
-  if (locale === "en" && !usesEnglish) {
-    resource.translationFallback = true;
+    resource.description = article.desc || article.seoDescription;
   }
   return resource;
 }
 
-export const ENGLISH_FALLBACK_NOTICE =
-  "English translation is not available yet. The complete Chinese original follows.";
-
-export function hasCompleteEnglishArticle(article) {
-  return Boolean(
-    article.englishTitle?.trim()
-    && article.englishContentHtml?.trim()
-    && htmlToMarkdown(article.englishContentHtml).trim(),
-  );
-}
-
 export async function articleMarkdown(
   article,
-  { locale = "zh", sourceMarkdown } = {},
+  { _locale = "zh", sourceMarkdown } = {},
 ) {
-  const usesEnglish = locale === "en" && hasCompleteEnglishArticle(article);
+  const locale = _locale;
   let sourceMd = sourceMarkdown;
-  if (!usesEnglish && sourceMd === undefined) {
+  if (sourceMd === undefined) {
     sourceMd = await readTextIfExists(
       path.join(rootDir, "content", article.type, `${article.slug}.md`),
     );
   }
-  const body = usesEnglish
-    ? htmlToMarkdown(article.englishContentHtml).trim()
-    : sourceMd
-      ? sourceMd.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim()
-      : htmlToMarkdown(article.contentHtml).trim();
-  const title = usesEnglish ? article.englishTitle : article.title;
+  const body = sourceMd
+    ? sourceMd.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim()
+    : htmlToMarkdown(article.contentHtml).trim();
+  const title = article.title;
   const isStory = article.type === "stories";
-  const fallbackNotice = locale === "en" && !usesEnglish
-    ? `> ${ENGLISH_FALLBACK_NOTICE}\n\n`
-    : "";
   return `${frontmatter({
     title: pageTitle(title),
     description: isStory
       ? undefined
-      : usesEnglish
-        ? article.englishDescription || article.seoDescription
-        : article.seoDescription || article.desc,
+      : article.seoDescription || article.desc,
     title_zh: article.title,
     description_zh: isStory ? undefined : article.desc,
     keywords: Array.isArray(article.keywords) ? article.keywords.join(', ') : '',
@@ -332,29 +307,24 @@ export async function articleMarkdown(
     content_signal: CONTENT_SIGNAL,
     date: article.date,
     type: article.type,
-    language: locale === "en" ? "en" : "zh-CN",
-  })}${fallbackNotice}# ${title}
+    language: "zh-CN",
+  })}# ${title}
 
 ${body}
 `;
 }
 
-export function articleListMarkdown(type, title, description, articles, locale = "zh") {
+export function articleListMarkdown(type, title, description, articles, _locale = "zh") {
+  const locale = _locale;
   const items = articles
     .filter((article) => article.type === type)
     .map((article) => {
-      const usesEnglish = locale === "en" && hasCompleteEnglishArticle(article);
-      const articleTitle = usesEnglish ? article.englishTitle : article.title;
-      const fallback = locale === "en" && !usesEnglish
-        ? " - English translation unavailable; complete Chinese original provided."
-        : "";
+      const articleTitle = article.title;
       const summary = article.type === "stories"
         ? ""
-        : usesEnglish
-          ? article.englishDescription || ""
-          : article.desc || "";
+        : article.desc || "";
       return `- [${articleTitle}](${canonical(routeForArticle(article, locale))}) ([Markdown](${markdownRouteForArticle(article, locale)}))${
-        summary ? ` - ${summary}` : fallback
+        summary ? ` - ${summary}` : ""
       }`;
     })
     .join("\n");
@@ -362,7 +332,7 @@ export function articleListMarkdown(type, title, description, articles, locale =
   return `${frontmatter({
     title: pageTitle(title),
     description,
-    canonical: canonical(`${locale === "en" ? "/en" : ""}${type === "blog" ? "/cat-cave" : `/${type}`}`),
+    canonical: canonical(`${type === "blog" ? "/cat-cave" : `/${type}`}`),
     content_signal: CONTENT_SIGNAL,
   })}# ${title}
 
@@ -372,222 +342,117 @@ ${items || "暂无内容。"}
 `;
 }
 
-const ENGLISH_HOMEPAGE_CARDS = Object.freeze({
-  1: {
-    title: "Annual Community Survey",
-    desc: "We examine each research question rigorously and turn complex analysis into clear, accessible reports with structured insights.",
-  },
-  2: {
-    title: "Transgender Public Education",
-    desc: "We carry community voices into public conversation so valuable ideas can travel farther.",
-  },
-  3: {
-    title: "Practical Guides",
-    desc: "We organize hard-earned lessons, detailed guides, and common questions so fewer people have to navigate alone.",
-  },
-  4: {
-    title: "Stories",
-    desc: "We preserve the paths people have taken, moments of light, and intimate accounts of growth and companionship.",
-  },
-});
-
-function localizedHomepageCard(card, locale) {
-  if (locale !== "en") return card;
-  const english = ENGLISH_HOMEPAGE_CARDS[card.id];
-  return english || {
-    title: `English translation unavailable — ${card.title}`,
-    desc: `${ENGLISH_FALLBACK_NOTICE} ${card.desc}`,
-  };
-}
-
-const ENGLISH_ACTIONS = Object.freeze({
-  "1": {
-    name: "2026 Community Conditions Survey",
-    desc: "This survey documents the lived conditions of transgender communities in China. Visit the Join Us page to take part in the work.",
-  },
-  "4": {
-    name: "China Transgender Survival Guide 2.0",
-    desc: "A revision of version 1.0 based on community feedback and survey research into recurring practical needs.",
-  },
-});
-
-const ENGLISH_ACTION_STATUS = Object.freeze({
-  running: "In progress",
-  paused: "Paused",
-  completed: "Completed",
-  delayed: "Delayed",
-  failed: "Failed",
-});
-
-function localizedAction(action, locale) {
-  if (locale !== "en") return action;
-  const english = ENGLISH_ACTIONS[action.id];
-  return {
-    ...action,
-    name: english?.name || `English translation unavailable — ${action.name}`,
-    desc: english?.desc || `${ENGLISH_FALLBACK_NOTICE} ${action.desc}`,
-    status: ENGLISH_ACTION_STATUS[action.status] || action.status,
-  };
-}
-
-function actionMarkdown(actions, locale = "zh") {
+function actionMarkdown(actions, _locale = "zh") {
   const items = actions
-    .map((action) => {
-      const localized = localizedAction(action, locale);
-      return `- **${localized.name}** (${localized.status}): ${localized.desc}`;
-    })
+    .map((action) => `- **${action.name}** (${action.status}): ${action.desc}`)
     .join("\n");
-  const title = locale === "en" ? "Projects" : "行动";
+  const title = "行动";
 
   return `${frontmatter({
     title: pageTitle(title),
-    description: locale === "en"
-      ? "Current KiraMyao Equal projects and ways to participate."
-      : "KiraMyao Equal 当前项目与行动入口。",
-    canonical: canonical(locale === "en" ? "/en/action" : "/action"),
+    description: "KiraMyao Equal 当前项目与行动入口。",
+    canonical: canonical("/action"),
     content_signal: CONTENT_SIGNAL,
-    language: locale === "en" ? "en" : "zh-CN",
+    language: "zh-CN",
   })}# ${title}
 
-${items || (locale === "en" ? "No current projects." : "暂无项目。")}
+${items || "暂无项目。"}
 `;
 }
 
-function staticMarkdownField(record, markdownField, htmlField, locale) {
-  const chinese = record[markdownField] || htmlToMarkdown(record[htmlField] || "").trim();
-  if (locale !== "en") {
-    return chinese;
-  }
-  const english = record[`${markdownField}_en`];
-  if (typeof english === "string" && english.trim()) {
-    return english;
-  }
-  return `> ${ENGLISH_FALLBACK_NOTICE}\n\n${chinese}`;
+function staticMarkdownField(record, markdownField, htmlField, _locale) {
+  return record[markdownField] || htmlToMarkdown(record[htmlField] || "").trim();
 }
 
-const ENGLISH_JOIN_LINK_LABELS = Object.freeze({
-  "google-survey": "Take part in the 2026 survey on challenges facing transgender people in China",
-  "tencent-survey": "Take part in the 2026 survey (Tencent Survey)",
-  "volunteer-recruitment": "Join KiraMyao Equal | Volunteer application",
-});
-
-function englishJoinLinkLabel(item) {
-  return item.label_en
-    || ENGLISH_JOIN_LINK_LABELS[item.id]
-    || `English translation unavailable — ${item.label}`;
-}
-
-function englishJoinLinkSource(source) {
-  if (source === "腾讯问卷") return "Tencent Survey";
-  return source;
-}
-
-export function joinMarkdown(join, joinLinks, locale = "zh") {
+export function joinMarkdown(join, joinLinks, _locale = "zh") {
+  const locale = _locale;
   const entries = joinLinks
     .filter((item) => item.enabled)
     .sort((a, b) => a.order - b.order)
     .map((item) => {
-      const label = locale === "en" ? englishJoinLinkLabel(item) : item.label;
-      const source = locale === "en" ? englishJoinLinkSource(item.source) : item.source;
+      const label = item.label;
+      const source = item.source;
       const sourceSuffix = label.includes(`(${source})`) ? "" : ` (${source})`;
       return `- ${label}${sourceSuffix}: ${item.url}`;
     })
     .join("\n");
-  const title = locale === "en" ? join.englishTitle || "Join us" : join.title || "加入我们";
+  const title = join.title || "加入我们";
   return `${frontmatter({
     title: pageTitle(title),
-    description: locale === "en"
-      ? join.englishDescription || "Ways to participate in and support KiraMyao Equal."
-      : join.seoDescription || "参与调查、关注项目、支持 KiraMyao Equal。",
-    canonical: canonical(locale === "en" ? "/en/join" : "/join"),
+    description: join.seoDescription || "参与调查、关注项目、支持 KiraMyao Equal。",
+    canonical: canonical("/join"),
     content_signal: CONTENT_SIGNAL,
-    language: locale === "en" ? "en" : "zh-CN",
+    language: "zh-CN",
   })}# ${title}
 
 ${staticMarkdownField(join, "description_markdown", "description_html", locale)}
 
-${entries ? `## ${locale === "en" ? "Participation links" : "参与入口"}\n\n${entries}\n` : ""}
-${join.twitter_url ? `- ${locale === "en" ? "Contact and follow" : "联系与关注"}: ${join.twitter_url}\n` : ""}${join.donation_link ? `- ${locale === "en" ? "Support the project" : "支持项目"}: ${join.donation_link}\n` : ""}
+${entries ? `## 参与入口\n\n${entries}\n` : ""}
+${join.twitter_url ? `- 联系与关注: ${join.twitter_url}\n` : ""}${join.donation_link ? `- 支持项目: ${join.donation_link}\n` : ""}
 
 ${staticMarkdownField(join, "description_bottom_markdown", "description_bottom_html", locale)}
 `;
 }
 
-export function aboutKiraMarkdown(about, locale = "zh") {
-  const title = locale === "en" ? "About KiraMyao" : "关于 KiraMyao";
+export function aboutKiraMarkdown(about, _locale = "zh") {
+  const locale = _locale;
+  const title = "关于 KiraMyao";
   return `${frontmatter({
     title: pageTitle(title),
-    description: locale === "en"
-      ? about.englishDescription || "About the maintainer and project organizer of KiraMyao Equal."
-      : about.seoDescription || "KiraMyao Equal 网站维护者与项目整理者简介。",
-    canonical: canonical(locale === "en" ? "/en/about" : "/about"),
+    description: about.seoDescription || "KiraMyao Equal 网站维护者与项目整理者简介。",
+    canonical: canonical("/about"),
     content_signal: CONTENT_SIGNAL,
-    language: locale === "en" ? "en" : "zh-CN",
+    language: "zh-CN",
   })}# ${title}
 
 ${staticMarkdownField(about, "kiramyao_markdown", "kiramyao_html", locale)}
 `;
 }
 
-export function privacyMarkdown(privacy, locale = "zh") {
-  const title = locale === "en"
-    ? privacy.englishTitle || "Privacy and data processing"
-    : privacy.title || "隐私与数据处理说明";
+export function privacyMarkdown(privacy, _locale = "zh") {
+  const locale = _locale;
+  const title = privacy.title || "隐私与数据处理说明";
   return `${frontmatter({
     title: pageTitle(title),
-    description: locale === "en"
-      ? privacy.englishDescription || "Privacy and data processing information for KiraMyao Equal."
-      : privacy.seoDescription || "KiraMyao Equal 的隐私、数据处理、问卷和公开资料整理说明。",
-    canonical: canonical(locale === "en" ? "/en/privacy" : "/privacy"),
+    description: privacy.seoDescription || "KiraMyao Equal 的隐私、数据处理、问卷和公开资料整理说明。",
+    canonical: canonical("/privacy"),
     content_signal: CONTENT_SIGNAL,
-    language: locale === "en" ? "en" : "zh-CN",
+    language: "zh-CN",
   })}# ${title}
 
 ${staticMarkdownField(privacy, "content_markdown", "content_html", locale)}
 `;
 }
 
-function indexMarkdown(homepageCards, articles, actions, locale = "zh") {
-  const isEnglish = locale === "en";
+function indexMarkdown(homepageCards, articles, actions, _locale = "zh") {
+  const locale = _locale;
   const cardLines = homepageCards
-    .map((card) => {
-      const localized = localizedHomepageCard(card, locale);
-      return `- **${localized.title}**: ${localized.desc}`;
-    })
+    .map((card) => `- **${card.title}**: ${card.desc}`)
     .join("\n");
   const articleLines = articles
     .map((article) => {
-      const usesEnglish = isEnglish && hasCompleteEnglishArticle(article);
-      const title = usesEnglish ? article.englishTitle : article.title;
-      const fallback = isEnglish && !usesEnglish
-        ? " - English translation unavailable; complete Chinese original provided."
-        : "";
-      return `- [${title}](${canonical(routeForArticle(article, locale))}) ([Markdown](${markdownRouteForArticle(article, locale)}))${fallback}`;
+      const title = article.title;
+      return `- [${title}](${canonical(routeForArticle(article, locale))}) ([Markdown](${markdownRouteForArticle(article, locale)}))`;
     })
     .join("\n");
   const actionLines = actions
-    .map((action) => {
-      const localized = localizedAction(action, locale);
-      return `- **${localized.name}**: ${localized.desc}`;
-    })
+    .map((action) => `- **${action.name}**: ${action.desc}`)
     .join("\n");
-  const description = isEnglish
-    ? "KiraMyao Equal documents transgender and gender-diverse lives in China through research, stories, resources, and public advocacy."
-    : SITE_DESCRIPTION;
-  const aiPrefix = isEnglish ? "/ai/en" : "/ai";
-  const routePrefix = isEnglish ? "/en" : "";
+  const description = SITE_DESCRIPTION;
+  const aiPrefix = "/ai";
+  const routePrefix = "";
 
   return `${frontmatter({
     title: SITE_TITLE,
     description,
-    canonical: canonical(isEnglish ? "/en" : "/"),
+    canonical: canonical("/"),
     content_signal: CONTENT_SIGNAL,
-    language: isEnglish ? "en" : "zh-CN",
+    language: "zh-CN",
   })}# ${SITE_TITLE}
 
 ${description}
 
-## ${isEnglish ? "Core pages" : "核心页面"}
+## 核心页面
 
 - [About us](${canonical(`${routePrefix}/about`)}) ([Markdown](${aiPrefix}/about.md))
 - [Stories](${canonical(`${routePrefix}/stories`)}) ([Markdown](${aiPrefix}/stories.md))
@@ -595,87 +460,66 @@ ${description}
 - [Documents](${canonical(`${routePrefix}/documents`)}) ([Markdown](${aiPrefix}/documents.md))
 - [Projects](${canonical(`${routePrefix}/action`)}) ([Markdown](${aiPrefix}/action.md))
 - [Cat Cave](${canonical(`${routePrefix}/cat-cave`)}) ([Markdown](${aiPrefix}/cat-cave.md))
-- [${isEnglish ? "Join us" : "加入我们"}](${canonical(`${routePrefix}/join`)}) ([Markdown](${aiPrefix}/join.md))
-- [${isEnglish ? "Privacy and data processing" : "隐私与数据处理说明"}](${canonical(`${routePrefix}/privacy`)}) ([Markdown](${aiPrefix}/privacy.md))
+- [加入我们](${canonical(`${routePrefix}/join`)}) ([Markdown](${aiPrefix}/join.md))
+- [隐私与数据处理说明](${canonical(`${routePrefix}/privacy`)}) ([Markdown](${aiPrefix}/privacy.md))
 
-## ${isEnglish ? "Homepage topics" : "首页主题"}
+## 首页主题
 
 ${cardLines}
 
-## ${isEnglish ? "Current projects" : "当前行动"}
+## 当前行动
 
 ${actionLines}
 
-## ${isEnglish ? "Content index" : "内容索引"}
+## 内容索引
 
 ${articleLines}
 `;
 }
 
-function coreResourcesFor(locale, about, join, privacy) {
-  const isEnglish = locale === "en";
-  const routePrefix = isEnglish ? "/en" : "";
-  const markdownPrefix = isEnglish ? "/ai/en" : "/ai";
+function coreResourcesFor(_locale, about, join, privacy) {
+  const routePrefix = "";
+  const markdownPrefix = "/ai";
   const page = (title, description, route, markdown) => ({
     kind: "page",
     title,
     ...(description ? { description } : {}),
     href: canonical(`${routePrefix}${route}` || "/"),
     markdown: `${markdownPrefix}${markdown}`,
-    language: isEnglish ? "en" : "zh-CN",
+    language: "zh-CN",
   });
   return [
-    page(SITE_TITLE, isEnglish
-      ? "KiraMyao Equal research, stories, resources, and public advocacy."
-      : SITE_DESCRIPTION, "", "/index.md"),
+    page(SITE_TITLE, SITE_DESCRIPTION, "", "/index.md"),
     page(
-      isEnglish ? "About KiraMyao" : "关于 KiraMyao",
-      isEnglish
-        ? about.englishDescription || "About the maintainer and project organizer of KiraMyao Equal."
-        : about.seoDescription || "KiraMyao Equal 网站维护者与项目整理者简介。",
+      "关于 KiraMyao",
+      about.seoDescription || "KiraMyao Equal 网站维护者与项目整理者简介。",
       "/about",
       "/about.md",
     ),
-    page(isEnglish ? "Stories" : "故事", undefined, "/stories", "/stories.md"),
-    page(isEnglish ? "Reports" : "报告", isEnglish
-      ? "KiraMyao Equal reports and research materials."
-      : "KiraMyao Equal 整理和发布的报告内容。", "/report", "/report.md"),
-    page(isEnglish ? "Documents" : "资料", isEnglish
-      ? "Reference documents and materials from KiraMyao Equal."
-      : "KiraMyao Equal 整理的参考资料。", "/documents", "/documents.md"),
-    page(isEnglish ? "Projects" : "行动", isEnglish
-      ? "Current KiraMyao Equal projects and ways to participate."
-      : "KiraMyao Equal 当前项目与行动入口。", "/action", "/action.md"),
-    page("Cat Cave", isEnglish
-      ? "KiraMyao Equal posts, reflections, and community notes."
-      : "KiraMyao Equal 的文章、随笔与社群记录。", "/cat-cave", "/cat-cave.md"),
-    page(isEnglish ? join.englishTitle || "Join us" : join.title || "加入我们", isEnglish
-      ? join.englishDescription || "Ways to participate in and support KiraMyao Equal."
-      : join.seoDescription || "参与调查、关注项目、支持 KiraMyao Equal。", "/join", "/join.md"),
-    page(isEnglish ? privacy.englishTitle || "Privacy and data processing" : privacy.title || "隐私与数据处理说明", isEnglish
-      ? privacy.englishDescription || "Privacy and data processing information for KiraMyao Equal."
-      : privacy.seoDescription || "KiraMyao Equal 的隐私与数据处理说明。", "/privacy", "/privacy.md"),
+    page("故事", undefined, "/stories", "/stories.md"),
+    page("报告", "KiraMyao Equal 整理和发布的报告内容。", "/report", "/report.md"),
+    page("资料", "KiraMyao Equal 整理的参考资料。", "/documents", "/documents.md"),
+    page("行动", "KiraMyao Equal 当前项目与行动入口。", "/action", "/action.md"),
+    page("Cat Cave", "KiraMyao Equal 的文章、随笔与社群记录。", "/cat-cave", "/cat-cave.md"),
+    page(join.title || "加入我们", join.seoDescription || "参与调查、关注项目、支持 KiraMyao Equal。", "/join", "/join.md"),
+    page(privacy.title || "隐私与数据处理说明", privacy.seoDescription || "KiraMyao Equal 的隐私与数据处理说明。", "/privacy", "/privacy.md"),
   ];
 }
 
-export function buildCatalog({ locale = "zh", compiledArticles, about, join, privacy, now = () => new Date() }) {
-  const isEnglish = locale === "en";
+export function buildCatalog({ _locale = "zh", compiledArticles, about, join, privacy, now = () => new Date() }) {
+  const locale = _locale;
   const resources = [
-    ...coreResourcesFor(locale, about, join, privacy),
-    ...compiledArticles.map((article) => articleResource(article, locale)),
+    ...coreResourcesFor(_locale, about, join, privacy),
+    ...compiledArticles.map((article) => articleResource(article, _locale)),
   ];
-  const serviceDocPath = isEnglish
-    ? "/.well-known/service-doc.en.md"
-    : "/.well-known/service-doc.md";
-  const llmsPath = isEnglish ? "/llms-en.txt" : "/llms.txt";
+  const serviceDocPath = "/.well-known/service-doc.md";
+  const llmsPath = "/llms.txt";
   return {
     version: 1,
-    language: isEnglish ? "en" : "zh-CN",
+    language: "zh-CN",
     title: `${SITE_TITLE} Agent Discovery Catalog`,
-    description: isEnglish
-      ? "KiraMyao Equal research, stories, resources, and public advocacy."
-      : SITE_DESCRIPTION,
-    homepage: canonical(isEnglish ? "/en" : "/"),
+    description: SITE_DESCRIPTION,
+    homepage: canonical("/"),
     generatedAt: now().toISOString(),
     contentSignal: CONTENT_SIGNAL,
     links: [

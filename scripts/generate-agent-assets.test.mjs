@@ -10,25 +10,22 @@ import {
   articleResource,
   articleSearchIndex,
   aboutKiraMarkdown,
-  ENGLISH_FALLBACK_NOTICE,
   generateAgentAssets,
   joinMarkdown,
   privacyMarkdown,
 } from './generate-agent-assets.mjs'
 import { verifyCloudflarePages } from './verify-cloudflare-pages.mjs'
 
-describe('agent Markdown localization', () => {
+describe('agent Markdown zh-only contract', () => {
   it('converts HTML bodies through the parser without double-escaping or script leakage', async () => {
     const article = {
       type: 'report',
       slug: 'entity-report',
       title: '实体测试',
-      contentHtml: '<p>中文</p>',
-      englishTitle: 'Entity test',
-      englishContentHtml: '<p>a &amp;lt; b &amp;amp; c</p><script>alert(1)</script><p><img src="/pic/x.png" alt="a > b"> tail</p><ul><li>一</li><li>二</li></ul>',
+      contentHtml: '<p>中文</p><p>a &amp;lt; b &amp;amp; c</p><script>alert(1)</script><p><img src="/pic/x.png" alt="a > b"> tail</p><ul><li>一</li><li>二</li></ul>',
     }
 
-    const markdown = await articleMarkdown(article, { locale: 'en' })
+    const markdown = await articleMarkdown(article)
 
     expect(markdown).toContain('a &lt; b &amp; c')
     expect(markdown).not.toContain('a < b')
@@ -38,13 +35,12 @@ describe('agent Markdown localization', () => {
     expect(markdown).toContain('- 二')
   })
 
-  it('uses complete English articles and explicitly falls back to the full Chinese article otherwise', async () => {    const complete = {
+  it('renders the Chinese source and never reads the removed English fields', async () => {
+    const complete = {
       type: 'report',
       slug: 'complete-report',
       title: '完整报告',
       contentHtml: '<p>中文正文</p>',
-      englishTitle: 'Complete report',
-      englishContentHtml: '<p>Full English body</p>',
     }
     const fallbackBody = `第一段\n\n${'完整中文正文'.repeat(1200)}\n\n最后一段`
     const incomplete = {
@@ -52,83 +48,64 @@ describe('agent Markdown localization', () => {
       slug: 'fallback-report',
       title: '需回退的报告',
       contentHtml: `<p>${fallbackBody}</p>`,
-      englishTitle: 'Title without a translated body',
-      englishContentHtml: '<p>   </p>',
     }
-
-    const english = await articleMarkdown(complete, { locale: 'en' })
-    const fallback = await articleMarkdown(incomplete, { locale: 'en' })
-
-    expect(english).toContain('# Complete report')
-    expect(english).toContain('Full English body')
-    expect(english).not.toContain('中文正文')
-    expect(fallback).toContain('English translation is not available yet. The complete Chinese original follows.')
-    expect(fallback).toContain('# 需回退的报告')
-    expect(fallback).toContain(fallbackBody)
-    expect(fallback).not.toContain('Title without a translated body')
-  })
-
-  it('never reads Story summaries in either language or any AI resource shape', async () => {
-    const forbidden = new Set(['desc', 'englishDescription', 'summary'])
-    const story = new Proxy({
-      type: 'stories',
-      slug: 'safe-story',
-      title: '故事标题',
-      contentHtml: '<p>完整中文故事</p>',
-      englishTitle: 'Story title',
-      englishContentHtml: '<p>Complete English story</p>',
-      date: '2026-08-09',
-      keywords: ['memory'],
-    }, {
+    const proxy = new Proxy(complete, {
       get(target, property, receiver) {
-        if (forbidden.has(property)) {
-          throw new Error(`forbidden Story summary read: ${String(property)}`)
+        if (String(property).startsWith('english')) {
+          throw new Error(`removed English field read: ${String(property)}`)
         }
         return Reflect.get(target, property, receiver)
       },
     })
 
-    for (const locale of ['zh', 'en']) {
-      const article = await articleMarkdown(story, {
-        locale,
-        sourceMarkdown: '# 故事标题\n\n完整中文故事',
-      })
-      const list = articleListMarkdown(
-        'stories',
-        locale === 'en' ? 'Stories' : '故事',
-        locale === 'en' ? 'Story archive.' : '故事归档。',
-        [story],
-        locale,
-      )
-      const resource = articleResource(story, locale)
-      const index = articleSearchIndex([story], locale, () => new Date('2026-08-09T00:00:00Z'))
-      const rendered = `${article}\n${list}\n${JSON.stringify(resource)}\n${JSON.stringify(index)}`
+    const rendered = await articleMarkdown(proxy)
+    const fallback = await articleMarkdown(incomplete)
 
-      expect(rendered).not.toContain('description_zh')
-      expect(resource).not.toHaveProperty('description')
-      expect(index.tokens['safe-story'].length).toBeGreaterThan(0)
-    }
+    expect(rendered).toContain('# 完整报告')
+    expect(rendered).toContain('中文正文')
+    expect(fallback).toContain('# 需回退的报告')
+    expect(fallback).toContain(fallbackBody)
   })
 
-  it('uses *_markdown_en for static pages and explicitly preserves every untranslated Chinese field', () => {
-    const about = aboutKiraMarkdown(new Proxy({
-      title: '关于 KiraMyao',
-      englishTitle: 'About KiraMyao',
-      kiramyao_markdown: '完整中文个人介绍',
-      kiramyao_markdown_en: 'Complete English personal introduction',
+  it('never reads Story summaries in any AI resource shape', async () => {
+    const forbidden = new Set(['desc', 'englishDescription', 'englishTitle', 'englishContentHtml', 'summary'])
+    const story = new Proxy({
+      type: 'stories',
+      slug: 'safe-story',
+      title: '故事标题',
+      contentHtml: '<p>完整中文故事</p>',
+      date: '2026-08-09',
+      keywords: ['memory'],
     }, {
       get(target, property, receiver) {
-        if (String(property).startsWith('content_')) {
-          throw new Error('about-kiramyao AI resource must match the HTML route boundary')
+        if (forbidden.has(property)) {
+          throw new Error(`forbidden story field read: ${String(property)}`)
         }
         return Reflect.get(target, property, receiver)
       },
-    }), 'en')
+    })
+
+    const article = await articleMarkdown(story, {
+      sourceMarkdown: '# 故事标题\n\n完整中文故事',
+    })
+    const list = articleListMarkdown('stories', '故事', '故事归档。', [story])
+    const resource = articleResource(story)
+    const index = articleSearchIndex([story], 'zh', () => new Date('2026-08-09T00:00:00Z'))
+    const rendered = `${article}\n${list}\n${JSON.stringify(resource)}\n${JSON.stringify(index)}`
+
+    expect(rendered).not.toContain('description_zh')
+    expect(resource).not.toHaveProperty('description')
+    expect(index.tokens['safe-story'].length).toBeGreaterThan(0)
+  })
+
+  it('renders the static pages from their Chinese fields only', () => {
+    const about = aboutKiraMarkdown({
+      title: '关于 KiraMyao',
+      kiramyao_markdown: '完整中文个人介绍',
+    })
     const join = joinMarkdown({
       description_markdown: '完整中文加入说明',
-      description_markdown_en: 'Complete English joining instructions',
       description_bottom_markdown: '完整中文页尾说明',
-      description_bottom_markdown_en: 'Complete English footer instructions',
     }, [{
       id: 'tencent-survey',
       enabled: true,
@@ -136,28 +113,17 @@ describe('agent Markdown localization', () => {
       source: '腾讯问卷',
       url: 'https://example.test/tencent',
       order: 1,
-    }], 'en')
+    }])
     const privacy = privacyMarkdown({
       title: '隐私说明',
       content_markdown: '完整中文隐私正文',
-      content_markdown_en: '',
-    }, 'en')
-    const aboutZh = aboutKiraMarkdown({
-      title: '组织页标题不属于此路由',
-      kiramyao_markdown: '中文 KiraMyao 介绍',
-    }, 'zh')
+    })
 
-    expect(about).toContain('Complete English personal introduction')
-    expect(about).not.toContain('完整中文个人介绍')
-    expect(aboutZh).toContain('# 关于 KiraMyao')
-    expect(aboutZh).not.toContain('组织页标题不属于此路由')
-    expect(join).toContain('Complete English joining instructions')
-    expect(join).toContain('Complete English footer instructions')
-    expect(join).not.toContain('完整中文加入说明')
-    expect(join).toContain('Take part in the 2026 survey (Tencent Survey)')
-    expect(join.match(/Tencent Survey/g)).toHaveLength(1)
-    expect(join).not.toContain('腾讯问卷')
-    expect(privacy).toContain(ENGLISH_FALLBACK_NOTICE)
+    expect(about).toContain('# 关于 KiraMyao')
+    expect(about).toContain('完整中文个人介绍')
+    expect(join).toContain('完整中文加入说明')
+    expect(join).toContain('完整中文页尾说明')
+    expect(join).toContain('一起参与腾讯问卷 (腾讯问卷)')
     expect(privacy).toContain('完整中文隐私正文')
   })
 
@@ -174,10 +140,7 @@ describe('agent Markdown localization', () => {
           slug: 'current-story',
           title: '当前故事',
           contentHtml: '<p>完整中文故事</p>',
-          englishTitle: 'Current story',
-          englishContentHtml: '<p>Complete English story</p>',
           desc: 'SECRET STORY DESC',
-          englishDescription: 'SECRET ENGLISH STORY DESC',
           summary: 'SECRET STORY SUMMARY',
           date: '2026-08-09',
         },
@@ -186,8 +149,6 @@ describe('agent Markdown localization', () => {
           slug: 'fallback-report',
           title: '中文报告',
           contentHtml: '<p>报告全文中文 HTML</p>',
-          englishTitle: '',
-          englishContentHtml: '',
           date: '2026-08-08',
         },
       ]
@@ -197,19 +158,15 @@ describe('agent Markdown localization', () => {
         about: {
           title: '关于 KiraMyao',
           kiramyao_markdown: '中文个人介绍',
-          kiramyao_markdown_en: 'English personal introduction',
         },
         join: {
           description_markdown: '中文加入',
-          description_markdown_en: 'Join in English',
           description_bottom_markdown: '中文页尾',
-          description_bottom_markdown_en: 'English footer',
         },
         joinLinks: [],
         privacy: {
           title: '隐私',
           content_markdown: '完整中文隐私',
-          content_markdown_en: '',
         },
         actions: [{
           id: '1',
@@ -236,14 +193,11 @@ describe('agent Markdown localization', () => {
       const allStoryResources = `${zhStory}\n${zhCatalog}\n${zhStoryList}\n${JSON.stringify(zhSearch)}`
 
       expect(allStoryResources).not.toContain('SECRET STORY DESC')
-      expect(allStoryResources).not.toContain('SECRET ENGLISH STORY DESC')
       expect(allStoryResources).not.toContain('SECRET STORY SUMMARY')
       expect(zhSearch.language).toBe('zh-CN')
       expect(generatedWorker.CAT_CAVE_SLUG_ALIASES).toEqual({
         'Becoming-a-Cat-cat!': 'becoming-a-cat-a-story-about-srs',
       })
-      // Story slug aliases were removed: old URLs must NOT 308-redirect anymore
-      // and must fall through to static hosting (the page simply doesn't exist).
       const removedStoryFallthrough = await generatedWorker.default.fetch(
         new Request('https://kiraequal.org/stories/88737526?source=old', {
           headers: { Accept: 'text/html' },
@@ -270,8 +224,6 @@ describe('agent Markdown localization', () => {
       )
       expect(removedCatBirthdayFallthrough.status).toBe(404)
       expect(removedCatBirthdayFallthrough.headers.get('location')).toBeNull()
-      // Legacy /fetch (most-crawled 404) stays an honest 404 in the worker
-      // (blocked in robots.txt elsewhere) — it must not redirect.
       const fetchProbe = await generatedWorker.default.fetch(
         new Request('https://kiraequal.org/fetch'),
         {
