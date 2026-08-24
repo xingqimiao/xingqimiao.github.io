@@ -25,6 +25,7 @@ describe('CommentsSection (Cusdis)', () => {
     expect(html).toContain('data-page-url="https://kiramyao.com/stories/47228326"')
     expect(html).toContain('data-page-title="逃离上精卫"')
     expect(html).toContain('data-lang="zh-CN"')
+    expect(html).toContain('评论区')
     expect(html).toContain('data-theme="auto"')
   })
 
