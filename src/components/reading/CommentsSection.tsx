@@ -46,6 +46,21 @@ export function CommentsSection({
     // Cusdis localizes via a page-level global read when its script evaluates;
     // data-lang alone is not honoured by the widget script.
     (window as unknown as { CUSDIS_LOCALE?: unknown }).CUSDIS_LOCALE = CUSDIS_ZH_CN_LOCALE;
+
+    // The widget never posts its content height back (its resize messages do
+    // not reach this page), so the iframe would stay pinned at 150px with an
+    // inner scrollbar. Tune the iframe to the inner document height instead.
+    const tuneHeight = () => {
+      const iframe = container.querySelector("iframe") as HTMLIFrameElement | null;
+      const doc = iframe?.contentDocument;
+      if (!iframe || !doc?.body) return;
+      const available = Math.max(320, Math.min(2400, Math.ceil(doc.body.scrollHeight)));
+      if (iframe.style.height !== `${available}px`) {
+        iframe.style.height = `${available}px`;
+      }
+    };
+    const heightTimer = window.setInterval(tuneHeight, 1500);
+
     const cusdis = (
       window as unknown as {
         CUSDIS?: { renderOnce?: () => void; renderTo?: (el: HTMLElement) => void };
@@ -53,7 +68,7 @@ export function CommentsSection({
     ).CUSDIS;
     if (cusdis?.renderTo) {
       cusdis.renderTo(container);
-      return;
+      return () => window.clearInterval(heightTimer);
     }
     const script = document.createElement("script");
     script.src = CUSDIS_SCRIPT;
@@ -62,6 +77,7 @@ export function CommentsSection({
       (window as unknown as { CUSDIS?: { renderTo?: (el: HTMLElement) => void } }).CUSDIS?.renderTo?.(container);
     };
     document.body.appendChild(script);
+    return () => window.clearInterval(heightTimer);
   }, [appId]);
 
   if (!appId) return null;
