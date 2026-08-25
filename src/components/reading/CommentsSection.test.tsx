@@ -18,7 +18,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { createRoot, type Root } from 'react-dom/client'
 import { act } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { CommentsSection, CUSDIS_ZH_CN_LOCALE } from './CommentsSection'
+import { CommentsSection, CUSDIS_ZH_CN_LOCALE, CAT_EMPTY_LINES } from './CommentsSection'
 
 const emptyComments = { data: { data: [], commentCount: 0 } }
 
@@ -261,6 +261,21 @@ describe('CommentsSection (Cusdis) lazy thread', () => {
     await waitForAssert(() => {
       if (!container.textContent!.includes('喵')) {
         throw new Error('empty-state cat line missing')
+      }
+    })
+  }, 4000)
+
+  it('draws the empty-state line randomly from the cat phrase pool', async () => {
+    expect(CAT_EMPTY_LINES.length).toBeGreaterThanOrEqual(5)
+    for (const line of CAT_EMPTY_LINES) {
+      expect(line).toContain('喵')
+    }
+    await mount()
+    await waitForAssert(() => {
+      const line = container.querySelector('.comment-preview-enter p')
+      if (!line) throw new Error('empty-state line missing')
+      if (!CAT_EMPTY_LINES.includes(line.textContent!.trim())) {
+        throw new Error(`empty line not from pool: ${line.textContent}`)
       }
     })
   }, 4000)

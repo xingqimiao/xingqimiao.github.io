@@ -44,6 +44,18 @@ export const CUSDIS_ZH_CN_LOCALE = {
   comment_has_been_sent: "评论已发送，管理员审核通过后会展示",
 } as const;
 
+// Empty-state pool for the no-comment preview: one is drawn per mount. The
+// line only renders after the comments fetch lands on the client, so a random
+// pick here can never desync server HTML from hydration.
+export const CAT_EMPTY_LINES = [
+  "这里还静悄悄的，喵～ 想留下鱼干大小的一句话吗？",
+  "还没有评论呢，喵～ 第一条小鱼干就等你了！",
+  "这片鱼塘空空的，喵～ 要不要撒下第一句话？",
+  "喵呜～ 这里静悄悄，差点以为路过了只幽灵猫。说点什么吧？",
+  "评论区还没开张，喵～ 第一颗鱼干会是谁的？",
+  "这里连一根猫毛都没有，喵～ 说句话证明你来过？",
+] as const;
+
 /**
  * Cusdis-hosted comments for story pages. Approved comments are listed via
  * the lightweight public API (/api/open/comments) straight away; the widget
@@ -73,6 +85,11 @@ export function CommentsSection({
   // Same motion for the comment preview: the row stays closed until the
   // Cusdis round trip lands, then grows open so the list never pops in.
   const [previewOpen, setPreviewOpen] = useState(false);
+  // Drawn once per mount: re-renders (e.g. a theme toggle) must not swap
+  // the cat line under the reader.
+  const [emptyLine] = useState(
+    () => CAT_EMPTY_LINES[Math.floor(Math.random() * CAT_EMPTY_LINES.length)],
+  );
 
   // Flip the preview row open two frames after the comments land: the
   // browser must commit the 0fr row first, or the growth snaps instead of
@@ -421,9 +438,7 @@ export function CommentsSection({
           {comments && (
             <div className="comment-preview-enter">
               {comments.length === 0 && (
-                <p className="mb-3 text-label-medium text-text-sub/60">
-                  这里还静悄悄的，喵～ 想留下鱼干大小的一句话吗？
-                </p>
+                <p className="mb-3 text-label-medium text-text-sub/60">{emptyLine}</p>
               )}
               {comments.length > 0 && <CommentList comments={comments} />}
             </div>
