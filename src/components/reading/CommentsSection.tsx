@@ -240,6 +240,11 @@ export function CommentsSection({
       const style = doc.createElement("style");
       style.id = "kira-comment-shape";
       const documentStyles = [
+        // The widget doc must never grow its own scrollbar: between the
+        // srcdoc swap and the next height tune the iframe can be a few
+        // pixels short, which surfaces as an inner scrollbar beside the
+        // fields. Clamp the doc; the height tune follows within one poll.
+        "html, body { overflow: hidden !important; }",
         "input, textarea { border-radius: 12px !important; }",
         "button { border-radius: 9999px !important; }",
         "input:focus, textarea:focus { outline-offset: 2px; }",
@@ -333,7 +338,13 @@ export function CommentsSection({
         }
         observedBody = doc.body;
       }
-      const available = Math.max(48, Math.min(2400, Math.ceil(doc.body.scrollHeight)));
+      // The taller of the two boxes: some widget states grow the html box
+      // beyond the body (margins, a swapped root), and body-only tuning
+      // leaves the iframe short and the doc scrolling inside it.
+      const available = Math.max(
+        48,
+        Math.min(2400, Math.ceil(Math.max(doc.body?.scrollHeight ?? 0, doc.documentElement?.scrollHeight ?? 0))),
+      );
       if (iframe.style.height !== `${available}px`) {
         iframe.style.height = `${available}px`;
       }
@@ -388,7 +399,7 @@ export function CommentsSection({
   if (!appId) return null;
 
   return (
-    <section className="reading-rule mx-auto mt-10 max-w-[720px] border-t border-black/5 pt-5">
+    <section className="reading-rule mx-auto mt-[40vh] max-w-[720px] border-t border-black/5 pt-5">
       <h2 className="mb-3 text-label-large font-medium text-text-main">评论区</h2>
       {!expanded && (
         <div className="comment-pill-float fixed bottom-4 left-6 right-6 z-10 mx-auto max-w-[720px]">

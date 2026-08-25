@@ -327,6 +327,42 @@ describe('CommentsSection (Cusdis) lazy thread', () => {
     })
   }, 4000)
 
+  it('never lets the widget document scroll inside the iframe', async () => {
+    // The srcdoc swap between the widget's temp and real documents can
+    // briefly or permanently lose the compaction style and the height tune,
+    // which lets the iframe grow its own inner scrollbar. The injected style
+    // must clamp the widget document so no inner scrollbar can ever appear.
+    await mount()
+    await expand()
+    const doc = container.querySelector('iframe')!.contentDocument!
+    await waitForAssert(() => {
+      const style = doc.getElementById('kira-comment-shape')
+      if (style && style.textContent!.includes('overflow: hidden')) return
+      if (style?.sheet && [...style.sheet.cssRules].some((r) => r.cssText.includes('overflow:hidden'))) return
+      throw new Error('widget doc is not clamped from inner scrolling')
+    })
+  }, 4000)
+
+  it('tunes the iframe to the taller of body and documentElement', async () => {
+    // Some widget states grow the html box beyond the body (margins, swapped
+    // root); body-only tuning left the iframe short and the doc scrollable.
+    await mount()
+    await expand()
+    const iframe = container.querySelector('iframe')!
+    const doc = iframe.contentDocument!
+    Object.defineProperty(doc.body, 'scrollHeight', { get: () => 48, configurable: true })
+    Object.defineProperty(doc.documentElement, 'scrollHeight', {
+      get: () => 700,
+      configurable: true,
+    })
+    doc.body.appendChild(document.createElement('p'))
+    await waitForAssert(() => {
+      if (iframe.style.height !== '700px') {
+        throw new Error(`iframe height still ${iframe.style.height}`)
+      }
+    })
+  }, 4000)
+
   it('re-sizes the widget once its inner document finishes loading', async () => {
     // The widget first renders a temporary document and swaps in the real
     // srcdoc document after it loads, so the height observer armed at render
