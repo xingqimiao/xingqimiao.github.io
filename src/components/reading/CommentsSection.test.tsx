@@ -65,13 +65,18 @@ describe('CommentsSection (Cusdis)', () => {
     expect(html).toBe('')
   })
 
-  it('renders a trigger under the headline without pre-mounting the lazy thread', () => {
-    // The viewport check is client-only, so server HTML ships the pill in its
-    // natural position under the headline; the float is applied after hydration.
+  it('renders the floating pill in server HTML without pre-mounting the lazy thread', () => {
+    // The float must hold from the very first paint: a measurement-applied
+    // float only lands after hydration and re-decides on every scroll, which
+    // is what dropped the pill back into the flow mid-read on phones.
     const html = renderToStaticMarkup(<CommentsSection {...base} />)
     expect(html).toContain('添加公开评论…')
-    expect(html).not.toContain('fixed')
-    expect(html).not.toContain('sticky')
+    expect(html).toContain('fixed')
+    expect(html).toContain('bottom-4')
+    // The delayed entrance keeps the pill invisible while the page-rise
+    // animation's live transform cages it (.page-enter becomes a containing
+    // block mid-animation); it may only become visible pinned to the viewport.
+    expect(html).toContain('comment-pill-float')
     expect(html).not.toContain('id="cusdis_thread"')
     expect(html).not.toContain('data-app-id')
     const headlineIndex = html.indexOf('评论区')
@@ -173,33 +178,21 @@ describe('CommentsSection (Cusdis) lazy thread', () => {
     expect(container.querySelector('iframe')).toBeNull()
   })
 
-  it('floats the trigger at the bottom only when the page cannot fill the viewport', async () => {
+  it('pins the pill without ever measuring the viewport or listening to scroll', async () => {
+    // The float must never be re-decided mid-read: on phones the URL bar
+    // resizes the viewport and late images push the section down, which kept
+    // flipping the old top <= innerHeight check and unpinning the pill while
+    // the reader scrolled. No scroll/resize listener may ever exist.
+    const listenerSpy = vi.spyOn(window, 'addEventListener')
     await mount()
-    await waitForAssert(() => {
-      const wrapper = container.querySelector('button')!.parentElement!
-      if (!wrapper.className.includes('fixed')) {
-        throw new Error('expected floating pill on a short page')
-      }
-    })
-  }, 4000)
-
-  it('keeps the trigger in flow on long stories that fill the viewport', async () => {
-    // jsdom has no layout: the comment section reports top 0, which reads as
-    // a short page. Fake a section deep below the viewport for this case.
-    const spy = vi
-      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
-      .mockReturnValue({ top: 99999, bottom: 99999, left: 0, right: 0, width: 0, height: 0, x: 0, y: 0, toJSON: () => ({}) } as DOMRect)
-    try {
-      await mount()
-      await waitForAssert(() => {
-        const wrapper = container.querySelector('button')!.parentElement!
-        if (wrapper.className.includes('fixed')) {
-          throw new Error('expected in-flow pill on a long page')
-        }
-      })
-    } finally {
-      spy.mockRestore()
-    }
+    const wrapper = container.querySelector('button')!.parentElement!
+    expect(wrapper.className).toContain('fixed')
+    expect(wrapper.className).toContain('bottom-4')
+    const listened = listenerSpy.mock.calls.filter(
+      ([type]) => type === 'scroll' || type === 'resize',
+    )
+    expect(listened).toHaveLength(0)
+    listenerSpy.mockRestore()
   }, 4000)
 
   it('keeps host-rendered comments visible after the thread is opened', async () => {

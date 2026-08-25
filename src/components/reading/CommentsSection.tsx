@@ -63,40 +63,13 @@ export function CommentsSection({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const collapsibleRef = useRef<HTMLDivElement>(null);
-  const sectionRef = useRef<HTMLElement>(null);
   const pillRef = useRef<HTMLButtonElement>(null);
   const [expanded, setExpanded] = useState(false);
   // Grows the thread open: the panel lives in a grid row that transitions
   // 0fr -> 1fr, so everything below it slides down with the panel instead of
   // teleporting in a single reflow.
   const [rowOpen, setRowOpen] = useState(false);
-  // Short pages are those whose comment section already sits inside the
-  // first viewport — the content could not fill a screen. Footer paddings
-  // (which always push the document past one viewport) must not count.
-  const [shortPage, setShortPage] = useState(false);
   const [comments, setComments] = useState<CusComment[] | null>(null);
-
-  useEffect(() => {
-    const measure = () => {
-      const section = sectionRef.current;
-      if (!section) return;
-      const top = section.getBoundingClientRect().top + window.scrollY;
-      setShortPage(top <= window.innerHeight);
-    };
-    measure();
-    window.addEventListener("resize", measure);
-    window.addEventListener("scroll", measure, { passive: true });
-    let observer: ResizeObserver | null = null;
-    if (typeof window !== "undefined" && typeof window.ResizeObserver !== "undefined" && document.body) {
-      observer = new window.ResizeObserver(measure);
-      observer.observe(document.body);
-    }
-    return () => {
-      window.removeEventListener("resize", measure);
-      window.removeEventListener("scroll", measure);
-      observer?.disconnect();
-    };
-  }, []);
 
   // Fetch approved comments separately from the widget so the list is
   // visible without loading Cusdis' script/iframe. First page only; the full
@@ -389,15 +362,10 @@ export function CommentsSection({
   if (!appId) return null;
 
   return (
-    <section
-      ref={sectionRef}
-      className="reading-rule mx-auto mt-10 max-w-[720px] border-t border-black/5 pt-5"
-    >
+    <section className="reading-rule mx-auto mt-10 max-w-[720px] border-t border-black/5 pt-5">
       <h2 className="mb-3 text-label-large font-medium text-text-main">评论区</h2>
       {!expanded && (
-        <div
-          className={`${shortPage ? "fixed bottom-4 left-6 right-6 z-10 " : ""}mx-auto mb-3 max-w-[720px]`}
-        >
+        <div className="comment-pill-float fixed bottom-4 left-6 right-6 z-10 mx-auto max-w-[720px]">
           <button
             ref={pillRef}
             type="button"

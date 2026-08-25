@@ -342,6 +342,29 @@ body {
   animation-delay: 0.24s;
 }
 
+/* While pageRiseIn is running its transform is live, which makes .page-enter
+ * a containing block for the duration: a fixed descendant would be pinned to
+ * the container's bottom edge instead of the viewport (mid-page on short
+ * articles) and snap down the moment the entrance ends. The comment pill
+ * therefore stays invisible until the entrance is over — 0.9s covers the
+ * 0.72s run plus the 0.24s stagger tail — and only then fades in at its true
+ * viewport anchor. `backwards` holds opacity 0 through the delay; nothing
+ * persists after the fade. */
+@keyframes pillFloatIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.comment-pill-float {
+  animation: pillFloatIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) 0.9s backwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-text,
   .hero-media,
@@ -351,6 +374,11 @@ body {
   .page-enter {
     opacity: 1;
     transform: none;
+    animation: none;
+  }
+
+  /* No entrance means no containing block: the pill can show immediately. */
+  .comment-pill-float {
     animation: none;
   }
 
