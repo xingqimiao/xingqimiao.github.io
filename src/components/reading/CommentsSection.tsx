@@ -1,7 +1,10 @@
 "use client";
 
 import gsap from "gsap";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import { useEffect, useRef, useState } from "react";
+
+gsap.registerPlugin(ScrollToPlugin);
 
 const CUSDIS_SCRIPT = "https://cusdis.com/js/cusdis.es.js";
 
@@ -98,10 +101,10 @@ export function CommentsSection({
     const el = collapsibleRef.current;
     if (!el) return;
     // Glide to the thread only now — the ref is mounted, unlike inside the
-    // click handler, where React has not rendered the panel yet.
-    if (typeof el.scrollIntoView === "function") {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    // click handler, where React has not rendered the panel yet. GSAP scrolls
+    // the full distance in a bounded tween; the browser's native smooth
+    // scrollIntoView gives up mid-way on very long pages.
+    gsap.to(window, { scrollTo: { y: el, offsetY: -16 }, duration: 0.9, ease: "power2.out" });
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       gsap.set(el, { height: "auto", opacity: 1, y: 0 });
       return;
@@ -131,6 +134,7 @@ export function CommentsSection({
     return () => {
       window.clearInterval(poll);
       window.clearTimeout(failsafe);
+      gsap.killTweensOf(window);
       gsap.killTweensOf(el);
       if (el.firstElementChild) gsap.killTweensOf(el.firstElementChild);
     };
