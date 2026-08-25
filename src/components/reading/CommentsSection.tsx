@@ -75,6 +75,7 @@ export function CommentsSection({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const collapsibleRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const pillRef = useRef<HTMLButtonElement>(null);
   const [expanded, setExpanded] = useState(false);
   // Grows the thread open: the panel lives in a grid row that transitions
@@ -136,6 +137,25 @@ export function CommentsSection({
     };
   }, [appId, pageId]);
 
+  // Phones only: the thread opens 40vh below the story body, so a tap on the
+  // pill would leave the form below the fold. Glide there — the landing puts
+  // the section header about a third of a viewport down, and the movement is
+  // capped so the page never lurches a whole screen away. Desktop keeps its
+  // no-scroll behaviour.
+  const scrollThreadIntoView = () => {
+    if (!window.matchMedia("(pointer: coarse)").matches) return;
+    const section = sectionRef.current;
+    if (!section) return;
+    const viewportHeight = window.innerHeight;
+    const currentY = window.scrollY;
+    const target = section.getBoundingClientRect().top + currentY - Math.round(viewportHeight * 0.35);
+    const delta = target - currentY;
+    if (delta <= 0) return;
+    const moved = Math.min(delta, Math.round(viewportHeight * 0.6));
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: currentY + moved, behavior: reduced ? "auto" : "smooth" });
+  };
+
   // Shrink the pill away, mount the thread where the reader is, and glide
   // the page to it so the two read as one motion.
   const openThread = () => {
@@ -145,6 +165,7 @@ export function CommentsSection({
     }
     window.setTimeout(() => {
       setExpanded(true);
+      scrollThreadIntoView();
     }, 160);
   };
 
@@ -416,7 +437,10 @@ export function CommentsSection({
   if (!appId) return null;
 
   return (
-    <section className="reading-rule mx-auto mt-[40vh] max-w-[720px] border-t border-black/5 pt-5">
+    <section
+      ref={sectionRef}
+      className="reading-rule mx-auto mt-[40vh] max-w-[720px] border-t border-black/5 pt-5"
+    >
       <h2 className="mb-3 text-label-large font-medium text-text-main">评论区</h2>
       {!expanded && (
         <div className="comment-pill-float fixed bottom-4 left-6 right-6 z-10 mx-auto max-w-[720px]">

@@ -280,6 +280,72 @@ describe('CommentsSection (Cusdis) lazy thread', () => {
     })
   }, 4000)
 
+  const setPointerCoarse = (coarse: boolean) => {
+    vi.spyOn(window, 'matchMedia').mockImplementation((query: string) => ({
+      matches: query.includes('pointer: coarse') ? coarse : false,
+      media: query,
+      onchange: null,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      addListener: () => {},
+      removeListener: () => {},
+      dispatchEvent: () => false,
+    }) as unknown as MediaQueryList)
+  }
+
+  const stubScrollTo = () => {
+    const scrollTo = vi.fn()
+    Object.defineProperty(window, 'scrollTo', {
+      value: scrollTo,
+      configurable: true,
+      writable: true,
+    })
+    return scrollTo
+  }
+
+  const deepSection = () =>
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
+      top: 2000,
+      bottom: 2000,
+      left: 0,
+      right: 0,
+      width: 0,
+      height: 0,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    } as DOMRect)
+
+  it('glides the pill target into view on a coarse pointer, capped at 60% of the screen', async () => {
+    setPointerCoarse(true)
+    const scrollTo = stubScrollTo()
+    const spy = deepSection()
+    try {
+      await mount()
+      await expand()
+      expect(scrollTo).toHaveBeenCalledTimes(1)
+      const [arg] = scrollTo.mock.calls[0]
+      expect(arg.behavior).toBe('smooth')
+      // 2000px away, landing offset 35% of the viewport: the 60% cap wins.
+      expect(arg.top).toBe(Math.round(window.innerHeight * 0.6))
+    } finally {
+      spy.mockRestore()
+    }
+  }, 4000)
+
+  it('does not move the page at all on a fine pointer', async () => {
+    setPointerCoarse(false)
+    const scrollTo = stubScrollTo()
+    const spy = deepSection()
+    try {
+      await mount()
+      await expand()
+      expect(scrollTo).not.toHaveBeenCalled()
+    } finally {
+      spy.mockRestore()
+    }
+  }, 4000)
+
   it('mounts the widget only when the sticky trigger is opened', async () => {
     await mount()
     expect(container.querySelector('iframe')).toBeNull()
