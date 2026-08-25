@@ -116,12 +116,15 @@ export function ReadingArticlePage({
     >
       {/* The page-enter animation keeps a transform on this container; a
           transform ancestor turns position:fixed (comment pill on short
-          pages) into absolute, so drop it once the entrance finishes. */}
+          pages) into absolute. Animation fill-forwards outranks plain inline
+          styles, so also clear the animation once it finishes, or its end
+          frame keeps overriding the transform. */}
       <div
         className="page-enter mx-auto max-w-[880px]"
         onAnimationEnd={(event) => {
           if (event.target !== event.currentTarget) return
           const el = event.currentTarget as HTMLDivElement
+          el.style.animation = "none"
           el.style.transform = "none"
           el.style.opacity = "1"
         }}
