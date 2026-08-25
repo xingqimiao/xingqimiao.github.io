@@ -162,7 +162,7 @@ export function ReadingArticlePage({
 
         <article
           lang={shownContentLanguage}
-          className="g2-markdown prose prose-lg mx-auto max-w-[720px] text-body-large leading-[1.85] text-text-main"
+          className="g2-markdown prose prose-lg mx-auto max-w-[720px] min-h-[80vh] text-body-large leading-[1.85] text-text-main"
           dangerouslySetInnerHTML={{ __html: shownContentHtml }}
         />
 

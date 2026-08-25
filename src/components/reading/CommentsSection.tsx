@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const CUSDIS_SCRIPT = "https://cusdis.com/js/cusdis.es.js";
 
@@ -39,10 +39,11 @@ export function CommentsSection({
   pageTitle: string;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!appId || !container) return;
+    if (!appId || !container || !expanded) return;
     // Cusdis localizes via a page-level global read when its script evaluates;
     // data-lang alone is not honoured by the widget script.
     (window as unknown as { CUSDIS_LOCALE?: unknown }).CUSDIS_LOCALE = CUSDIS_ZH_CN_LOCALE;
@@ -198,25 +199,37 @@ export function CommentsSection({
       heightObserver?.disconnect();
       resizeObserver?.disconnect();
     };
-  }, [appId]);
+  }, [appId, expanded]);
 
   if (!appId) return null;
 
   return (
     <section className="reading-rule mx-auto mt-10 max-w-[720px] border-t border-black/5 pt-5">
       <h2 className="mb-1 text-label-large font-medium text-text-main">评论区</h2>
-      <p className="reading-subtle mb-3 text-label-medium text-text-sub/70">取个昵称即可参与讨论，无需注册；请友善发言。</p>
-      <div
-        id="cusdis_thread"
-        ref={containerRef}
-        data-host="https://cusdis.com"
-        data-app-id={appId}
-        data-page-id={pageId}
-        data-page-url={pageUrl}
-        data-page-title={pageTitle}
-        data-lang="zh-CN"
-        data-theme="auto"
-      />
+      {expanded ? (
+        <div className="animate-fade-in">
+          <div
+            id="cusdis_thread"
+            ref={containerRef}
+            data-host="https://cusdis.com"
+            data-app-id={appId}
+            data-page-id={pageId}
+            data-page-url={pageUrl}
+            data-page-title={pageTitle}
+            data-lang="zh-CN"
+            data-theme="auto"
+          />
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          aria-expanded={false}
+          className="mt-2 block w-full rounded-full border border-black/10 bg-black/5 px-5 py-2.5 text-left text-label-large text-text-sub/70 transition-colors hover:bg-black/10 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
+        >
+          添加公开评论…
+        </button>
+      )}
     </section>
   );
 }

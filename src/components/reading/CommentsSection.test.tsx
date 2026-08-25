@@ -20,28 +20,18 @@ describe('CommentsSection (Cusdis)', () => {
     expect(html).toBe('')
   })
 
-  it('renders the Cusdis thread with language and theme settings once configured', () => {
+  it('collapses to a single trigger row until the reader opens it', () => {
     const html = renderToStaticMarkup(<CommentsSection {...base} />)
-    expect(html).toContain('id="cusdis_thread"')
-    expect(html).toContain('data-host="https://cusdis.com"')
-    expect(html).toContain('data-app-id="12345"')
-    expect(html).toContain('data-page-id="stories:47228326"')
-    expect(html).toContain('data-page-url="https://kiramyao.com/stories/47228326"')
-    expect(html).toContain('data-page-title="逃离上精卫"')
-    expect(html).toContain('data-lang="zh-CN"')
-    expect(html).toContain('评论区')
-    expect(html).toContain('data-theme="auto"')
+    expect(html).toContain('添加公开评论…')
+    expect(html).toContain('aria-expanded="false"')
+    expect(html).not.toContain('id="cusdis_thread"')
+    expect(html).not.toContain('data-app-id')
   })
 
   it('ships the full Simplified Chinese pack for the widget', () => {
     expect(CUSDIS_ZH_CN_LOCALE.nickname).toBe('昵称')
     expect(CUSDIS_ZH_CN_LOCALE.powered_by).toBe('评论由 Cusdis 提供')
     expect(CUSDIS_ZH_CN_LOCALE.reply_placeholder).toBe('回复内容…')
-  })
-
-  it('keeps the comment thread out of the server HTML when comments are off', () => {
-    const html = renderToStaticMarkup(<CommentsSection {...base} pageTitle="off" />)
-    expect(html).toContain('id="cusdis_thread"')
   })
 })
 
@@ -61,6 +51,14 @@ describe('CommentsSection (Cusdis) widget height sync', () => {
     root = createRoot(container)
     await act(async () => {
       root.render(<CommentsSection {...base} />)
+    })
+  }
+
+  const expand = async () => {
+    const trigger = container.querySelector('button') as HTMLButtonElement
+    expect(trigger).toBeTruthy()
+    await act(async () => {
+      trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     })
   }
 
@@ -84,8 +82,21 @@ describe('CommentsSection (Cusdis) widget height sync', () => {
     }
   })
 
+  it('stays collapsed to a single trigger row until clicked, then mounts the widget', async () => {
+    await mount()
+    expect(container.querySelector('iframe')).toBeNull()
+    expect(container.textContent).toContain('添加公开评论…')
+    await expand()
+    await waitForAssert(() => {
+      if (!container.querySelector('iframe')) {
+        throw new Error('widget iframe not mounted after expand')
+      }
+    })
+  }, 4000)
+
   it('sizes the widget iframe as soon as the widget renders', async () => {
     await mount()
+    await expand()
     const iframe = container.querySelector('iframe')
     expect(iframe).toBeTruthy()
     await waitForAssert(() => {
@@ -97,6 +108,7 @@ describe('CommentsSection (Cusdis) widget height sync', () => {
 
   it('grows the iframe immediately when the widget content changes', async () => {
     await mount()
+    await expand()
     const iframe = container.querySelector('iframe')!
     const body = iframe.contentDocument!.body
     Object.defineProperty(body, 'scrollHeight', { get: () => 600, configurable: true })
@@ -125,6 +137,7 @@ describe('CommentsSection (Cusdis) widget height sync', () => {
       setTheme: () => {},
     }
     await mount()
+    await expand()
     const iframe = container.querySelector('iframe')!
     expect(iframe.style.height).toBe('')
     innerDoc = document.implementation.createHTMLDocument('widget')
@@ -160,6 +173,7 @@ describe('CommentsSection (Cusdis) widget height sync', () => {
       setTheme: () => {},
     }
     await mount()
+    await expand()
     const iframe = container.querySelector('iframe')!
     expect(widgetResize).toBeTruthy()
     const body = iframe.contentDocument!.body
