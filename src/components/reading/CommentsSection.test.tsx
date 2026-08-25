@@ -202,6 +202,23 @@ describe('CommentsSection (Cusdis) lazy thread', () => {
     }
   }, 4000)
 
+  it('keeps host-rendered comments visible after the thread is opened', async () => {
+    stubFetch({
+      data: {
+        data: [
+          { id: 'c1', by_nickname: '读者甲', parsedContent: '说得对', createdAt: '2026-08-24T19:38:10.410Z' },
+        ],
+      },
+    })
+    await mount()
+    await expand()
+    await waitForAssert(() => {
+      if (!container.textContent!.includes('读者甲')) {
+        throw new Error('comment list disappeared after expanding')
+      }
+    })
+  }, 4000)
+
   it('hides the widget\u2019s own comment list so host-rendered comments never reload', async () => {
     await mount()
     await expand()

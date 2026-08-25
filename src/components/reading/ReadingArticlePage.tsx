@@ -114,7 +114,18 @@ export function ReadingArticlePage({
       data-theme={theme}
       className="reading-page min-h-screen px-6 pb-24 pt-32 text-[#121317] transition-colors duration-300"
     >
-      <div className="page-enter mx-auto max-w-[880px]">
+      {/* The page-enter animation keeps a transform on this container; a
+          transform ancestor turns position:fixed (comment pill on short
+          pages) into absolute, so drop it once the entrance finishes. */}
+      <div
+        className="page-enter mx-auto max-w-[880px]"
+        onAnimationEnd={(event) => {
+          if (event.target !== event.currentTarget) return
+          const el = event.currentTarget as HTMLDivElement
+          el.style.transform = "none"
+          el.style.opacity = "1"
+        }}
+      >
         <div className="mb-8 flex items-center justify-between gap-4">
           <Link href={backHref} className="reading-link text-label-large text-text-sub transition-colors hover:text-text-main" prefetch={false}>
             {backLabel}

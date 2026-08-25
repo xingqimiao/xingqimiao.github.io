@@ -388,6 +388,11 @@ export function CommentsSection({
       className="reading-rule mx-auto mt-10 max-w-[720px] border-t border-black/5 pt-5"
     >
       <h2 className="mb-3 text-label-large font-medium text-text-main">评论区</h2>
+      {!expanded && shortPage && (
+        // Keep the thread's structure while the pill floats: the spacer holds
+        // the pill's place under the headline (and keeps the sibling distance).
+        <div aria-hidden className="mb-3 h-12" />
+      )}
       {!expanded && (
         <div
           className={`${shortPage ? "fixed bottom-4 left-6 right-6 z-10 " : ""}mx-auto mb-3 max-w-[720px]`}
@@ -402,7 +407,7 @@ export function CommentsSection({
           </button>
         </div>
       )}
-      {!expanded && comments && comments.length > 0 && <CommentList comments={comments} />}
+      {comments && comments.length > 0 && <CommentList comments={comments} />}
       {expanded && (
         <div ref={collapsibleRef} style={{ height: 0, overflow: "hidden" }}>
           <div
