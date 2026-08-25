@@ -5,11 +5,15 @@ import { useEffect, useRef, useState } from "react";
 
 const CUSDIS_SCRIPT = "https://cusdis.com/js/cusdis.es.js";
 
-const FORM_COLLAPSE_STYLE_ID = "kira-form-collapsed";
-// The widget nests its form as #root > div > div.grid.grid-cols-1.gap-4;
-// the comment list lives in a sibling container, so hiding just the form
-// keeps existing comments visible while the compose box stays out of the way.
-const FORM_COLLAPSE_CSS = `#root > div > div.grid.grid-cols-1.gap-4 { display: none !important; }`;
+type CusComment = {
+  id: string;
+  by_nickname?: string;
+  moderator?: { displayName?: string } | null;
+  parsedCreatedAt?: string;
+  parsedContent?: string;
+  content?: string;
+  replies?: { data?: CusComment[] };
+};
 
 // Official Simplified Chinese pack (djyde/cusdis -> widget/lang/zh-cn.js).
 // The widget reads its own window.CUSDIS_LOCALE and only falls back to the
@@ -30,10 +34,10 @@ export const CUSDIS_ZH_CN_LOCALE = {
 } as const;
 
 /**
- * Cusdis-hosted comment thread for story pages. The widget stays mounted so
- * approved comments are visible without interaction; the compose form is
- * collapsed behind a pill that sticks to the viewport bottom until the
- * reader opens it - leaving the form is a deliberate progressive disclosure.
+ * Cusdis-hosted comments for story pages. Approved comments are listed via
+ * the lightweight public API (/api/open/comments) straight away; the widget
+ * script, iframe and compose form stay lazy — they mount only when the
+ * reader opens the thread from the pill that sticks to the viewport bottom.
  */
 export function CommentsSection({
   appId,
@@ -49,19 +53,40 @@ export function CommentsSection({
   const containerRef = useRef<HTMLDivElement>(null);
   const collapsibleRef = useRef<HTMLDivElement>(null);
   const pillRef = useRef<HTMLButtonElement>(null);
-  const [formOpen, setFormOpen] = useState(false);
-  const formOpenRef = useRef(false);
+  const [expanded, setExpanded] = useState(false);
+  const [comments, setComments] = useState<CusComment[] | null>(null);
 
-  // Shrink the pill away, reveal the form where the reader already is, and
-  // glide the page to the thread so the two read as one motion.
+  // Fetch approved comments separately from the widget so the list is
+  // visible without loading Cusdis' script/iframe. First page only; the full
+  // thread (pagination, reply) lives in the widget after opening.
+  useEffect(() => {
+    if (!appId || !pageId) return;
+    let alive = true;
+    fetch(
+      `https://cusdis.com/api/open/comments?page=1&appId=${encodeURIComponent(appId)}&pageId=${encodeURIComponent(pageId)}`,
+    )
+      .then((response) => response.json())
+      .then((json: { data?: { data?: CusComment[] } }) => {
+        if (alive) setComments(json.data?.data ?? []);
+      })
+      .catch(() => {
+        // A failed preview must not break the thread; the widget shows the
+        // same list once opened.
+      });
+    return () => {
+      alive = false;
+    };
+  }, [appId, pageId]);
+
+  // Shrink the pill away, mount the thread where the reader is, and glide
+  // the page to it so the two read as one motion.
   const openThread = () => {
     const pill = pillRef.current;
     if (pill) {
       gsap.to(pill, { opacity: 0, scale: 0.985, y: 4, duration: 0.16, ease: "power2.in" });
     }
     window.setTimeout(() => {
-      formOpenRef.current = true;
-      setFormOpen(true);
+      setExpanded(true);
       const target = collapsibleRef.current;
       if (target && typeof target.scrollIntoView === "function") {
         target.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -69,17 +94,50 @@ export function CommentsSection({
     }, 160);
   };
 
-  // Reveal the form the moment the reader opens it; the collapse style is
-  // re-applied idempotently by tuneHeight while closed.
+  // Grow the thread out of the pill's spot once the widget is sized. The
+  // panel starts at height 0, so until the iframe has a height (or a failsafe
+  // fires) it stays invisible underneath; the height tween then opens it.
   useEffect(() => {
-    if (!formOpen) return;
-    const doc = containerRef.current?.querySelector("iframe")?.contentDocument;
-    doc?.getElementById(FORM_COLLAPSE_STYLE_ID)?.remove();
-  }, [formOpen]);
+    if (!expanded) return;
+    const el = collapsibleRef.current;
+    if (!el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      gsap.set(el, { height: "auto", opacity: 1, y: 0 });
+      return;
+    }
+    let settled = false;
+    const settle = () => {
+      if (settled) return;
+      settled = true;
+      gsap.to(el, { height: "auto", duration: 0.55, ease: "power3.out" });
+      const content = el.firstElementChild;
+      if (content) {
+        gsap.fromTo(
+          content,
+          { opacity: 0, y: 14 },
+          { opacity: 1, y: 0, duration: 0.45, delay: 0.1, ease: "power3.out" },
+        );
+      }
+    };
+    const poll = window.setInterval(() => {
+      const iframe = containerRef.current?.querySelector("iframe") as HTMLIFrameElement | null;
+      if (iframe?.style.height) {
+        window.clearInterval(poll);
+        settle();
+      }
+    }, 50);
+    const failsafe = window.setTimeout(settle, 2500);
+    return () => {
+      window.clearInterval(poll);
+      window.clearTimeout(failsafe);
+      gsap.killTweensOf(el);
+      if (el.firstElementChild) gsap.killTweensOf(el.firstElementChild);
+    };
+  }, [expanded]);
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!appId || !container) return;
+    if (!appId || !container || !expanded) return;
     // Cusdis localizes via a page-level global read when its script evaluates;
     // data-lang alone is not honoured by the widget script.
     (window as unknown as { CUSDIS_LOCALE?: unknown }).CUSDIS_LOCALE = CUSDIS_ZH_CN_LOCALE;
@@ -155,23 +213,6 @@ export function CommentsSection({
       doc.head.appendChild(style);
     };
 
-    // The composer is hidden until the reader opens it; re-applied on every
-    // tune so a fresh document gets it as soon as the widget loads.
-    const applyFormCollapse = () => {
-      const iframe = container.querySelector("iframe") as HTMLIFrameElement | null;
-      const doc = iframe?.contentDocument;
-      if (!doc?.head) return;
-      if (formOpenRef.current) {
-        doc.getElementById(FORM_COLLAPSE_STYLE_ID)?.remove();
-        return;
-      }
-      if (doc.getElementById(FORM_COLLAPSE_STYLE_ID)) return;
-      const style = doc.createElement("style");
-      style.id = FORM_COLLAPSE_STYLE_ID;
-      style.textContent = FORM_COLLAPSE_CSS;
-      doc.head.appendChild(style);
-    };
-
     // Grow the single-line reply box with the reader's input (no inner
     // scrollbar); marker keeps the binding idempotent across re-tunes and
     // fresh documents.
@@ -195,7 +236,6 @@ export function CommentsSection({
     let resizeObserver: ResizeObserver | null = null;
     const tuneHeight = () => {
       widgetStyles();
-      applyFormCollapse();
       bindAutoGrow();
       syncWidgetCanvas();
       const iframe = container.querySelector("iframe") as HTMLIFrameElement | null;
@@ -270,38 +310,85 @@ export function CommentsSection({
       heightObserver?.disconnect();
       resizeObserver?.disconnect();
     };
-  }, [appId]);
+  }, [appId, expanded]);
 
   if (!appId) return null;
 
   return (
     <>
-      <div className="sticky bottom-4 z-10 mx-auto max-w-[720px]">
-        <button
-          ref={pillRef}
-          type="button"
-          onClick={openThread}
-          className="block w-full rounded-full border border-black/10 bg-background/90 px-6 py-3.5 text-left text-body-large text-text-sub/80 shadow-soft backdrop-blur-md transition-colors duration-300 hover:bg-black/5 active:scale-[0.99] dark:border-white/15 dark:bg-white/10 dark:hover:bg-white/15"
-        >
-          添加公开评论…
-        </button>
-      </div>
+      {!expanded && (
+        <div className="sticky bottom-4 z-10 mx-auto max-w-[720px]">
+          <button
+            ref={pillRef}
+            type="button"
+            onClick={openThread}
+            className="block w-full rounded-full border border-black/10 bg-background/90 px-6 py-3.5 text-left text-body-large text-text-sub/80 shadow-soft backdrop-blur-md transition-colors duration-300 hover:bg-black/5 active:scale-[0.99] dark:border-white/15 dark:bg-white/10 dark:hover:bg-white/15"
+          >
+            添加公开评论…
+          </button>
+        </div>
+      )}
       <section className="reading-rule mx-auto mt-10 max-w-[720px] border-t border-black/5 pt-5">
         <h2 className="mb-1 text-label-large font-medium text-text-main">评论区</h2>
-        <div ref={collapsibleRef}>
-          <div
-            id="cusdis_thread"
-            ref={containerRef}
-            data-host="https://cusdis.com"
-            data-app-id={appId}
-            data-page-id={pageId}
-            data-page-url={pageUrl}
-            data-page-title={pageTitle}
-            data-lang="zh-CN"
-            data-theme="auto"
-          />
-        </div>
+        {!expanded && comments && comments.length > 0 && <CommentList comments={comments} />}
+        {expanded && (
+          <div ref={collapsibleRef} style={{ height: 0, overflow: "hidden" }}>
+            <div
+              id="cusdis_thread"
+              ref={containerRef}
+              data-host="https://cusdis.com"
+              data-app-id={appId}
+              data-page-id={pageId}
+              data-page-url={pageUrl}
+              data-page-title={pageTitle}
+              data-lang="zh-CN"
+              data-theme="auto"
+            />
+          </div>
+        )}
       </section>
     </>
+  );
+}
+
+// Read-only preview of approved comments while the widget stays lazy.
+function CommentList({ comments }: { comments: CusComment[] }) {
+  return (
+    <ol className="mb-2 mt-3 space-y-4 text-body-large leading-[1.75] text-text-main">
+      {comments.map((comment) => (
+        <CommentItem key={comment.id} comment={comment} />
+      ))}
+    </ol>
+  );
+}
+
+function CommentItem({ comment }: { comment: CusComment }) {
+  return (
+    <li>
+      <div className="mb-0.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+        <span className="text-label-large font-medium text-text-sub">
+          {comment.by_nickname || CUSDIS_ZH_CN_LOCALE.nickname}
+        </span>
+        {comment.moderator?.displayName && (
+          <span className="text-label-medium text-primary/80">{CUSDIS_ZH_CN_LOCALE.mod_badge}</span>
+        )}
+        {comment.parsedCreatedAt && (
+          <span className="text-label-medium text-text-sub/60">{comment.parsedCreatedAt}</span>
+        )}
+      </div>
+      {/* Cusdis pre-parses (and sanitizes) comment bodies server-side; the
+          widget renders the same string via its own markup path. */}
+      <div
+        className="reading-subtle whitespace-pre-wrap [&_a:underline]"
+        dangerouslySetInnerHTML={{ __html: comment.parsedContent ?? comment.content ?? "" }}
+      />
+      {comment.replies?.data && comment.replies.data.length > 0 && (
+        <ul className="mt-2 space-y-2 border-l border-black/10 pl-4 dark:border-white/10">
+          {comment.replies.data.map((reply) => (
+            <CommentItem key={reply.id} comment={reply} />
+          ))}
+        </ul>
+      )}
+    </li>
   );
 }
