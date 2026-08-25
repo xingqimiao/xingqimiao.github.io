@@ -63,23 +63,25 @@ export function CommentsSection({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const collapsibleRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const pillRef = useRef<HTMLButtonElement>(null);
   const [expanded, setExpanded] = useState(false);
-  // Only pages that cannot fill a viewport get the floating pill; on long
-  // stories the trigger sits naturally above the thread.
+  // Short pages are those whose comment section already sits inside the
+  // first viewport — the content could not fill a screen. Footer paddings
+  // (which always push the document past one viewport) must not count.
   const [shortPage, setShortPage] = useState(false);
   const [comments, setComments] = useState<CusComment[] | null>(null);
 
   useEffect(() => {
     const measure = () => {
-      const docHeight = Math.max(
-        document.body?.scrollHeight ?? 0,
-        document.documentElement?.scrollHeight ?? 0,
-      );
-      setShortPage(docHeight <= window.innerHeight);
+      const section = sectionRef.current;
+      if (!section) return;
+      const top = section.getBoundingClientRect().top + window.scrollY;
+      setShortPage(top <= window.innerHeight);
     };
     measure();
     window.addEventListener("resize", measure);
+    window.addEventListener("scroll", measure, { passive: true });
     let observer: ResizeObserver | null = null;
     if (typeof window !== "undefined" && typeof window.ResizeObserver !== "undefined" && document.body) {
       observer = new window.ResizeObserver(measure);
@@ -87,6 +89,7 @@ export function CommentsSection({
     }
     return () => {
       window.removeEventListener("resize", measure);
+      window.removeEventListener("scroll", measure);
       observer?.disconnect();
     };
   }, []);
@@ -236,7 +239,7 @@ export function CommentsSection({
       if (doc.getElementById("kira-comment-shape")) return;
       const style = doc.createElement("style");
       style.id = "kira-comment-shape";
-      style.textContent = [
+      const documentStyles = [
         "input, textarea { border-radius: 12px !important; }",
         "button { border-radius: 9999px !important; }",
         "input:focus, textarea:focus { outline-offset: 2px; }",
@@ -251,12 +254,22 @@ export function CommentsSection({
         // The form rows only; :has keeps comment lists (same grid classes) intact.
         "div.grid.grid-cols-1.gap-4:has(textarea) { gap: 8px !important; }",
       ].join("\n");
+      style.textContent = documentStyles;
       doc.head.appendChild(style);
+      // The host page already renders the comment list; hide the widget's own
+      // copy so opening the thread never doubles or reloads it.
+      if (!doc.getElementById("kira-widget-list-hidden")) {
+        const listHidden = doc.createElement("style");
+        listHidden.id = "kira-widget-list-hidden";
+        listHidden.textContent = "div.mt-4.px-1 { display: none !important; }";
+        doc.head.appendChild(listHidden);
+      }
     };
 
     // Grow the single-line reply box with the reader's input (no inner
     // scrollbar); marker keeps the binding idempotent across re-tunes and
-    // fresh documents.
+    // fresh documents. Re-tuning on input avoids the poll window where the
+    // taller box would briefly scroll inside the iframe.
     const bindAutoGrow = () => {
       const iframe = container.querySelector("iframe") as HTMLIFrameElement | null;
       const doc = iframe?.contentDocument;
@@ -265,6 +278,7 @@ export function CommentsSection({
       textarea.addEventListener("input", () => {
         textarea.style.height = "auto";
         textarea.style.height = `${Math.min(textarea.scrollHeight, 240)}px`;
+        tuneHeight();
       });
       (textarea as unknown as { __kiraGrow?: boolean }).__kiraGrow = true;
     };
@@ -296,14 +310,14 @@ export function CommentsSection({
           subtree: true,
           characterData: true,
         });
-        // Font loading and image decoding grow the widget box without any DOM
-        // mutation, which MutationObserver cannot see. The widget's own
-        // ResizeObserver (same-origin srcdoc document) catches those layout
-        // changes instead.
+        // Font loading and image decoding grow the widget content without any
+        // DOM mutation, which MutationObserver cannot see. Observe the body
+        // (its box grows with the content); observing documentElement would
+        // track the iframe viewport instead, which never changes.
         const frameWin = iframe.contentWindow as (Window & { ResizeObserver?: typeof ResizeObserver }) | null;
         if (frameWin?.ResizeObserver) {
           resizeObserver = new frameWin.ResizeObserver(() => tuneHeight());
-          resizeObserver.observe(doc.documentElement);
+          resizeObserver.observe(doc.body);
         }
         observedBody = doc.body;
       }
@@ -369,11 +383,14 @@ export function CommentsSection({
   if (!appId) return null;
 
   return (
-    <section className="reading-rule mx-auto mt-10 max-w-[720px] border-t border-black/5 pt-5">
-      <h2 className="mb-1 text-label-large font-medium text-text-main">评论区</h2>
+    <section
+      ref={sectionRef}
+      className="reading-rule mx-auto mt-10 max-w-[720px] border-t border-black/5 pt-5"
+    >
+      <h2 className="mb-3 text-label-large font-medium text-text-main">评论区</h2>
       {!expanded && (
         <div
-          className={`${shortPage ? "fixed bottom-4 left-6 right-6 z-10 " : ""}mx-auto max-w-[720px]`}
+          className={`${shortPage ? "fixed bottom-4 left-6 right-6 z-10 " : ""}mx-auto mb-3 max-w-[720px]`}
         >
           <button
             ref={pillRef}

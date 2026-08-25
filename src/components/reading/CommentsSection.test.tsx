@@ -184,17 +184,29 @@ describe('CommentsSection (Cusdis) lazy thread', () => {
   }, 4000)
 
   it('keeps the trigger in flow on long stories that fill the viewport', async () => {
-    Object.defineProperty(document.documentElement, 'scrollHeight', {
-      get: () => 99999,
-      configurable: true,
-    })
+    // jsdom has no layout: the comment section reports top 0, which reads as
+    // a short page. Fake a section deep below the viewport for this case.
+    const spy = vi
+      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+      .mockReturnValue({ top: 99999, bottom: 99999, left: 0, right: 0, width: 0, height: 0, x: 0, y: 0, toJSON: () => ({}) } as DOMRect)
+    try {
+      await mount()
+      await waitForAssert(() => {
+        const wrapper = container.querySelector('button')!.parentElement!
+        if (wrapper.className.includes('fixed')) {
+          throw new Error('expected in-flow pill on a long page')
+        }
+      })
+    } finally {
+      spy.mockRestore()
+    }
+  }, 4000)
+
+  it('hides the widget\u2019s own comment list so host-rendered comments never reload', async () => {
     await mount()
-    await waitForAssert(() => {
-      const wrapper = container.querySelector('button')!.parentElement!
-      if (wrapper.className.includes('fixed')) {
-        throw new Error('expected in-flow pill on a long page')
-      }
-    })
+    await expand()
+    const doc = container.querySelector('iframe')!.contentDocument!
+    expect(doc.getElementById('kira-widget-list-hidden')).toBeTruthy()
   }, 4000)
 
   it('mounts the widget only when the sticky trigger is opened', async () => {
