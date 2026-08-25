@@ -128,54 +128,26 @@ export function CommentsSection({
     }, 160);
   };
 
-  // Grow the thread out of the pill's spot once the widget is sized. The
-  // panel starts at height 0, so until the iframe has a height (or a failsafe
-  // fires) it stays invisible underneath; the height tween then opens it.
-  // The page just grows in place — the reader is never forced to scroll.
+  // Reveal the thread in place: layout lands once (page grows by the full
+  // panel height in a single reflow — no tweened height, no chasing to
+  // re-tune) while the content fades/rises in. The reader is never scrolled.
   useEffect(() => {
     if (!expanded) return;
     const el = collapsibleRef.current;
     if (!el) return;
+    const content = el.firstElementChild;
+    if (!content) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      gsap.set(el, { height: "auto", opacity: 1, y: 0 });
+      gsap.set(content, { opacity: 1, y: 0 });
       return;
     }
-    let settled = false;
-    const settle = () => {
-      if (settled) return;
-      settled = true;
-      el.dataset.opening = "true";
-      gsap.to(el, {
-        height: "auto",
-        duration: 0.55,
-        ease: "power3.out",
-        onComplete: () => {
-          el.style.height = "auto";
-          delete el.dataset.opening;
-        },
-      });
-      const content = el.firstElementChild;
-      if (content) {
-        gsap.fromTo(
-          content,
-          { opacity: 0, y: 14 },
-          { opacity: 1, y: 0, duration: 0.45, delay: 0.1, ease: "power3.out" },
-        );
-      }
-    };
-    const poll = window.setInterval(() => {
-      const iframe = containerRef.current?.querySelector("iframe") as HTMLIFrameElement | null;
-      if (iframe?.style.height) {
-        window.clearInterval(poll);
-        settle();
-      }
-    }, 50);
-    const failsafe = window.setTimeout(settle, 2500);
+    const tween = gsap.fromTo(
+      content,
+      { opacity: 0, y: 14 },
+      { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" },
+    );
     return () => {
-      window.clearInterval(poll);
-      window.clearTimeout(failsafe);
-      gsap.killTweensOf(el);
-      if (el.firstElementChild) gsap.killTweensOf(el.firstElementChild);
+      tween.kill();
     };
   }, [expanded]);
 
@@ -337,17 +309,10 @@ export function CommentsSection({
       if (iframe.style.height !== `${available}px`) {
         iframe.style.height = `${available}px`;
       }
-      // If the open animation was interrupted mid-tween the panel keeps a
-      // fixed px height and the widget content starts scrolling inside it;
-      // nudge it back to auto once the tween is no longer running.
+      // If the panel ever holds a fixed px height (stale state, interrupted
+      // tween) the widget content would scroll inside it; nudge it to auto.
       const panel = container.parentElement as HTMLElement | null;
-      if (
-        panel &&
-        panel.dataset.opening !== "true" &&
-        panel.style.height &&
-        panel.style.height !== "0px" &&
-        panel.style.height !== "auto"
-      ) {
+      if (panel && panel.style.height && panel.style.height !== "auto") {
         panel.style.height = "auto";
       }
     };
@@ -421,7 +386,7 @@ export function CommentsSection({
       )}
       {comments && comments.length > 0 && <CommentList comments={comments} />}
       {expanded && (
-        <div ref={collapsibleRef} style={{ height: 0, overflow: "hidden" }}>
+        <div ref={collapsibleRef}>
           <div
             id="cusdis_thread"
             ref={containerRef}
