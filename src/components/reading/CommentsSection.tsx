@@ -87,10 +87,6 @@ export function CommentsSection({
     }
     window.setTimeout(() => {
       setExpanded(true);
-      const target = collapsibleRef.current;
-      if (target && typeof target.scrollIntoView === "function") {
-        target.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
     }, 160);
   };
 
@@ -101,6 +97,11 @@ export function CommentsSection({
     if (!expanded) return;
     const el = collapsibleRef.current;
     if (!el) return;
+    // Glide to the thread only now — the ref is mounted, unlike inside the
+    // click handler, where React has not rendered the panel yet.
+    if (typeof el.scrollIntoView === "function") {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       gsap.set(el, { height: "auto", opacity: 1, y: 0 });
       return;
