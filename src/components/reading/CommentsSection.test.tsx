@@ -73,6 +73,12 @@ describe('CommentsSection (Cusdis) widget height sync', () => {
     await act(async () => {
       trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     })
+    // openThread fades the pill away first and mounts the thread 160ms later.
+    await waitForAssert(() => {
+      if (container.querySelector('button')) {
+        throw new Error('pill still visible')
+      }
+    })
   }
 
   beforeEach(() => {

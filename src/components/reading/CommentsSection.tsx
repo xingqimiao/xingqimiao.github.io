@@ -41,24 +41,56 @@ export function CommentsSection({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const collapsibleRef = useRef<HTMLDivElement>(null);
+  const pillRef = useRef<HTMLButtonElement>(null);
   const [expanded, setExpanded] = useState(false);
 
-  // Ease the thread in with GSAP once it mounts, instead of the abrupt swap.
+  // Shrink the pill away, then mount the thread where the pill was, so the
+  // pill opening into the form reads as one motion instead of a hard swap.
+  const openThread = () => {
+    const pill = pillRef.current;
+    if (!pill) return;
+    gsap.to(pill, { opacity: 0, scale: 0.985, y: 4, duration: 0.16, ease: "power2.in" });
+    window.setTimeout(() => setExpanded(true), 160);
+  };
+
+  // Grow the thread out of the pill's spot once the widget is sized. The
+  // panel starts at height 0, so until the iframe has a height (or a failsafe
+  // fires) it stays invisible underneath; the height tween then opens it.
   useEffect(() => {
     if (!expanded) return;
     const el = collapsibleRef.current;
     if (!el) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      gsap.set(el, { opacity: 1, y: 0, scale: 1 });
+      gsap.set(el, { height: "auto", opacity: 1, y: 0, scale: 1 });
       return;
     }
-    const tween = gsap.fromTo(
-      el,
-      { opacity: 0, y: 14, scale: 0.985 },
-      { opacity: 1, y: 0, scale: 1, duration: 0.45, ease: "power3.out" },
-    );
+    let settled = false;
+    const settle = () => {
+      if (settled) return;
+      settled = true;
+      gsap.to(el, { height: "auto", duration: 0.55, ease: "power3.out" });
+      const content = el.firstElementChild;
+      if (content) {
+        gsap.fromTo(
+          content,
+          { opacity: 0, y: 14 },
+          { opacity: 1, y: 0, duration: 0.45, delay: 0.1, ease: "power3.out" },
+        );
+      }
+    };
+    const poll = window.setInterval(() => {
+      const iframe = containerRef.current?.querySelector("iframe") as HTMLIFrameElement | null;
+      if (iframe?.style.height) {
+        window.clearInterval(poll);
+        settle();
+      }
+    }, 50);
+    const failsafe = window.setTimeout(settle, 2500);
     return () => {
-      tween.kill();
+      window.clearInterval(poll);
+      window.clearTimeout(failsafe);
+      gsap.killTweensOf(el);
+      if (el.firstElementChild) gsap.killTweensOf(el.firstElementChild);
     };
   }, [expanded]);
 
@@ -228,7 +260,7 @@ export function CommentsSection({
     <section className="reading-rule mx-auto mt-10 max-w-[720px] border-t border-black/5 pt-5">
       <h2 className="mb-1 text-label-large font-medium text-text-main">评论区</h2>
       {expanded ? (
-        <div ref={collapsibleRef}>
+        <div ref={collapsibleRef} style={{ height: 0, overflow: "hidden" }}>
           <div
             id="cusdis_thread"
             ref={containerRef}
@@ -243,8 +275,9 @@ export function CommentsSection({
         </div>
       ) : (
         <button
+          ref={pillRef}
           type="button"
-          onClick={() => setExpanded(true)}
+          onClick={openThread}
           aria-expanded={false}
           className="mt-2 block w-full rounded-full border border-black/10 bg-black/5 px-6 py-3.5 text-left text-body-large text-text-sub/80 transition-all duration-300 hover:bg-black/10 active:scale-[0.99] dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
         >
