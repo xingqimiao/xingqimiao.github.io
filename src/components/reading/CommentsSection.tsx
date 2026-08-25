@@ -66,6 +66,10 @@ export function CommentsSection({
   const sectionRef = useRef<HTMLElement>(null);
   const pillRef = useRef<HTMLButtonElement>(null);
   const [expanded, setExpanded] = useState(false);
+  // Grows the thread open: the panel lives in a grid row that transitions
+  // 0fr -> 1fr, so everything below it slides down with the panel instead of
+  // teleporting in a single reflow.
+  const [rowOpen, setRowOpen] = useState(false);
   // Short pages are those whose comment section already sits inside the
   // first viewport — the content could not fill a screen. Footer paddings
   // (which always push the document past one viewport) must not count.
@@ -128,9 +132,34 @@ export function CommentsSection({
     }, 160);
   };
 
-  // Reveal the thread in place: layout lands once (page grows by the full
-  // panel height in a single reflow — no tweened height, no chasing to
-  // re-tune) while the content fades/rises in. The reader is never scrolled.
+  // Flip the row open two frames after the panel mounts: the browser must
+  // commit the 0fr row first, or the transition to 1fr snaps instead of
+  // animating. tuneHeight's observers only ever resize the widget iframe —
+  // the row track follows the content on every frame, which is why this
+  // animation cannot be fought the way the old height tween was.
+  useEffect(() => {
+    if (!expanded) return;
+    const frame = (cb: () => void) =>
+      typeof window.requestAnimationFrame === "function"
+        ? window.requestAnimationFrame(cb)
+        : (window.setTimeout(cb, 16) as unknown as number);
+    const cancel = (handle: number) => {
+      if (typeof window.cancelAnimationFrame === "function") window.cancelAnimationFrame(handle);
+      else window.clearTimeout(handle);
+    };
+    let second = 0;
+    const first = frame(() => {
+      second = frame(() => setRowOpen(true));
+    });
+    return () => {
+      cancel(first);
+      cancel(second);
+    };
+  }, [expanded]);
+
+  // Reveal the thread content while the row grows around it: the panel fades
+  // and rises inside the clip track so the growth reads as one motion. The
+  // reader is never scrolled.
   useEffect(() => {
     if (!expanded) return;
     const el = collapsibleRef.current;
@@ -386,18 +415,25 @@ export function CommentsSection({
       )}
       {comments && comments.length > 0 && <CommentList comments={comments} />}
       {expanded && (
-        <div ref={collapsibleRef}>
-          <div
-            id="cusdis_thread"
-            ref={containerRef}
-            data-host="https://cusdis.com"
-            data-app-id={appId}
-            data-page-id={pageId}
-            data-page-url={pageUrl}
-            data-page-title={pageTitle}
-            data-lang="zh-CN"
-            data-theme="auto"
-          />
+        <div
+          className="grid transition-[grid-template-rows] duration-[350ms] ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none"
+          style={{ gridTemplateRows: rowOpen ? "1fr" : "0fr" }}
+        >
+          <div className="min-h-0 overflow-hidden">
+            <div ref={collapsibleRef}>
+              <div
+                id="cusdis_thread"
+                ref={containerRef}
+                data-host="https://cusdis.com"
+                data-app-id={appId}
+                data-page-id={pageId}
+                data-page-url={pageUrl}
+                data-page-title={pageTitle}
+                data-lang="zh-CN"
+                data-theme="auto"
+              />
+            </div>
+          </div>
         </div>
       )}
     </section>

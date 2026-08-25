@@ -246,6 +246,31 @@ describe('CommentsSection (Cusdis) lazy thread', () => {
     })
   }, 4000)
 
+  it('grows the thread open through an animated row instead of snapping in', async () => {
+    // The reader sees everything below the thread slide down with it; that
+    // only happens when the panel sits in a grid row that transitions from
+    // 0fr to 1fr inside an overflow-clipped track. A bare panel mount is the
+    // instant reflow readers experienced as the thread "jumping down".
+    await mount()
+    await expand()
+    await waitForAssert(() => {
+      const thread = container.querySelector('#cusdis_thread')
+      if (!thread) throw new Error('thread missing')
+      // thread -> panel -> clip -> row
+      const clip = thread.parentElement!.parentElement as HTMLElement
+      const row = clip.parentElement as HTMLElement
+      if (!row.className.includes('transition-[grid-template-rows]')) {
+        throw new Error('row is not animated')
+      }
+      if (row.style.gridTemplateRows !== '1fr') {
+        throw new Error(`row still ${row.style.gridTemplateRows}`)
+      }
+      if (!clip.className.includes('overflow-hidden')) {
+        throw new Error('row content is not clipped while growing')
+      }
+    })
+  }, 4000)
+
   it('sizes the widget iframe as soon as the widget renders', async () => {
     await mount()
     await expand()
