@@ -70,6 +70,32 @@ export function CommentsSection({
   // teleporting in a single reflow.
   const [rowOpen, setRowOpen] = useState(false);
   const [comments, setComments] = useState<CusComment[] | null>(null);
+  // Same motion for the comment preview: the row stays closed until the
+  // Cusdis round trip lands, then grows open so the list never pops in.
+  const [previewOpen, setPreviewOpen] = useState(false);
+
+  // Flip the preview row open two frames after the comments land: the
+  // browser must commit the 0fr row first, or the growth snaps instead of
+  // animating (same mechanism as the thread row below).
+  useEffect(() => {
+    if (!comments) return;
+    const frame = (cb: () => void) =>
+      typeof window.requestAnimationFrame === "function"
+        ? window.requestAnimationFrame(cb)
+        : (window.setTimeout(cb, 16) as unknown as number);
+    const cancel = (handle: number) => {
+      if (typeof window.cancelAnimationFrame === "function") window.cancelAnimationFrame(handle);
+      else window.clearTimeout(handle);
+    };
+    let second = 0;
+    const first = frame(() => {
+      second = frame(() => setPreviewOpen(true));
+    });
+    return () => {
+      cancel(first);
+      cancel(second);
+    };
+  }, [comments]);
 
   // Fetch approved comments separately from the widget so the list is
   // visible without loading Cusdis' script/iframe. First page only; the full
@@ -376,12 +402,23 @@ export function CommentsSection({
           </button>
         </div>
       )}
-      {comments && comments.length === 0 && (
-        <p className="mb-3 text-label-medium text-text-sub/60">
-          这里还静悄悄的，喵～ 想留下鱼干大小的一句话吗？
-        </p>
-      )}
-      {comments && comments.length > 0 && <CommentList comments={comments} />}
+      <div
+        className="grid transition-[grid-template-rows] duration-[350ms] ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none"
+        style={{ gridTemplateRows: previewOpen ? "1fr" : "0fr" }}
+      >
+        <div className="min-h-0 overflow-hidden">
+          {comments && (
+            <div className="comment-preview-enter">
+              {comments.length === 0 && (
+                <p className="mb-3 text-label-medium text-text-sub/60">
+                  这里还静悄悄的，喵～ 想留下鱼干大小的一句话吗？
+                </p>
+              )}
+              {comments.length > 0 && <CommentList comments={comments} />}
+            </div>
+          )}
+        </div>
+      </div>
       {expanded && (
         <div
           className="grid transition-[grid-template-rows] duration-[350ms] ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none"

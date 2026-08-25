@@ -365,6 +365,25 @@ body {
   animation: pillFloatIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) 0.72s backwards;
 }
 
+/* The comment preview lands after the Cusdis round trip; without motion it
+ * pops into place. It rises and fades in while its grid row grows open —
+ * the same motion language as the opened thread. The transform is a mount
+ * animation on an in-flow element, so no containing-block hazard. */
+@keyframes previewRiseIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.comment-preview-enter {
+  animation: previewRiseIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-text,
   .hero-media,
@@ -379,6 +398,10 @@ body {
 
   /* No entrance means no containing block: the pill can show immediately. */
   .comment-pill-float {
+    animation: none;
+  }
+
+  .comment-preview-enter {
     animation: none;
   }
 

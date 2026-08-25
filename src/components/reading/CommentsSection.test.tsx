@@ -77,6 +77,9 @@ describe('CommentsSection (Cusdis)', () => {
     // animation's live transform cages it (.page-enter becomes a containing
     // block mid-animation); it may only become visible pinned to the viewport.
     expect(html).toContain('comment-pill-float')
+    // The preview row ships closed so its later opening is a smooth growth,
+    // never a layout jump, and hydration sees the same collapsed row.
+    expect(html).toContain('grid-template-rows:0fr')
     expect(html).not.toContain('id="cusdis_thread"')
     expect(html).not.toContain('data-app-id')
     const headlineIndex = html.indexOf('评论区')
@@ -193,6 +196,40 @@ describe('CommentsSection (Cusdis) lazy thread', () => {
     )
     expect(listened).toHaveLength(0)
     listenerSpy.mockRestore()
+  }, 4000)
+
+  it('grows the comment preview in instead of popping it', async () => {
+    // The preview lands after the Cusdis round trip; without motion it pops
+    // into place. It must arrive the same way the opened thread does: inside
+    // a clipped grid row that transitions 0fr -> 1fr while the content fades
+    // and rises, so everything below slides down with it.
+    stubFetch({
+      data: {
+        data: [
+          { id: 'c1', by_nickname: '读者甲', parsedContent: '<p>说得对</p>', createdAt: '2026-08-24T19:38:10.410Z' },
+        ],
+      },
+    })
+    await mount()
+    await waitForAssert(() => {
+      const list = container.querySelector('ol')
+      if (!list) throw new Error('comment list missing')
+      const enter = list.parentElement as HTMLElement
+      if (!enter.className.includes('comment-preview-enter')) {
+        throw new Error('preview content has no enter animation')
+      }
+      const clip = enter.parentElement as HTMLElement
+      const row = clip.parentElement as HTMLElement
+      if (!row.className.includes('transition-[grid-template-rows]')) {
+        throw new Error('preview row is not animated')
+      }
+      if (row.style.gridTemplateRows !== '1fr') {
+        throw new Error(`preview row still ${row.style.gridTemplateRows}`)
+      }
+      if (!clip.className.includes('overflow-hidden')) {
+        throw new Error('preview row is not clipped while growing')
+      }
+    })
   }, 4000)
 
   it('keeps host-rendered comments visible after the thread is opened', async () => {
