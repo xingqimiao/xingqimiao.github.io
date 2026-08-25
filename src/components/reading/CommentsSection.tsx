@@ -54,7 +54,31 @@ export function CommentsSection({
   const collapsibleRef = useRef<HTMLDivElement>(null);
   const pillRef = useRef<HTMLButtonElement>(null);
   const [expanded, setExpanded] = useState(false);
+  // Only pages that cannot fill a viewport get the floating pill; on long
+  // stories the trigger sits naturally above the thread.
+  const [shortPage, setShortPage] = useState(false);
   const [comments, setComments] = useState<CusComment[] | null>(null);
+
+  useEffect(() => {
+    const measure = () => {
+      const docHeight = Math.max(
+        document.body?.scrollHeight ?? 0,
+        document.documentElement?.scrollHeight ?? 0,
+      );
+      setShortPage(docHeight <= window.innerHeight);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    let observer: ResizeObserver | null = null;
+    if (typeof window !== "undefined" && typeof window.ResizeObserver !== "undefined" && document.body) {
+      observer = new window.ResizeObserver(measure);
+      observer.observe(document.body);
+    }
+    return () => {
+      window.removeEventListener("resize", measure);
+      observer?.disconnect();
+    };
+  }, []);
 
   // Fetch approved comments separately from the widget so the list is
   // visible without loading Cusdis' script/iframe. First page only; the full
@@ -111,7 +135,16 @@ export function CommentsSection({
     const settle = () => {
       if (settled) return;
       settled = true;
-      gsap.to(el, { height: "auto", duration: 0.55, ease: "power3.out" });
+      el.dataset.opening = "true";
+      gsap.to(el, {
+        height: "auto",
+        duration: 0.55,
+        ease: "power3.out",
+        onComplete: () => {
+          el.style.height = "auto";
+          delete el.dataset.opening;
+        },
+      });
       const content = el.firstElementChild;
       if (content) {
         gsap.fromTo(
@@ -272,6 +305,19 @@ export function CommentsSection({
       if (iframe.style.height !== `${available}px`) {
         iframe.style.height = `${available}px`;
       }
+      // If the open animation was interrupted mid-tween the panel keeps a
+      // fixed px height and the widget content starts scrolling inside it;
+      // nudge it back to auto once the tween is no longer running.
+      const panel = container.parentElement as HTMLElement | null;
+      if (
+        panel &&
+        panel.dataset.opening !== "true" &&
+        panel.style.height &&
+        panel.style.height !== "0px" &&
+        panel.style.height !== "auto"
+      ) {
+        panel.style.height = "auto";
+      }
     };
     // Polling stays as a fallback for height changes that mutate no DOM (font
     // loading, images decoding)…
@@ -319,7 +365,7 @@ export function CommentsSection({
   return (
     <>
       {!expanded && (
-        <div className="sticky bottom-4 z-10 mx-auto max-w-[720px]">
+        <div className={`${shortPage ? "sticky bottom-4 z-10 " : ""}mx-auto max-w-[720px]`}>
           <button
             ref={pillRef}
             type="button"

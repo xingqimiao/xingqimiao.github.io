@@ -65,10 +65,12 @@ describe('CommentsSection (Cusdis)', () => {
     expect(html).toBe('')
   })
 
-  it('renders a sticky trigger without pre-mounting the lazy thread', () => {
+  it('renders a non-sticky trigger without pre-mounting the lazy thread', () => {
+    // The viewport check is client-only, so server HTML ships the pill in its
+    // natural position; the floating mode is applied after hydration.
     const html = renderToStaticMarkup(<CommentsSection {...base} />)
     expect(html).toContain('添加公开评论…')
-    expect(html).toContain('sticky bottom-4')
+    expect(html).not.toContain('sticky')
     expect(html).not.toContain('id="cusdis_thread"')
     expect(html).not.toContain('data-app-id')
   })
@@ -159,6 +161,30 @@ describe('CommentsSection (Cusdis) lazy thread', () => {
     expect(container.textContent).toContain('说得对')
     expect(container.querySelector('iframe')).toBeNull()
   })
+
+  it('floats the trigger only when the page cannot fill the viewport', async () => {
+    await mount()
+    await waitForAssert(() => {
+      const wrapper = container.querySelector('button')!.parentElement!
+      if (!wrapper.className.includes('sticky')) {
+        throw new Error('expected floating pill on a short page')
+      }
+    })
+  }, 4000)
+
+  it('keeps the trigger in flow on long stories that fill the viewport', async () => {
+    Object.defineProperty(document.documentElement, 'scrollHeight', {
+      get: () => 99999,
+      configurable: true,
+    })
+    await mount()
+    await waitForAssert(() => {
+      const wrapper = container.querySelector('button')!.parentElement!
+      if (wrapper.className.includes('sticky')) {
+        throw new Error('expected in-flow pill on a long page')
+      }
+    })
+  }, 4000)
 
   it('mounts the widget only when the sticky trigger is opened', async () => {
     await mount()

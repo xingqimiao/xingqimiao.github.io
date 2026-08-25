@@ -166,8 +166,17 @@ export function ReadingArticlePage({
           dangerouslySetInnerHTML={{ __html: shownContentHtml }}
         />
 
+        {commentAppId ? (
+          <CommentsSection
+            appId={commentAppId}
+            pageId={commentPageId ?? ""}
+            pageUrl={commentPageUrl ?? ""}
+            pageTitle={shownTitle}
+          />
+        ) : null}
+
         {disclaimer && (
-          <div className="reading-rule mx-auto mt-16 max-w-[720px] border-t border-black/5 pt-6">
+          <div className="reading-rule mx-auto mt-12 max-w-[720px] border-t border-black/5 pt-5">
             <button
               type="button"
               onClick={() => setDisclaimerOpen((open) => !open)}
@@ -205,15 +214,6 @@ export function ReadingArticlePage({
             </div>
           </div>
         )}
-
-        {commentAppId ? (
-          <CommentsSection
-            appId={commentAppId}
-            pageId={commentPageId ?? ""}
-            pageUrl={commentPageUrl ?? ""}
-            pageTitle={shownTitle}
-          />
-        ) : null}
 
         <div className="reading-rule mx-auto mt-10 flex max-w-[720px] justify-end">
           <Link
