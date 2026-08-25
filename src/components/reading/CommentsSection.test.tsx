@@ -17,8 +17,27 @@ import React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { createRoot, type Root } from 'react-dom/client'
 import { act } from 'react'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import { CommentsSection, CUSDIS_ZH_CN_LOCALE } from './CommentsSection'
+
+// Builds a minimal widget document matching the real srcdoc structure:
+// #root > div > div.grid.grid-cols-1.gap-4 (form) + div.mt-4.px-1 (list).
+const buildWidgetDoc = (doc: Document) => {
+  const root = doc.createElement('div')
+  root.id = 'root'
+  const shell = doc.createElement('div')
+  const form = doc.createElement('div')
+  form.className = 'grid grid-cols-1 gap-4'
+  const list = doc.createElement('div')
+  list.className = 'mt-4 px-1'
+  const ta = doc.createElement('textarea')
+  ta.name = 'reply_content'
+  form.appendChild(ta)
+  root.appendChild(shell)
+  shell.appendChild(form)
+  shell.appendChild(list)
+  doc.body.appendChild(root)
+}
 
 describe('CommentsSection (Cusdis)', () => {
   const base = {
@@ -33,12 +52,14 @@ describe('CommentsSection (Cusdis)', () => {
     expect(html).toBe('')
   })
 
-  it('collapses to a single trigger row until the reader opens it', () => {
+  it('renders a sticky trigger and the always-visible thread container once configured', () => {
     const html = renderToStaticMarkup(<CommentsSection {...base} />)
     expect(html).toContain('添加公开评论…')
-    expect(html).toContain('aria-expanded="false"')
-    expect(html).not.toContain('id="cusdis_thread"')
-    expect(html).not.toContain('data-app-id')
+    expect(html).toContain('sticky bottom-4')
+    expect(html).toContain('id="cusdis_thread"')
+    expect(html).toContain('data-app-id="12345"')
+    expect(html).toContain('data-page-id="stories:47228326"')
+    expect(html).toContain('data-lang="zh-CN"')
   })
 
   it('ships the full Simplified Chinese pack for the widget', () => {
@@ -58,7 +79,17 @@ describe('CommentsSection (Cusdis) widget height sync', () => {
   let root: Root
   let container: HTMLDivElement
 
-  const mount = async () => {
+  const mount = async (renderTo?: (el: HTMLElement) => void) => {
+    ;(window as unknown as { CUSDIS?: unknown }).CUSDIS = {
+      renderTo:
+        renderTo ??
+        ((el: HTMLElement) => {
+          const iframe = document.createElement('iframe')
+          el.appendChild(iframe)
+          buildWidgetDoc(iframe.contentDocument!)
+        }),
+      setTheme: () => {},
+    }
     container = document.createElement('div')
     document.body.appendChild(container)
     root = createRoot(container)
@@ -66,30 +97,6 @@ describe('CommentsSection (Cusdis) widget height sync', () => {
       root.render(<CommentsSection {...base} />)
     })
   }
-
-  const expand = async () => {
-    const trigger = container.querySelector('button') as HTMLButtonElement
-    expect(trigger).toBeTruthy()
-    await act(async () => {
-      trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-    })
-    // openThread fades the pill away first and mounts the thread 160ms later.
-    await waitForAssert(() => {
-      if (container.querySelector('button')) {
-        throw new Error('pill still visible')
-      }
-    })
-  }
-
-  beforeEach(() => {
-    ;(window as unknown as { CUSDIS?: unknown }).CUSDIS = {
-      renderTo: (el: HTMLElement) => {
-        const iframe = document.createElement('iframe')
-        el.appendChild(iframe)
-      },
-      setTheme: () => {},
-    }
-  })
 
   afterEach(async () => {
     delete (window as unknown as { CUSDIS?: unknown }).CUSDIS
@@ -101,25 +108,12 @@ describe('CommentsSection (Cusdis) widget height sync', () => {
     }
   })
 
-  it('stays collapsed to a single trigger row until clicked, then mounts the widget', async () => {
+  it('mounts the widget immediately so existing comments are always visible', async () => {
     await mount()
-    expect(container.querySelector('iframe')).toBeNull()
-    expect(container.textContent).toContain('添加公开评论…')
-    await expand()
-    await waitForAssert(() => {
-      if (!container.querySelector('iframe')) {
-        throw new Error('widget iframe not mounted after expand')
-      }
-    })
-  }, 4000)
-
-  it('sizes the widget iframe as soon as the widget renders', async () => {
-    await mount()
-    await expand()
     const iframe = container.querySelector('iframe')
     expect(iframe).toBeTruthy()
     await waitForAssert(() => {
-      if (iframe!.style.height !== '200px') {
+      if (iframe!.style.height !== '48px') {
         throw new Error(`iframe height still ${iframe!.style.height}`)
       }
     })
@@ -127,7 +121,6 @@ describe('CommentsSection (Cusdis) widget height sync', () => {
 
   it('grows the iframe immediately when the widget content changes', async () => {
     await mount()
-    await expand()
     const iframe = container.querySelector('iframe')!
     const body = iframe.contentDocument!.body
     Object.defineProperty(body, 'scrollHeight', { get: () => 600, configurable: true })
@@ -144,25 +137,20 @@ describe('CommentsSection (Cusdis) widget height sync', () => {
     // srcdoc document after it loads, so the height observer armed at render
     // time watches a dead document. The iframe load event must re-tune.
     let innerDoc: Document | null = null
-    ;(window as unknown as { CUSDIS?: unknown }).CUSDIS = {
-      renderTo: (el: HTMLElement) => {
-        const iframe = document.createElement('iframe')
-        Object.defineProperty(iframe, 'contentDocument', {
-          get: () => innerDoc,
-          configurable: true,
-        })
-        el.appendChild(iframe)
-      },
-      setTheme: () => {},
-    }
-    await mount()
-    await expand()
+    await mount((el: HTMLElement) => {
+      const iframe = document.createElement('iframe')
+      Object.defineProperty(iframe, 'contentDocument', {
+        get: () => innerDoc,
+        configurable: true,
+      })
+      el.appendChild(iframe)
+    })
     const iframe = container.querySelector('iframe')!
     expect(iframe.style.height).toBe('')
     innerDoc = document.implementation.createHTMLDocument('widget')
     iframe.dispatchEvent(new Event('load'))
     await waitForAssert(() => {
-      if (iframe.style.height !== '200px') {
+      if (iframe.style.height !== '48px') {
         throw new Error(`iframe height still ${iframe.style.height}`)
       }
     })
@@ -173,26 +161,21 @@ describe('CommentsSection (Cusdis) widget height sync', () => {
     // adding/removing nodes, so no DOM mutation fires. The widget's own
     // ResizeObserver must be wired up so the host page still follows.
     let widgetResize: (() => void) | null = null
-    ;(window as unknown as { CUSDIS?: unknown }).CUSDIS = {
-      renderTo: (el: HTMLElement) => {
-        const iframe = document.createElement('iframe')
-        el.appendChild(iframe)
-        Object.defineProperty(iframe.contentWindow!, 'ResizeObserver', {
-          value: class {
-            constructor(cb: () => void) {
-              widgetResize = cb
-            }
-            observe() {}
-            unobserve() {}
-            disconnect() {}
-          },
-          configurable: true,
-        })
-      },
-      setTheme: () => {},
-    }
-    await mount()
-    await expand()
+    await mount((el: HTMLElement) => {
+      const iframe = document.createElement('iframe')
+      el.appendChild(iframe)
+      Object.defineProperty(iframe.contentWindow!, 'ResizeObserver', {
+        value: class {
+          constructor(cb: () => void) {
+            widgetResize = cb
+          }
+          observe() {}
+          unobserve() {}
+          disconnect() {}
+        },
+        configurable: true,
+      })
+    })
     const iframe = container.querySelector('iframe')!
     expect(widgetResize).toBeTruthy()
     const body = iframe.contentDocument!.body
@@ -201,6 +184,81 @@ describe('CommentsSection (Cusdis) widget height sync', () => {
     await waitForAssert(() => {
       if (iframe.style.height !== '600px') {
         throw new Error(`iframe height still ${iframe.style.height}`)
+      }
+    })
+  }, 4000)
+})
+
+describe('CommentsSection (Cusdis) form reveal', () => {
+  const base = {
+    appId: '12345',
+    pageId: 'stories:47228326',
+    pageUrl: 'https://kiramyao.com/stories/47228326',
+    pageTitle: '逃离上精卫',
+  }
+  let root: Root
+  let container: HTMLDivElement
+
+  const mount = async () => {
+    ;(window as unknown as { CUSDIS?: unknown }).CUSDIS = {
+      renderTo: (el: HTMLElement) => {
+        const iframe = document.createElement('iframe')
+        el.appendChild(iframe)
+        buildWidgetDoc(iframe.contentDocument!)
+      },
+      setTheme: () => {},
+    }
+    container = document.createElement('div')
+    document.body.appendChild(container)
+    root = createRoot(container)
+    await act(async () => {
+      root.render(<CommentsSection {...base} />)
+    })
+  }
+
+  afterEach(async () => {
+    delete (window as unknown as { CUSDIS?: unknown }).CUSDIS
+    container?.remove()
+    if (root) {
+      await act(async () => {
+        root.unmount()
+      })
+    }
+  })
+
+  it('keeps the comment list visible while the form is collapsed', async () => {
+    await mount()
+    const doc = container.querySelector('iframe')!.contentDocument!
+    expect(doc.getElementById('kira-form-collapsed')).toBeTruthy()
+    // The injected style targets only the form container, never the list.
+    const css = doc.getElementById('kira-form-collapsed')!.textContent!
+    expect(css).toContain('grid-cols-1.gap-4')
+    expect(css).toContain('display: none')
+  }, 4000)
+
+  it('reveals the form when the sticky trigger is clicked', async () => {
+    await mount()
+    const doc = container.querySelector('iframe')!.contentDocument!
+    const trigger = container.querySelector('button') as HTMLButtonElement
+    await act(async () => {
+      trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+    await waitForAssert(() => {
+      if (!doc.getElementById('kira-form-collapsed')) return
+      throw new Error('form still collapsed')
+    })
+  }, 4000)
+
+  it('grows the reply box with input instead of scrolling', async () => {
+    await mount()
+    const doc = container.querySelector('iframe')!.contentDocument!
+    const textarea = doc.querySelector('textarea')!
+    Object.defineProperty(textarea, 'scrollHeight', { get: () => 120, configurable: true })
+    textarea.value = '第一行\n第二行第三行'
+    textarea.dispatchEvent(new Event('input', { bubbles: true }))
+    await waitForAssert(() => {
+      if (textarea.style.height !== '120px') {
+        throw new Error(`textarea height still ${textarea.style.height}`)
       }
     })
   }, 4000)

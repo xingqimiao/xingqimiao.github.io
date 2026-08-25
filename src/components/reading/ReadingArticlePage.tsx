@@ -115,7 +115,6 @@ export function ReadingArticlePage({
       className="reading-page min-h-screen px-6 pb-24 pt-32 text-[#121317] transition-colors duration-300"
     >
       <div className="page-enter mx-auto max-w-[880px]">
-        <div className="min-h-[calc(100svh-6rem)]">
         <div className="mb-8 flex items-center justify-between gap-4">
           <Link href={backHref} className="reading-link text-label-large text-text-sub transition-colors hover:text-text-main" prefetch={false}>
             {backLabel}
@@ -206,7 +205,6 @@ export function ReadingArticlePage({
             </div>
           </div>
         )}
-        </div>
 
         {commentAppId ? (
           <CommentsSection

@@ -1,9 +1,15 @@
 "use client";
 
+import gsap from "gsap";
 import { useEffect, useRef, useState } from "react";
-import { gsap } from "gsap";
 
 const CUSDIS_SCRIPT = "https://cusdis.com/js/cusdis.es.js";
+
+const FORM_COLLAPSE_STYLE_ID = "kira-form-collapsed";
+// The widget nests its form as #root > div > div.grid.grid-cols-1.gap-4;
+// the comment list lives in a sibling container, so hiding just the form
+// keeps existing comments visible while the compose box stays out of the way.
+const FORM_COLLAPSE_CSS = `#root > div > div.grid.grid-cols-1.gap-4 { display: none !important; }`;
 
 // Official Simplified Chinese pack (djyde/cusdis -> widget/lang/zh-cn.js).
 // The widget reads its own window.CUSDIS_LOCALE and only falls back to the
@@ -24,9 +30,10 @@ export const CUSDIS_ZH_CN_LOCALE = {
 } as const;
 
 /**
- * Cusdis-hosted comment thread for story pages. Renders nothing until an App
- * ID is configured (global_config.json -> cusdis_app_id), so the reader is
- * untouched before the account exists.
+ * Cusdis-hosted comment thread for story pages. The widget stays mounted so
+ * approved comments are visible without interaction; the compose form is
+ * collapsed behind a pill that sticks to the viewport bottom until the
+ * reader opens it - leaving the form is a deliberate progressive disclosure.
  */
 export function CommentsSection({
   appId,
@@ -42,61 +49,37 @@ export function CommentsSection({
   const containerRef = useRef<HTMLDivElement>(null);
   const collapsibleRef = useRef<HTMLDivElement>(null);
   const pillRef = useRef<HTMLButtonElement>(null);
-  const [expanded, setExpanded] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+  const formOpenRef = useRef(false);
 
-  // Shrink the pill away, then mount the thread where the pill was, so the
-  // pill opening into the form reads as one motion instead of a hard swap.
+  // Shrink the pill away, reveal the form where the reader already is, and
+  // glide the page to the thread so the two read as one motion.
   const openThread = () => {
     const pill = pillRef.current;
-    if (!pill) return;
-    gsap.to(pill, { opacity: 0, scale: 0.985, y: 4, duration: 0.16, ease: "power2.in" });
-    window.setTimeout(() => setExpanded(true), 160);
+    if (pill) {
+      gsap.to(pill, { opacity: 0, scale: 0.985, y: 4, duration: 0.16, ease: "power2.in" });
+    }
+    window.setTimeout(() => {
+      formOpenRef.current = true;
+      setFormOpen(true);
+      const target = collapsibleRef.current;
+      if (target && typeof target.scrollIntoView === "function") {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 160);
   };
 
-  // Grow the thread out of the pill's spot once the widget is sized. The
-  // panel starts at height 0, so until the iframe has a height (or a failsafe
-  // fires) it stays invisible underneath; the height tween then opens it.
+  // Reveal the form the moment the reader opens it; the collapse style is
+  // re-applied idempotently by tuneHeight while closed.
   useEffect(() => {
-    if (!expanded) return;
-    const el = collapsibleRef.current;
-    if (!el) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      gsap.set(el, { height: "auto", opacity: 1, y: 0, scale: 1 });
-      return;
-    }
-    let settled = false;
-    const settle = () => {
-      if (settled) return;
-      settled = true;
-      gsap.to(el, { height: "auto", duration: 0.55, ease: "power3.out" });
-      const content = el.firstElementChild;
-      if (content) {
-        gsap.fromTo(
-          content,
-          { opacity: 0, y: 14 },
-          { opacity: 1, y: 0, duration: 0.45, delay: 0.1, ease: "power3.out" },
-        );
-      }
-    };
-    const poll = window.setInterval(() => {
-      const iframe = containerRef.current?.querySelector("iframe") as HTMLIFrameElement | null;
-      if (iframe?.style.height) {
-        window.clearInterval(poll);
-        settle();
-      }
-    }, 50);
-    const failsafe = window.setTimeout(settle, 2500);
-    return () => {
-      window.clearInterval(poll);
-      window.clearTimeout(failsafe);
-      gsap.killTweensOf(el);
-      if (el.firstElementChild) gsap.killTweensOf(el.firstElementChild);
-    };
-  }, [expanded]);
+    if (!formOpen) return;
+    const doc = containerRef.current?.querySelector("iframe")?.contentDocument;
+    doc?.getElementById(FORM_COLLAPSE_STYLE_ID)?.remove();
+  }, [formOpen]);
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!appId || !container || !expanded) return;
+    if (!appId || !container) return;
     // Cusdis localizes via a page-level global read when its script evaluates;
     // data-lang alone is not honoured by the widget script.
     (window as unknown as { CUSDIS_LOCALE?: unknown }).CUSDIS_LOCALE = CUSDIS_ZH_CN_LOCALE;
@@ -145,8 +128,8 @@ export function CommentsSection({
     }
 
     // The widget's fields, labels and buttons render large (16px, 96px box);
-    // compact them so the thread does not dominate the page, keeping the M3
-    // shapes from above.
+    // compact them so the thread does not dominate the page, keep the M3
+    // shapes, and make the reply box single-line that grows with input.
     const widgetStyles = () => {
       const iframe = container.querySelector("iframe") as HTMLIFrameElement | null;
       const doc = iframe?.contentDocument;
@@ -162,13 +145,46 @@ export function CommentsSection({
         "label, button { font-size: 13px !important; }",
         "input, textarea { font-size: 14px !important; }",
         "input { padding: 6px 10px !important; }",
-        "textarea { height: 64px !important; padding: 8px 10px !important; }",
+        // Single-line start; the input listener grows it, so never scroll.
+        "textarea { height: 36px !important; min-height: 36px !important; max-height: 240px !important; padding: 8px 10px !important; resize: none !important; overflow-y: hidden !important; }",
         "button { padding: 6px 14px !important; }",
         "div.grid.grid-cols-2.gap-4 { gap: 8px !important; }",
         // The form rows only; :has keeps comment lists (same grid classes) intact.
         "div.grid.grid-cols-1.gap-4:has(textarea) { gap: 8px !important; }",
       ].join("\n");
       doc.head.appendChild(style);
+    };
+
+    // The composer is hidden until the reader opens it; re-applied on every
+    // tune so a fresh document gets it as soon as the widget loads.
+    const applyFormCollapse = () => {
+      const iframe = container.querySelector("iframe") as HTMLIFrameElement | null;
+      const doc = iframe?.contentDocument;
+      if (!doc?.head) return;
+      if (formOpenRef.current) {
+        doc.getElementById(FORM_COLLAPSE_STYLE_ID)?.remove();
+        return;
+      }
+      if (doc.getElementById(FORM_COLLAPSE_STYLE_ID)) return;
+      const style = doc.createElement("style");
+      style.id = FORM_COLLAPSE_STYLE_ID;
+      style.textContent = FORM_COLLAPSE_CSS;
+      doc.head.appendChild(style);
+    };
+
+    // Grow the single-line reply box with the reader's input (no inner
+    // scrollbar); marker keeps the binding idempotent across re-tunes and
+    // fresh documents.
+    const bindAutoGrow = () => {
+      const iframe = container.querySelector("iframe") as HTMLIFrameElement | null;
+      const doc = iframe?.contentDocument;
+      const textarea = doc?.querySelector("textarea") as HTMLTextAreaElement | null;
+      if (!textarea || (textarea as unknown as { __kiraGrow?: boolean }).__kiraGrow) return;
+      textarea.addEventListener("input", () => {
+        textarea.style.height = "auto";
+        textarea.style.height = `${Math.min(textarea.scrollHeight, 240)}px`;
+      });
+      (textarea as unknown as { __kiraGrow?: boolean }).__kiraGrow = true;
     };
 
     // The widget never posts its content height back (its resize messages do
@@ -179,6 +195,8 @@ export function CommentsSection({
     let resizeObserver: ResizeObserver | null = null;
     const tuneHeight = () => {
       widgetStyles();
+      applyFormCollapse();
+      bindAutoGrow();
       syncWidgetCanvas();
       const iframe = container.querySelector("iframe") as HTMLIFrameElement | null;
       const doc = iframe?.contentDocument;
@@ -208,7 +226,7 @@ export function CommentsSection({
         }
         observedBody = doc.body;
       }
-      const available = Math.max(200, Math.min(2400, Math.ceil(doc.body.scrollHeight)));
+      const available = Math.max(48, Math.min(2400, Math.ceil(doc.body.scrollHeight)));
       if (iframe.style.height !== `${available}px`) {
         iframe.style.height = `${available}px`;
       }
@@ -252,15 +270,25 @@ export function CommentsSection({
       heightObserver?.disconnect();
       resizeObserver?.disconnect();
     };
-  }, [appId, expanded]);
+  }, [appId]);
 
   if (!appId) return null;
 
   return (
-    <section className="reading-rule mx-auto mt-10 max-w-[720px] border-t border-black/5 pt-5">
-      <h2 className="mb-1 text-label-large font-medium text-text-main">评论区</h2>
-      {expanded ? (
-        <div ref={collapsibleRef} style={{ height: 0, overflow: "hidden" }}>
+    <>
+      <div className="sticky bottom-4 z-10 mx-auto max-w-[720px]">
+        <button
+          ref={pillRef}
+          type="button"
+          onClick={openThread}
+          className="block w-full rounded-full border border-black/10 bg-background/90 px-6 py-3.5 text-left text-body-large text-text-sub/80 shadow-soft backdrop-blur-md transition-colors duration-300 hover:bg-black/5 active:scale-[0.99] dark:border-white/15 dark:bg-white/10 dark:hover:bg-white/15"
+        >
+          添加公开评论…
+        </button>
+      </div>
+      <section className="reading-rule mx-auto mt-10 max-w-[720px] border-t border-black/5 pt-5">
+        <h2 className="mb-1 text-label-large font-medium text-text-main">评论区</h2>
+        <div ref={collapsibleRef}>
           <div
             id="cusdis_thread"
             ref={containerRef}
@@ -273,17 +301,7 @@ export function CommentsSection({
             data-theme="auto"
           />
         </div>
-      ) : (
-        <button
-          ref={pillRef}
-          type="button"
-          onClick={openThread}
-          aria-expanded={false}
-          className="mt-2 block w-full rounded-full border border-black/10 bg-black/5 px-6 py-3.5 text-left text-body-large text-text-sub/80 transition-all duration-300 hover:bg-black/10 active:scale-[0.99] dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
-        >
-          添加公开评论…
-        </button>
-      )}
-    </section>
+      </section>
+    </>
   );
 }
