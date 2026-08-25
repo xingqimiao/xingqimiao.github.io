@@ -265,12 +265,18 @@ body {
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    /* Same rule as pageRiseIn: fill-forwards persists the end value past the
+     * animation, and a persisted transform would cage any fixed layout
+     * inside (Navbar's mobile menu is itself fixed + animate-fade-in). */
+    transform: none;
   }
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  /* backwards, not forwards — see .page-enter: a forever-filling transform
+   * animation keeps an identity-matrix computed transform alive, which turns
+   * this fixed-position mobile menu into a containing block after opening. */
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) backwards;
 }
 
 @keyframes pageRiseIn {
@@ -280,7 +286,12 @@ body {
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    /* Must stay `none`, never `translateY(0)`: fill-forwards outlives the
+     * animationend cleanup whenever JS hydrates after the 0.72s entrance
+     * already finished, and any persisted transform (even translateY(0))
+     * turns position:fixed descendants — the comment pill — into
+     * layout-bound blocks pinned to this container instead of the viewport. */
+    transform: none;
   }
 }
 
@@ -303,11 +314,20 @@ body {
   transform-style: preserve-3d;
 }
 
+/* No static transform and no will-change here: both create a containing
+ * block for position:fixed descendants that outlives the entrance (the
+ * keyframe's `from` supplies the start offset, and opacity:0 already hides
+ * the page during the stagger delays). Persisted containing blocks are what
+ * pinned the comment pill to the document instead of the viewport. */
+/* fill-mode `backwards`, never `forwards`: forwards keeps the animation
+ * filling forever, and a filling transform animation reports an identity
+ * matrix as the computed transform even when the final keyframe is `none`
+ * — which still cages position:fixed descendants (the comment pill) to
+ * this container. `backwards` covers only the stagger delay, and the
+ * moment the entrance ends the element is animation-free: computed
+ * transform is genuinely none, with no reliance on JS cleanup timing. */
 .page-enter {
-  opacity: 0;
-  transform: translateY(24px);
-  animation: pageRiseIn 0.72s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: opacity, transform;
+  animation: pageRiseIn 0.72s cubic-bezier(0.16, 1, 0.3, 1) backwards;
 }
 
 .page-enter-delay-1 {

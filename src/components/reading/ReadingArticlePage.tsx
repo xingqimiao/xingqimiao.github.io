@@ -114,22 +114,15 @@ export function ReadingArticlePage({
       data-theme={theme}
       className="reading-page min-h-screen px-6 pb-24 pt-32 text-[#121317] transition-colors duration-300"
     >
-      {/* The page-enter animation keeps a transform on this container; a
-          transform ancestor turns position:fixed (comment pill on short
-          pages) into absolute. Animation fill-forwards outranks plain inline
-          styles, so also clear the animation once it finishes, and
-          will-change:transform also creates the containing block. */}
-      <div
-        className="page-enter mx-auto max-w-[880px]"
-        onAnimationEnd={(event) => {
-          if (event.target !== event.currentTarget) return
-          const el = event.currentTarget as HTMLDivElement
-          el.style.animation = "none"
-          el.style.transform = "none"
-          el.style.willChange = "auto"
-          el.style.opacity = "1"
-        }}
-      >
+      {/* The entrance animation must never leave a transform behind: a
+          filling/inline transform on this container turns position:fixed
+          descendants (the comment pill on short pages) into layout-bound
+          blocks pinned here instead of the viewport. That is now guaranteed
+          in CSS — pageRiseIn runs with fill-mode backwards, so nothing
+          persists after the 0.72s entrance regardless of JS timing. Do not
+          reintroduce `forwards` here or a will-change/transform on
+          .page-enter. */}
+      <div className="page-enter mx-auto max-w-[880px]">
         <div className="mb-8 flex items-center justify-between gap-4">
           <Link href={backHref} className="reading-link text-label-large text-text-sub transition-colors hover:text-text-main" prefetch={false}>
             {backLabel}
