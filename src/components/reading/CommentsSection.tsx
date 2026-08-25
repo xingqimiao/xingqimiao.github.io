@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { gsap } from "gsap";
 
 const CUSDIS_SCRIPT = "https://cusdis.com/js/cusdis.es.js";
 
@@ -39,7 +40,27 @@ export function CommentsSection({
   pageTitle: string;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const collapsibleRef = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState(false);
+
+  // Ease the thread in with GSAP once it mounts, instead of the abrupt swap.
+  useEffect(() => {
+    if (!expanded) return;
+    const el = collapsibleRef.current;
+    if (!el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      gsap.set(el, { opacity: 1, y: 0, scale: 1 });
+      return;
+    }
+    const tween = gsap.fromTo(
+      el,
+      { opacity: 0, y: 14, scale: 0.985 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.45, ease: "power3.out" },
+    );
+    return () => {
+      tween.kill();
+    };
+  }, [expanded]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -207,7 +228,7 @@ export function CommentsSection({
     <section className="reading-rule mx-auto mt-10 max-w-[720px] border-t border-black/5 pt-5">
       <h2 className="mb-1 text-label-large font-medium text-text-main">评论区</h2>
       {expanded ? (
-        <div className="animate-fade-in">
+        <div ref={collapsibleRef}>
           <div
             id="cusdis_thread"
             ref={containerRef}
@@ -225,7 +246,7 @@ export function CommentsSection({
           type="button"
           onClick={() => setExpanded(true)}
           aria-expanded={false}
-          className="mt-2 block w-full rounded-full border border-black/10 bg-black/5 px-5 py-2.5 text-left text-label-large text-text-sub/70 transition-colors hover:bg-black/10 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
+          className="mt-2 block w-full rounded-full border border-black/10 bg-black/5 px-6 py-3.5 text-left text-body-large text-text-sub/80 transition-all duration-300 hover:bg-black/10 active:scale-[0.99] dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
         >
           添加公开评论…
         </button>

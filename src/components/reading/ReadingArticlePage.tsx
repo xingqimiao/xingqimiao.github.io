@@ -115,6 +115,7 @@ export function ReadingArticlePage({
       className="reading-page min-h-screen px-6 pb-24 pt-32 text-[#121317] transition-colors duration-300"
     >
       <div className="page-enter mx-auto max-w-[880px]">
+        <div className="min-h-[calc(100svh-6rem)]">
         <div className="mb-8 flex items-center justify-between gap-4">
           <Link href={backHref} className="reading-link text-label-large text-text-sub transition-colors hover:text-text-main" prefetch={false}>
             {backLabel}
@@ -162,7 +163,7 @@ export function ReadingArticlePage({
 
         <article
           lang={shownContentLanguage}
-          className="g2-markdown prose prose-lg mx-auto max-w-[720px] min-h-[80vh] text-body-large leading-[1.85] text-text-main"
+          className="g2-markdown prose prose-lg mx-auto max-w-[720px] text-body-large leading-[1.85] text-text-main"
           dangerouslySetInnerHTML={{ __html: shownContentHtml }}
         />
 
@@ -205,6 +206,7 @@ export function ReadingArticlePage({
             </div>
           </div>
         )}
+        </div>
 
         {commentAppId ? (
           <CommentsSection
