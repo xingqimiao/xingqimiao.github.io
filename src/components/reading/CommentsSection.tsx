@@ -90,9 +90,9 @@ export function CommentsSection({
       themeObserver.observe(readerMain, { attributes: true, attributeFilter: ["data-theme"] });
     }
 
-    // The widget's fields and buttons are plain rectangles; round them to the
-    // site's Material 3 shapes (fields 12dp, actions full pill) by injecting
-    // styles into the same-origin srcdoc iframe.
+    // The widget's fields, labels and buttons render large (16px, 96px box);
+    // compact them so the thread does not dominate the page, keeping the M3
+    // shapes from above.
     const widgetStyles = () => {
       const iframe = container.querySelector("iframe") as HTMLIFrameElement | null;
       const doc = iframe?.contentDocument;
@@ -104,6 +104,15 @@ export function CommentsSection({
         "input, textarea { border-radius: 12px !important; }",
         "button { border-radius: 9999px !important; }",
         "input:focus, textarea:focus { outline-offset: 2px; }",
+        "label { margin-bottom: 4px !important; }",
+        "label, button { font-size: 13px !important; }",
+        "input, textarea { font-size: 14px !important; }",
+        "input { padding: 6px 10px !important; }",
+        "textarea { height: 64px !important; padding: 8px 10px !important; }",
+        "button { padding: 6px 14px !important; }",
+        "div.grid.grid-cols-2.gap-4 { gap: 8px !important; }",
+        // The form rows only; :has keeps comment lists (same grid classes) intact.
+        "div.grid.grid-cols-1.gap-4:has(textarea) { gap: 8px !important; }",
       ].join("\n");
       doc.head.appendChild(style);
     };
@@ -113,6 +122,7 @@ export function CommentsSection({
     // inner scrollbar. Tune the iframe to the inner document height instead.
     let observedBody: HTMLElement | null = null;
     let heightObserver: MutationObserver | null = null;
+    let resizeObserver: ResizeObserver | null = null;
     const tuneHeight = () => {
       widgetStyles();
       syncWidgetCanvas();
@@ -126,15 +136,25 @@ export function CommentsSection({
       // inner document is replaced (e.g. the srcdoc reloads after render).
       if (doc.body !== observedBody) {
         heightObserver?.disconnect();
+        resizeObserver?.disconnect();
         heightObserver = new MutationObserver(tuneHeight);
         heightObserver.observe(doc.body, {
           childList: true,
           subtree: true,
           characterData: true,
         });
+        // Font loading and image decoding grow the widget box without any DOM
+        // mutation, which MutationObserver cannot see. The widget's own
+        // ResizeObserver (same-origin srcdoc document) catches those layout
+        // changes instead.
+        const frameWin = iframe.contentWindow as (Window & { ResizeObserver?: typeof ResizeObserver }) | null;
+        if (frameWin?.ResizeObserver) {
+          resizeObserver = new frameWin.ResizeObserver(() => tuneHeight());
+          resizeObserver.observe(doc.documentElement);
+        }
         observedBody = doc.body;
       }
-      const available = Math.max(320, Math.min(2400, Math.ceil(doc.body.scrollHeight)));
+      const available = Math.max(200, Math.min(2400, Math.ceil(doc.body.scrollHeight)));
       if (iframe.style.height !== `${available}px`) {
         iframe.style.height = `${available}px`;
       }
@@ -160,6 +180,7 @@ export function CommentsSection({
         themeObserver.disconnect();
         window.clearInterval(heightTimer);
         heightObserver?.disconnect();
+        resizeObserver?.disconnect();
       };
     }
     const script = document.createElement("script");
@@ -175,15 +196,16 @@ export function CommentsSection({
       themeObserver.disconnect();
       window.clearInterval(heightTimer);
       heightObserver?.disconnect();
+      resizeObserver?.disconnect();
     };
   }, [appId]);
 
   if (!appId) return null;
 
   return (
-    <section className="reading-rule mx-auto mt-16 max-w-[720px] border-t border-black/5 pt-6">
-      <h2 className="mb-1 text-title-medium font-semibold text-text-main">评论区</h2>
-      <p className="reading-subtle mb-4 text-label-medium text-text-sub/85">取个昵称即可参与讨论，无需注册；请友善发言，我们共同维护这个空间。</p>
+    <section className="reading-rule mx-auto mt-10 max-w-[720px] border-t border-black/5 pt-5">
+      <h2 className="mb-1 text-label-large font-medium text-text-main">评论区</h2>
+      <p className="reading-subtle mb-3 text-label-medium text-text-sub/70">取个昵称即可参与讨论，无需注册；请友善发言。</p>
       <div
         id="cusdis_thread"
         ref={containerRef}

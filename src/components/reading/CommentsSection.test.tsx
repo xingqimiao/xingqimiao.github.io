@@ -89,7 +89,7 @@ describe('CommentsSection (Cusdis) widget height sync', () => {
     const iframe = container.querySelector('iframe')
     expect(iframe).toBeTruthy()
     await waitForAssert(() => {
-      if (iframe!.style.height !== '320px') {
+      if (iframe!.style.height !== '200px') {
         throw new Error(`iframe height still ${iframe!.style.height}`)
       }
     })
@@ -130,7 +130,43 @@ describe('CommentsSection (Cusdis) widget height sync', () => {
     innerDoc = document.implementation.createHTMLDocument('widget')
     iframe.dispatchEvent(new Event('load'))
     await waitForAssert(() => {
-      if (iframe.style.height !== '320px') {
+      if (iframe.style.height !== '200px') {
+        throw new Error(`iframe height still ${iframe.style.height}`)
+      }
+    })
+  }, 4000)
+
+  it('re-tunes when the widget box grows without any DOM mutation (font/image load)', async () => {
+    // Font loading and image decoding change the widget's box height without
+    // adding/removing nodes, so no DOM mutation fires. The widget's own
+    // ResizeObserver must be wired up so the host page still follows.
+    let widgetResize: (() => void) | null = null
+    ;(window as unknown as { CUSDIS?: unknown }).CUSDIS = {
+      renderTo: (el: HTMLElement) => {
+        const iframe = document.createElement('iframe')
+        el.appendChild(iframe)
+        Object.defineProperty(iframe.contentWindow!, 'ResizeObserver', {
+          value: class {
+            constructor(cb: () => void) {
+              widgetResize = cb
+            }
+            observe() {}
+            unobserve() {}
+            disconnect() {}
+          },
+          configurable: true,
+        })
+      },
+      setTheme: () => {},
+    }
+    await mount()
+    const iframe = container.querySelector('iframe')!
+    expect(widgetResize).toBeTruthy()
+    const body = iframe.contentDocument!.body
+    Object.defineProperty(body, 'scrollHeight', { get: () => 600, configurable: true })
+    widgetResize!()
+    await waitForAssert(() => {
+      if (iframe.style.height !== '600px') {
         throw new Error(`iframe height still ${iframe.style.height}`)
       }
     })
