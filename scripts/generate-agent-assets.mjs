@@ -454,7 +454,7 @@ ${description}
 
 ## 核心页面
 
-- [About us](${canonical(`${routePrefix}/about`)}) ([Markdown](${aiPrefix}/about.md))
+- [About Us](${canonical(`${routePrefix}/about`)}) ([Markdown](${aiPrefix}/about.md))
 - [Stories](${canonical(`${routePrefix}/stories`)}) ([Markdown](${aiPrefix}/stories.md))
 - [Reports](${canonical(`${routePrefix}/report`)}) ([Markdown](${aiPrefix}/report.md))
 - [Documents](${canonical(`${routePrefix}/documents`)}) ([Markdown](${aiPrefix}/documents.md))

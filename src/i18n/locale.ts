@@ -17,10 +17,11 @@ export const uiDictionary = {
     join: 'Join Us',
   },
   footer: {
-    aboutKiramyao: 'About us',
+    aboutKiramyao: 'About Us',
     privacy: 'Privacy Policy',
     projectTrans: 'Project Trans',
     twitter: 'Twitter',
+    llmsTxt: 'LLM.txt',
   },
 } as const
 

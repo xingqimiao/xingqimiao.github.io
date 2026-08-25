@@ -95,6 +95,12 @@ export default function Footer({ locale }: FooterProps) {
           >
             {dictionary.footer.twitter}
           </a>
+          <a
+            href="/llms.txt"
+            className={`text-body-large transition-colors hover:underline ${subtleLink}`}
+          >
+            {dictionary.footer.llmsTxt}
+          </a>
           <ThemeToggle
             className={
               isStoriesArea
