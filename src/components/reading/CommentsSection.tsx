@@ -9,10 +9,21 @@ type CusComment = {
   id: string;
   by_nickname?: string;
   moderator?: { displayName?: string } | null;
-  parsedCreatedAt?: string;
+  // API returns createdAt (ISO); parsedCreatedAt is a broken service-side
+  // string that surfaces as the literal "Invalid Date", so never trust it.
+  createdAt?: string;
   parsedContent?: string;
   content?: string;
   replies?: { data?: CusComment[] };
+};
+
+const formatCommentDate = (iso?: string) => {
+  if (!iso) return "";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${day}`;
 };
 
 // Official Simplified Chinese pack (djyde/cusdis -> widget/lang/zh-cn.js).
@@ -117,16 +128,11 @@ export function CommentsSection({
   // Grow the thread out of the pill's spot once the widget is sized. The
   // panel starts at height 0, so until the iframe has a height (or a failsafe
   // fires) it stays invisible underneath; the height tween then opens it.
+  // The page just grows in place — the reader is never forced to scroll.
   useEffect(() => {
     if (!expanded) return;
     const el = collapsibleRef.current;
     if (!el) return;
-    // Land on the thread only now — the ref is mounted, unlike inside the
-    // click handler, where React has not rendered the panel yet. Instant
-    // scrollTo: native smooth scrolling aborts mid-way on very long pages.
-    if (typeof window.scrollTo === "function") {
-      window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 16, behavior: "auto" });
-    }
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       gsap.set(el, { height: "auto", opacity: 1, y: 0 });
       return;
@@ -363,9 +369,12 @@ export function CommentsSection({
   if (!appId) return null;
 
   return (
-    <>
+    <section className="reading-rule mx-auto mt-10 max-w-[720px] border-t border-black/5 pt-5">
+      <h2 className="mb-1 text-label-large font-medium text-text-main">评论区</h2>
       {!expanded && (
-        <div className={`${shortPage ? "sticky bottom-4 z-10 " : ""}mx-auto max-w-[720px]`}>
+        <div
+          className={`${shortPage ? "fixed bottom-4 left-6 right-6 z-10 " : ""}mx-auto max-w-[720px]`}
+        >
           <button
             ref={pillRef}
             type="button"
@@ -376,26 +385,23 @@ export function CommentsSection({
           </button>
         </div>
       )}
-      <section className="reading-rule mx-auto mt-10 max-w-[720px] border-t border-black/5 pt-5">
-        <h2 className="mb-1 text-label-large font-medium text-text-main">评论区</h2>
-        {!expanded && comments && comments.length > 0 && <CommentList comments={comments} />}
-        {expanded && (
-          <div ref={collapsibleRef} style={{ height: 0, overflow: "hidden" }}>
-            <div
-              id="cusdis_thread"
-              ref={containerRef}
-              data-host="https://cusdis.com"
-              data-app-id={appId}
-              data-page-id={pageId}
-              data-page-url={pageUrl}
-              data-page-title={pageTitle}
-              data-lang="zh-CN"
-              data-theme="auto"
-            />
-          </div>
-        )}
-      </section>
-    </>
+      {!expanded && comments && comments.length > 0 && <CommentList comments={comments} />}
+      {expanded && (
+        <div ref={collapsibleRef} style={{ height: 0, overflow: "hidden" }}>
+          <div
+            id="cusdis_thread"
+            ref={containerRef}
+            data-host="https://cusdis.com"
+            data-app-id={appId}
+            data-page-id={pageId}
+            data-page-url={pageUrl}
+            data-page-title={pageTitle}
+            data-lang="zh-CN"
+            data-theme="auto"
+          />
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -420,8 +426,8 @@ function CommentItem({ comment }: { comment: CusComment }) {
         {comment.moderator?.displayName && (
           <span className="text-label-medium text-primary/80">{CUSDIS_ZH_CN_LOCALE.mod_badge}</span>
         )}
-        {comment.parsedCreatedAt && (
-          <span className="text-label-medium text-text-sub/60">{comment.parsedCreatedAt}</span>
+        {formatCommentDate(comment.createdAt) && (
+          <span className="text-label-medium text-text-sub/60">{formatCommentDate(comment.createdAt)}</span>
         )}
       </div>
       {/* Cusdis pre-parses (and sanitizes) comment bodies server-side; the

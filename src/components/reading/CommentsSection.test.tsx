@@ -65,14 +65,19 @@ describe('CommentsSection (Cusdis)', () => {
     expect(html).toBe('')
   })
 
-  it('renders a non-sticky trigger without pre-mounting the lazy thread', () => {
+  it('renders a trigger under the headline without pre-mounting the lazy thread', () => {
     // The viewport check is client-only, so server HTML ships the pill in its
-    // natural position; the floating mode is applied after hydration.
+    // natural position under the headline; the float is applied after hydration.
     const html = renderToStaticMarkup(<CommentsSection {...base} />)
     expect(html).toContain('添加公开评论…')
+    expect(html).not.toContain('fixed')
     expect(html).not.toContain('sticky')
     expect(html).not.toContain('id="cusdis_thread"')
     expect(html).not.toContain('data-app-id')
+    const headlineIndex = html.indexOf('评论区')
+    const pillIndex = html.indexOf('添加公开评论…')
+    expect(headlineIndex).toBeGreaterThan(-1)
+    expect(pillIndex).toBeGreaterThan(headlineIndex)
   })
 
   it('ships the full Simplified Chinese pack for the widget', () => {
@@ -146,8 +151,11 @@ describe('CommentsSection (Cusdis) lazy thread', () => {
           {
             id: 'c1',
             by_nickname: '读者甲',
-            parsedContent: '说得对',
-            parsedCreatedAt: '2026-08-26',
+            content: '说得对',
+            parsedContent: '<p>说得对</p>',
+            createdAt: '2026-08-24T19:38:10.410Z',
+            // The service-side field is broken; the host page must ignore it.
+            parsedCreatedAt: 'Invalid Date',
           },
         ],
       },
@@ -159,14 +167,17 @@ describe('CommentsSection (Cusdis) lazy thread', () => {
       }
     })
     expect(container.textContent).toContain('说得对')
+    // createdAt is rendered as a local date; the broken field never leaks.
+    expect(container.textContent).toContain('2026-')
+    expect(container.textContent).not.toContain('Invalid Date')
     expect(container.querySelector('iframe')).toBeNull()
   })
 
-  it('floats the trigger only when the page cannot fill the viewport', async () => {
+  it('floats the trigger at the bottom only when the page cannot fill the viewport', async () => {
     await mount()
     await waitForAssert(() => {
       const wrapper = container.querySelector('button')!.parentElement!
-      if (!wrapper.className.includes('sticky')) {
+      if (!wrapper.className.includes('fixed')) {
         throw new Error('expected floating pill on a short page')
       }
     })
@@ -180,7 +191,7 @@ describe('CommentsSection (Cusdis) lazy thread', () => {
     await mount()
     await waitForAssert(() => {
       const wrapper = container.querySelector('button')!.parentElement!
-      if (wrapper.className.includes('sticky')) {
+      if (wrapper.className.includes('fixed')) {
         throw new Error('expected in-flow pill on a long page')
       }
     })
