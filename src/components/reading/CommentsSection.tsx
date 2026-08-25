@@ -283,6 +283,17 @@ export function CommentsSection({
       (textarea as unknown as { __kiraGrow?: boolean }).__kiraGrow = true;
     };
 
+    // Hard backstop: if the widget ever ends up taller than the iframe (any
+    // race, old build, odd font timing) a scrollbar appears inside; the first
+    // scroll event re-tunes and the height snaps back to the content.
+    const bindScrollBackstop = () => {
+      const iframe = container.querySelector("iframe") as HTMLIFrameElement | null;
+      const doc = iframe?.contentDocument;
+      if (!doc || (doc as unknown as { __kiraScrollGuard?: boolean }).__kiraScrollGuard) return;
+      doc.addEventListener("scroll", () => tuneHeight(), { passive: true });
+      (doc as unknown as { __kiraScrollGuard?: boolean }).__kiraScrollGuard = true;
+    };
+
     // The widget never posts its content height back (its resize messages do
     // not reach this page), so the iframe would stay pinned at 150px with an
     // inner scrollbar. Tune the iframe to the inner document height instead.
@@ -292,6 +303,7 @@ export function CommentsSection({
     const tuneHeight = () => {
       widgetStyles();
       bindAutoGrow();
+      bindScrollBackstop();
       syncWidgetCanvas();
       const iframe = container.querySelector("iframe") as HTMLIFrameElement | null;
       const doc = iframe?.contentDocument;
@@ -406,6 +418,11 @@ export function CommentsSection({
             添加公开评论…
           </button>
         </div>
+      )}
+      {comments && comments.length === 0 && (
+        <p className="mb-3 text-label-medium text-text-sub/60">
+          这里还静悄悄的，喵～ 想留下鱼干大小的一句话吗？
+        </p>
       )}
       {comments && comments.length > 0 && <CommentList comments={comments} />}
       {expanded && (

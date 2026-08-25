@@ -226,6 +226,15 @@ describe('CommentsSection (Cusdis) lazy thread', () => {
     expect(doc.getElementById('kira-widget-list-hidden')).toBeTruthy()
   }, 4000)
 
+  it('greets with a cat line when there are no comments yet', async () => {
+    await mount()
+    await waitForAssert(() => {
+      if (!container.textContent!.includes('喵')) {
+        throw new Error('empty-state cat line missing')
+      }
+    })
+  }, 4000)
+
   it('mounts the widget only when the sticky trigger is opened', async () => {
     await mount()
     expect(container.querySelector('iframe')).toBeNull()
