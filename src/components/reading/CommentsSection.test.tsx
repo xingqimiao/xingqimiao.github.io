@@ -88,6 +88,18 @@ describe('CommentsSection (Cusdis)', () => {
     expect(pillIndex).toBeGreaterThan(headlineIndex)
   })
 
+  it('keys the pill colours off the reader theme, not the site theme', () => {
+    // The reading page manages its own light/dark palette through
+    // main[data-theme]; the site-wide `.dark` class (which tailwind `dark:`
+    // variants and --background follow) is independent of that toggle, so
+    // site-scoped colour utilities leave the pill light on a dark read.
+    const html = renderToStaticMarkup(<CommentsSection {...base} />)
+    expect(html).toContain('comment-pill')
+    expect(html).not.toContain('bg-background/90')
+    expect(html).not.toContain('dark:border-white/15')
+    expect(html).not.toContain('dark:bg-white/10')
+  })
+
   it('ships the full Simplified Chinese pack for the widget', () => {
     expect(CUSDIS_ZH_CN_LOCALE.nickname).toBe('昵称')
     expect(CUSDIS_ZH_CN_LOCALE.powered_by).toBe('评论由 Cusdis 提供')
@@ -164,6 +176,18 @@ describe('CommentsSection (Cusdis) lazy thread', () => {
             createdAt: '2026-08-24T19:38:10.410Z',
             // The service-side field is broken; the host page must ignore it.
             parsedCreatedAt: 'Invalid Date',
+            replies: {
+              data: [
+                {
+                  id: 'c2',
+                  by_nickname: '作者',
+                  content: '谢谢',
+                  parsedContent: '<p>谢谢</p>',
+                  createdAt: '2026-08-25T08:00:00.000Z',
+                  parsedCreatedAt: 'Invalid Date',
+                },
+              ],
+            },
           },
         ],
       },
@@ -179,6 +203,11 @@ describe('CommentsSection (Cusdis) lazy thread', () => {
     expect(container.textContent).toContain('2026-')
     expect(container.textContent).not.toContain('Invalid Date')
     expect(container.querySelector('iframe')).toBeNull()
+    // The reply indent follows the reader theme like the pill does; the
+    // site-scoped `dark:` variant never flips with main[data-theme].
+    const replyList = container.querySelector('ul.comment-reply-thread')
+    expect(replyList).not.toBeNull()
+    expect(replyList!.className).not.toContain('dark:border-white/10')
   })
 
   it('pins the pill without ever measuring the viewport or listening to scroll', async () => {

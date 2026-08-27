@@ -448,7 +448,7 @@ export function CommentsSection({
             ref={pillRef}
             type="button"
             onClick={openThread}
-            className="block w-full rounded-full border border-black/10 bg-background/90 px-6 py-3.5 text-left text-body-large text-text-sub/80 shadow-soft backdrop-blur-md transition-colors duration-300 hover:bg-black/5 active:scale-[0.99] dark:border-white/15 dark:bg-white/10 dark:hover:bg-white/15"
+            className="comment-pill block w-full rounded-full px-6 py-3.5 text-left text-body-large text-text-sub/80 shadow-soft backdrop-blur-md transition-colors duration-300 active:scale-[0.99]"
           >
             添加公开评论…
           </button>
@@ -527,7 +527,7 @@ function CommentItem({ comment }: { comment: CusComment }) {
         dangerouslySetInnerHTML={{ __html: comment.parsedContent ?? comment.content ?? "" }}
       />
       {comment.replies?.data && comment.replies.data.length > 0 && (
-        <ul className="mt-2 space-y-2 border-l border-black/10 pl-4 dark:border-white/10">
+        <ul className="comment-reply-thread mt-2 space-y-2 border-l border-black/10 pl-4">
           {comment.replies.data.map((reply) => (
             <CommentItem key={reply.id} comment={reply} />
           ))}

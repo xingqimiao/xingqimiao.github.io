@@ -365,6 +365,38 @@ body {
   animation: pillFloatIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) 0.72s backwards;
 }
 
+/* The comment pill and the reply indent key their colours off the reader's
+ * own theme (main[data-theme]) — the reading page manages a separate
+ * palette, so tailwind `dark:` variants and the site --background token
+ * never follow the reader toggle. Keep both directions scoped here: a
+ * site-dark + reader-light or site-light + reader-dark page must both get
+ * the pill that matches the page under it. */
+.comment-pill {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.comment-pill:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.comment-reply-thread {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.reading-page[data-theme="dark"] .comment-pill {
+  border-color: rgba(255, 255, 255, 0.15);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.reading-page[data-theme="dark"] .comment-pill:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.reading-page[data-theme="dark"] .comment-reply-thread {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
 /* The comment preview lands after the Cusdis round trip; without motion it
  * pops into place. It rises and fades in while its grid row grows open —
  * the same motion language as the opened thread. The transform is a mount
