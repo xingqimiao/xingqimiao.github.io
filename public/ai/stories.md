@@ -69,6 +69,7 @@ KiraMyao Equal 收录的个人故事与记忆卡。
 - [扭转机构里的真实经历](https://kiramyao.com/stories/50415783) ([Markdown](/ai/stories/50415783.md))
 - [正在削刻自己的男生](https://kiramyao.com/stories/50921359) ([Markdown](/ai/stories/50921359.md))
 - [未被填写的性别栏](https://kiramyao.com/stories/53783906) ([Markdown](/ai/stories/53783906.md))
+- [内心的挣扎：孝道与自我](https://kiramyao.com/stories/53973298) ([Markdown](/ai/stories/53973298.md))
 - [“啊，好的”](https://kiramyao.com/stories/54273093) ([Markdown](/ai/stories/54273093.md))
 - [无害与平凡的愿望](https://kiramyao.com/stories/54545353) ([Markdown](/ai/stories/54545353.md))
 - [被气哭的午饭时刻](https://kiramyao.com/stories/55316652) ([Markdown](/ai/stories/55316652.md))

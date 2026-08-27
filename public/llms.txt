@@ -87,6 +87,7 @@ Content-Signal: ai-train=no, search=yes, ai-input=yes
 - [扭转机构里的真实经历](/ai/stories/50415783.md): https://kiramyao.com/stories/50415783
 - [正在削刻自己的男生](/ai/stories/50921359.md): https://kiramyao.com/stories/50921359
 - [未被填写的性别栏](/ai/stories/53783906.md): https://kiramyao.com/stories/53783906
+- [内心的挣扎：孝道与自我](/ai/stories/53973298.md): https://kiramyao.com/stories/53973298
 - [“啊，好的”](/ai/stories/54273093.md): https://kiramyao.com/stories/54273093
 - [无害与平凡的愿望](/ai/stories/54545353.md): https://kiramyao.com/stories/54545353
 - [被气哭的午饭时刻](/ai/stories/55316652.md): https://kiramyao.com/stories/55316652
