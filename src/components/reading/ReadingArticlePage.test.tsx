@@ -53,4 +53,36 @@ describe('ReadingArticlePage Chinese boundary', () => {
     expect(html).not.toMatch(/内容来自用户匿名投稿/)
     expect(html).not.toContain('内容说明')
   })
+
+  it('renders a static in-flow comment pill for long articles', () => {
+    const longHtml = '<p>' + '这是一篇很长的正文。'.repeat(40) + '</p>'
+    const html = renderToStaticMarkup(
+      <ReadingArticlePage
+        {...baseProps}
+        contentLanguage="zh-CN"
+        contentHtml={longHtml}
+        commentAppId="test-app"
+        commentPageId="test-1"
+        commentPageUrl="https://kiramyao.com/stories/test-1"
+      />,
+    )
+    expect(html).toContain('添加公开评论…')
+    expect(html).not.toContain('fixed bottom-4')
+  })
+
+  it('renders a fixed floating comment pill only for short articles', () => {
+    const shortHtml = '<p>一句话短文。</p>'
+    const html = renderToStaticMarkup(
+      <ReadingArticlePage
+        {...baseProps}
+        contentLanguage="zh-CN"
+        contentHtml={shortHtml}
+        commentAppId="test-app"
+        commentPageId="test-2"
+        commentPageUrl="https://kiramyao.com/stories/test-2"
+      />,
+    )
+    expect(html).toContain('添加公开评论…')
+    expect(html).toContain('fixed bottom-4')
+  })
 })

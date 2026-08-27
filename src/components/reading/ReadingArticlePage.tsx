@@ -180,6 +180,10 @@ export function ReadingArticlePage({
             pageId={commentPageId ?? ""}
             pageUrl={commentPageUrl ?? ""}
             pageTitle={shownTitle}
+            shortPage={
+              shownContentHtml.replace(/<[^>]+>/g, "").trim().length <
+              (coverName ? 120 : 260)
+            }
           />
         ) : null}
 

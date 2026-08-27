@@ -67,11 +67,13 @@ export function CommentsSection({
   pageId,
   pageUrl,
   pageTitle,
+  shortPage = false,
 }: {
   appId: string;
   pageId: string;
   pageUrl: string;
   pageTitle: string;
+  shortPage?: boolean;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const collapsibleRef = useRef<HTMLDivElement>(null);
@@ -443,7 +445,13 @@ export function CommentsSection({
     >
       <h2 className="mb-3 text-label-large font-medium text-text-main">评论区</h2>
       {!expanded && (
-        <div className="comment-pill-float fixed bottom-4 left-6 right-6 z-10 mx-auto max-w-[720px]">
+        <div
+          className={
+            shortPage
+              ? "comment-pill-float fixed bottom-4 left-6 right-6 z-10 mx-auto max-w-[720px]"
+              : "mx-auto mb-3 max-w-[720px]"
+          }
+        >
           <button
             ref={pillRef}
             type="button"

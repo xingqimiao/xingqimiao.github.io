@@ -65,20 +65,12 @@ describe('CommentsSection (Cusdis)', () => {
     expect(html).toBe('')
   })
 
-  it('renders the floating pill in server HTML without pre-mounting the lazy thread', () => {
-    // The float must hold from the very first paint: a measurement-applied
-    // float only lands after hydration and re-decides on every scroll, which
-    // is what dropped the pill back into the flow mid-read on phones.
-    const html = renderToStaticMarkup(<CommentsSection {...base} />)
+  it('renders the floating pill in server HTML on short pages', () => {
+    const html = renderToStaticMarkup(<CommentsSection {...base} shortPage={true} />)
     expect(html).toContain('添加公开评论…')
     expect(html).toContain('fixed')
     expect(html).toContain('bottom-4')
-    // The delayed entrance keeps the pill invisible while the page-rise
-    // animation's live transform cages it (.page-enter becomes a containing
-    // block mid-animation); it may only become visible pinned to the viewport.
     expect(html).toContain('comment-pill-float')
-    // The preview row ships closed so its later opening is a smooth growth,
-    // never a layout jump, and hydration sees the same collapsed row.
     expect(html).toContain('grid-template-rows:0fr')
     expect(html).not.toContain('id="cusdis_thread"')
     expect(html).not.toContain('data-app-id')
@@ -86,6 +78,15 @@ describe('CommentsSection (Cusdis)', () => {
     const pillIndex = html.indexOf('添加公开评论…')
     expect(headlineIndex).toBeGreaterThan(-1)
     expect(pillIndex).toBeGreaterThan(headlineIndex)
+  })
+
+  it('renders the pill in normal document flow for long articles without fixing it to viewport', () => {
+    const html = renderToStaticMarkup(<CommentsSection {...base} shortPage={false} />)
+    expect(html).toContain('添加公开评论…')
+    expect(html).not.toContain('fixed')
+    expect(html).not.toContain('bottom-4')
+    expect(html).not.toContain('comment-pill-float')
+    expect(html).toContain('mx-auto mb-3 max-w-[720px]')
   })
 
   it('keys the pill colours off the reader theme, not the site theme', () => {
@@ -117,7 +118,13 @@ describe('CommentsSection (Cusdis) lazy thread', () => {
   let root: Root
   let container: HTMLDivElement
 
-  const mount = async (renderTo?: (el: HTMLElement) => void) => {
+  const mount = async (
+    options?:
+      | ((el: HTMLElement) => void)
+      | { renderTo?: (el: HTMLElement) => void; shortPage?: boolean },
+  ) => {
+    const renderTo = typeof options === 'function' ? options : options?.renderTo
+    const shortPage = typeof options === 'object' ? options?.shortPage : undefined
     ;(window as unknown as { CUSDIS?: unknown }).CUSDIS = {
       renderTo:
         renderTo ??
@@ -132,7 +139,7 @@ describe('CommentsSection (Cusdis) lazy thread', () => {
     document.body.appendChild(container)
     root = createRoot(container)
     await act(async () => {
-      root.render(<CommentsSection {...base} />)
+      root.render(<CommentsSection {...base} shortPage={shortPage} />)
     })
   }
 
@@ -210,16 +217,21 @@ describe('CommentsSection (Cusdis) lazy thread', () => {
     expect(replyList!.className).not.toContain('dark:border-white/10')
   })
 
-  it('pins the pill without ever measuring the viewport or listening to scroll', async () => {
-    // The float must never be re-decided mid-read: on phones the URL bar
-    // resizes the viewport and late images push the section down, which kept
-    // flipping the old top <= innerHeight check and unpinning the pill while
-    // the reader scrolled. No scroll/resize listener may ever exist.
+  it('leaves the pill in normal document flow for long articles without fixing it to viewport', async () => {
+    await mount({ shortPage: false })
+    const wrapper = container.querySelector('button')!.parentElement!
+    expect(wrapper.className).not.toContain('fixed')
+    expect(wrapper.className).not.toContain('bottom-4')
+    expect(wrapper.className).toContain('max-w-[720px]')
+  })
+
+  it('pins the pill fixed at viewport bottom only on short pages without measuring or listening to scroll', async () => {
     const listenerSpy = vi.spyOn(window, 'addEventListener')
-    await mount()
+    await mount({ shortPage: true })
     const wrapper = container.querySelector('button')!.parentElement!
     expect(wrapper.className).toContain('fixed')
     expect(wrapper.className).toContain('bottom-4')
+    expect(wrapper.className).toContain('comment-pill-float')
     const listened = listenerSpy.mock.calls.filter(
       ([type]) => type === 'scroll' || type === 'resize',
     )
