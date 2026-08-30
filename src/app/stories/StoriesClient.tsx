@@ -5,7 +5,13 @@ import { useRouter } from "next/navigation";
 import compiledArticles from "@/data/compiled_articles.json";
 import { searchItems } from "@/lib/search";
 import { selectRandomStory, sortStoriesByDateDescending, storyYear } from "@/lib/storyPresentation";
-import { localizeStoryItems, storyListCopy, type StoryListCopy } from "@/lib/storyListPresentation";
+import {
+  localizeStoryItems,
+  storyListCopy,
+  type StoryListCopy,
+  getStoryNarrativeText,
+  isLongFormStoryContent,
+} from "@/lib/storyListPresentation";
 import { getArticleHref } from "@/lib/articleRoute";
 import { migrateStoryBookmarks } from "@/lib/storySlugAliases";
 import { toLocalePath, type Locale } from "@/i18n/locale";
@@ -50,25 +56,9 @@ function readBookmarks() {
 
 type StoryView = "all" | "bookmarked" | "longform";
 
-function htmlTextContent(html: string) {
-  let text = "";
-  let inTag = false;
-  for (const char of html) {
-    if (char === "<") {
-      inTag = true;
-    } else if (char === ">") {
-      inTag = false;
-    } else if (!inTag) {
-      text += char;
-    }
-  }
-  return text;
-}
-
-// A story counts as long-form when its rendered body has 100+ characters.
+// A story counts as long-form when its rendered narrative body (excluding warning blockquotes) has 100+ characters.
 function isLongFormStory(story: StoryItem) {
-  const text = htmlTextContent(String(story.contentHtml ?? "")).replace(/\s+/g, "");
-  return text.length >= 100;
+  return isLongFormStoryContent(story.contentHtml);
 }
 
 function IconBookmark({ filled = false }: { filled?: boolean }) {

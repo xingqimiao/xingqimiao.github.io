@@ -52,6 +52,20 @@ export function storyListCopy(_locale: Locale): StoryListCopy {
   return copy
 }
 
+export function stripWarningBlockquotes(html: string): string {
+  return html.replace(/<blockquote[\s\S]*?<\/blockquote>/gi, '').trim()
+}
+
+export function getStoryNarrativeText(html: string): string {
+  const cleanHtml = stripWarningBlockquotes(html)
+  return cleanHtml.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+}
+
+export function isLongFormStoryContent(html: string): boolean {
+  const text = getStoryNarrativeText(html).replace(/\s+/g, '')
+  return text.length >= 100
+}
+
 export function localizeStoryItems<T extends LocalizableArticle>(
   _locale: Locale,
   stories: readonly T[],
