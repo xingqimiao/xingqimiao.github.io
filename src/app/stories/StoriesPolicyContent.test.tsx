@@ -29,6 +29,8 @@ describe('stories content policy page', () => {
     expect(html).toContain('>Friend Links（友链）政策</h2>')
     expect(html).toContain('先在你的网站上添加指向本站')
     expect(html).toContain('我们也会审查您网站中的内容是否适合被收录')
+    expect(html).toContain('4:3 黑底展示图')
+    expect(html).not.toContain('logo 或方形图')
     expect(html).toContain('注明“友链申请”')
   })
 
