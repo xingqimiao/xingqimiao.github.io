@@ -194,6 +194,15 @@ body {
   background: var(--md-sys-color-surface-container-high);
 }
 
+.friend-card__scrim {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--md-sys-color-scrim) 8%, transparent),
+    color-mix(in srgb, var(--md-sys-color-scrim) 28%, transparent) 52%,
+    color-mix(in srgb, var(--md-sys-color-scrim) 88%, transparent)
+  );
+}
+
 .friend-card__motif {
   color: var(--md-sys-color-primary);
   stroke: currentColor;

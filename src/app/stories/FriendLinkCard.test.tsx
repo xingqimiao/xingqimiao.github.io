@@ -42,6 +42,7 @@ describe('FriendLinkCard', () => {
     expect(html).toContain('data-friend-card="covered"')
     expect(html).toContain('src="/pic/friends/example-b.webp"')
     expect(html).toContain('loading="lazy"')
+    expect(html).toContain('friend-card__scrim')
   })
 
   it('hides the confirm layer from assistive tech until the card flips', () => {

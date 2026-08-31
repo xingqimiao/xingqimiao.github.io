@@ -46,13 +46,16 @@ export function FriendLinkCard({
           className="friend-card__face friend-card__front absolute inset-0 flex h-full w-full flex-col justify-end p-6 text-left min-[840px]:p-7"
         >
           {link.cover ? (
-            <img
-              src={link.cover}
-              alt={link.name}
-              loading="lazy"
-              decoding="async"
-              className="friend-card__media absolute inset-0 h-full w-full object-cover"
-            />
+            <>
+              <img
+                src={link.cover}
+                alt={link.name}
+                loading="lazy"
+                decoding="async"
+                className="friend-card__media absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="friend-card__scrim absolute inset-0" />
+            </>
           ) : (
             <svg
               data-friend-motif="link"
