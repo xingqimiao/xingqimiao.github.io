@@ -60,6 +60,7 @@ body {
   --md-sys-color-on-surface-variant: rgba(244, 245, 247, 0.68);
   --md-sys-color-outline-variant: rgba(244, 245, 247, 0.18);
   --md-sys-color-primary: #f5a9b8;
+  --md-sys-color-on-primary: #211016;
   --md-sys-color-secondary: #5bcefa;
   --md-sys-color-scrim: #000000;
   --md-sys-shape-corner-large-increased: 20px;
@@ -143,6 +144,90 @@ body {
   .story-card--tonal:hover {
     background: var(--md-sys-color-surface-container-highest);
   }
+
+  .friend-card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--md-sys-color-primary) 44%, var(--md-sys-color-outline-variant));
+  }
+}
+
+.friend-card {
+  border-color: var(--md-sys-color-outline-variant);
+  background: var(--md-sys-color-surface-container-high);
+  perspective: 1200px;
+  transition:
+    transform 300ms cubic-bezier(0.2, 0, 0, 1),
+    border-color 300ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.friend-card__inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 500ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.friend-card--flipped .friend-card__inner {
+  transform: rotateX(180deg);
+}
+
+.friend-card__face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.friend-card__front {
+  color: var(--md-sys-color-on-surface);
+}
+
+.friend-card__front:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: -4px;
+}
+
+.friend-card__initial {
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: flex;
+  height: 68%;
+  width: 82%;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 4%;
+  font-size: 7rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--md-sys-color-primary);
+  opacity: 0.2;
+  user-select: none;
+}
+
+.friend-card__back {
+  transform: rotateX(180deg);
+  background: var(--md-sys-color-surface-container-highest);
+}
+
+.friend-card__go {
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  transition: background-color 200ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.friend-card__go:hover,
+.friend-card__go:focus-visible {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 14%, var(--md-sys-color-primary));
+}
+
+.friend-card__cancel {
+  border: 1px solid var(--md-sys-color-outline-variant);
+  color: var(--md-sys-color-on-surface);
+  transition: background-color 200ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.friend-card__cancel:hover,
+.friend-card__cancel:focus-visible {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 12%, transparent);
 }
 
 .g2-markdown {
@@ -439,9 +524,16 @@ body {
 
   .story-card,
   .story-card__media,
-  .story-card__bookmark {
+  .story-card__bookmark,
+  .friend-card,
+  .friend-card__inner {
     transform: none !important;
     transition: none !important;
+  }
+
+  /* 翻转必须保留（只去动画不去行为）：确认层可即时切换 */
+  .friend-card--flipped .friend-card__inner {
+    transform: rotateX(180deg) !important;
   }
 }
 

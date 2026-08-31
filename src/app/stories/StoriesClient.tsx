@@ -14,8 +14,11 @@ import {
 } from "@/lib/storyListPresentation";
 import { getArticleHref } from "@/lib/articleRoute";
 import { migrateStoryBookmarks } from "@/lib/storySlugAliases";
+import { friendLinksCopy, filterFriendLinks, openFriendLink, type FriendLink } from "@/lib/friendLinks";
+import friendLinksData from "@/data/friend_links.json";
 import { toLocalePath, type Locale } from "@/i18n/locale";
 import { cn } from "@/lib/utils";
+import { FriendLinksGrid } from "./FriendLinkCard";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import React, { FormEvent, useEffect, useMemo, useRef, useState } from "react";
@@ -54,7 +57,7 @@ function readBookmarks() {
   }
 }
 
-type StoryView = "all" | "bookmarked" | "longform";
+type StoryView = "all" | "bookmarked" | "longform" | "friends";
 
 // A story counts as long-form when its rendered narrative body (excluding warning blockquotes) has 100+ characters.
 function isLongFormStory(story: StoryItem) {
@@ -252,9 +255,11 @@ function useStoryPageSize() {
 export default function StoriesClient({
   locale = "zh",
   articles = compiledArticles as StoryItem[],
+  friendLinks = friendLinksData as FriendLink[],
 }: {
   locale?: Locale;
   articles?: StoryItem[];
+  friendLinks?: FriendLink[];
 }) {
   const router = useRouter();
   const copy = storyListCopy(locale);
@@ -267,6 +272,8 @@ export default function StoriesClient({
   const [searchInput, setSearchInput] = useState("");
   const [submittedSearch, setSubmittedSearch] = useState("");
   const [searchTokens, setSearchTokens] = useState<Record<string, string[]>>({});
+  const [confirmingLinkId, setConfirmingLinkId] = useState<string | null>(null);
+  const [randomFriendId, setRandomFriendId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const pageSize = useStoryPageSize();
 
@@ -335,7 +342,7 @@ export default function StoriesClient({
     setPage(1);
   }
 
-  const views: StoryView[] = ["all", "bookmarked", "longform"];
+  const views: StoryView[] = ["all", "bookmarked", "longform", "friends"];
 
   const filteredStories = useMemo(() => {
     let result = stories;
@@ -363,13 +370,38 @@ export default function StoriesClient({
     return result;
   }, [activeView, bookmarks, searchTokens, stories, submittedSearch]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredStories.length / pageSize));
+  const filteredFriends = useMemo(
+    () => filterFriendLinks(friendLinks, submittedSearch),
+    [friendLinks, submittedSearch],
+  );
+
+  const isFriendsView = activeView === "friends";
+  const activeCount = isFriendsView ? filteredFriends.length : filteredStories.length;
+  const totalPages = Math.max(1, Math.ceil(activeCount / pageSize));
   const safePage = Math.min(page, totalPages);
-  const visibleStories = filteredStories.slice((safePage - 1) * pageSize, safePage * pageSize);
+  const visibleStories = isFriendsView ? [] : filteredStories.slice((safePage - 1) * pageSize, safePage * pageSize);
+  const visibleFriends = isFriendsView ? filteredFriends.slice((safePage - 1) * pageSize, safePage * pageSize) : [];
   function randomStory() {
+    if (isFriendsView) {
+      const link = selectRandomStory(filteredFriends);
+      if (!link) return;
+      setRandomFriendId(link.id);
+      setConfirmingLinkId(link.id);
+      return;
+    }
     const story = selectRandomStory(filteredStories);
     if (!story) return;
     router.push(toLocalePath(getArticleHref(story.type, story.slug), locale));
+  }
+
+  function resetFriendConfirm() {
+    setConfirmingLinkId(null);
+    setRandomFriendId(null);
+  }
+
+  function goToFriend(link: FriendLink) {
+    openFriendLink(link.url);
+    resetFriendConfirm();
   }
 
   return (
@@ -387,11 +419,29 @@ export default function StoriesClient({
                   {views.map((view) => (
                     <FilterButton
                       key={view}
-                      label={view === "all" ? copy.all : view === "bookmarked" ? copy.bookmarked : copy.longForm}
+                      label={
+                        view === "all"
+                          ? copy.all
+                          : view === "bookmarked"
+                            ? copy.bookmarked
+                            : view === "longform"
+                              ? copy.longForm
+                              : friendLinksCopy.label
+                      }
                       active={activeView === view}
-                      count={view === "all" ? stories.length : view === "bookmarked" ? stories.filter((story) => bookmarks.includes(story.slug)).length : stories.filter(isLongFormStory).length}
+                      count={
+                        view === "all"
+                          ? stories.length
+                          : view === "bookmarked"
+                            ? stories.filter((story) => bookmarks.includes(story.slug)).length
+                            : view === "longform"
+                              ? stories.filter(isLongFormStory).length
+                              : friendLinks.length
+                      }
                       onClick={() => {
                         setActiveView(view);
+                        setRandomFriendId(null);
+                        setConfirmingLinkId(null);
                         setPage(1);
                       }}
                     />
@@ -445,8 +495,8 @@ export default function StoriesClient({
               type="button"
               aria-label={copy.randomStory}
               onClick={randomStory}
-              disabled={filteredStories.length === 0}
-              title={filteredStories.length === 0 ? copy.randomUnavailable : copy.randomStory}
+              disabled={activeCount === 0}
+              title={activeCount === 0 ? copy.randomUnavailable : copy.randomStory}
               className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-white/12 bg-white/[0.035] text-white/76 transition-all hover:border-[#d77abd]/45 hover:bg-white/[0.07] hover:text-white disabled:cursor-not-allowed disabled:opacity-35"
             >
               <IconShuffle />
@@ -479,48 +529,61 @@ export default function StoriesClient({
             </div>
           )}
 
-          {visibleStories.length > 0 ? (
-            <>
-              <div className="stories-rise grid grid-cols-1 gap-4 min-[600px]:grid-cols-2 min-[840px]:grid-cols-3 min-[1200px]:gap-6">
-                {visibleStories.map((story) => (
-                  <StoryCard
-                    key={story.slug}
-                    story={story}
-                    bookmarked={bookmarks.includes(story.slug)}
-                    onToggleBookmark={toggleBookmark}
-                    locale={locale}
-                    copy={copy}
-                  />
-                ))}
-              </div>
-
-              <div className="stories-rise mt-10 flex items-center justify-center gap-4 text-label-large text-white/62">
-                <button
-                  type="button"
-                  aria-label={copy.previousPage}
-                  disabled={safePage <= 1}
-                  onClick={() => setPage((current) => Math.max(1, current - 1))}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-white/[0.035] text-white/72 transition-colors hover:bg-white/10 disabled:pointer-events-none disabled:opacity-30"
-                >
-                  <IconChevron direction="prev" />
-                </button>
-                <span>
-                  {copy.page(safePage, totalPages)}
-                </span>
-                <button
-                  type="button"
-                  aria-label={copy.nextPage}
-                  disabled={safePage >= totalPages}
-                  onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-white/[0.035] text-white/72 transition-colors hover:bg-white/10 disabled:pointer-events-none disabled:opacity-30"
-                >
-                  <IconChevron direction="next" />
-                </button>
-              </div>
-            </>
+          {isFriendsView ? (
+            <FriendLinksGrid
+              links={
+                randomFriendId
+                  ? filteredFriends.filter((link) => link.id === randomFriendId)
+                  : visibleFriends
+              }
+              confirmingId={confirmingLinkId}
+              onOpen={setConfirmingLinkId}
+              onCancel={resetFriendConfirm}
+              onGo={goToFriend}
+              emptyText={friendLinks.length === 0 ? friendLinksCopy.empty : friendLinksCopy.noMatch}
+            />
+          ) : visibleStories.length > 0 ? (
+            <div className="stories-rise grid grid-cols-1 gap-4 min-[600px]:grid-cols-2 min-[840px]:grid-cols-3 min-[1200px]:gap-6">
+              {visibleStories.map((story) => (
+                <StoryCard
+                  key={story.slug}
+                  story={story}
+                  bookmarked={bookmarks.includes(story.slug)}
+                  onToggleBookmark={toggleBookmark}
+                  locale={locale}
+                  copy={copy}
+                />
+              ))}
+            </div>
           ) : (
             <div className="stories-rise rounded-[28px] border border-white/10 bg-white/[0.04] p-10 text-center text-body-large text-white/58">
               {stories.length === 0 ? copy.empty : copy.noMatch}
+            </div>
+          )}
+
+          {(isFriendsView ? visibleFriends.length > 0 && !randomFriendId : visibleStories.length > 0) && (
+            <div className="stories-rise mt-10 flex items-center justify-center gap-4 text-label-large text-white/62">
+              <button
+                type="button"
+                aria-label={copy.previousPage}
+                disabled={safePage <= 1}
+                onClick={() => setPage((current) => Math.max(1, current - 1))}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-white/[0.035] text-white/72 transition-colors hover:bg-white/10 disabled:pointer-events-none disabled:opacity-30"
+              >
+                <IconChevron direction="prev" />
+              </button>
+              <span>
+                {copy.page(safePage, totalPages)}
+              </span>
+              <button
+                type="button"
+                aria-label={copy.nextPage}
+                disabled={safePage >= totalPages}
+                onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-white/[0.035] text-white/72 transition-colors hover:bg-white/10 disabled:pointer-events-none disabled:opacity-30"
+              >
+                <IconChevron direction="next" />
+              </button>
             </div>
           )}
         </section>

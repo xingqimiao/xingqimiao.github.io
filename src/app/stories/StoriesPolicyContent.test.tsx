@@ -23,6 +23,15 @@ describe('stories content policy page', () => {
     expect(html).toContain('Privacy Policy')
   })
 
+  it('states the friend links policy including the content review clause', () => {
+    const html = renderToStaticMarkup(<StoriesPolicyContent locale="zh" />)
+
+    expect(html).toContain('>Friend Links（友链）政策</h2>')
+    expect(html).toContain('先在你的网站上添加指向本站')
+    expect(html).toContain('我们也会审查您网站中的内容是否适合被收录')
+    expect(html).toContain('注明“友链申请”')
+  })
+
   it('renders the default route with the Chinese shell', () => {
     const html = renderToStaticMarkup(<StoriesPolicyPage />)
 

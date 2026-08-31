@@ -1,6 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 import StoriesClient from './StoriesClient'
+import type { FriendLink } from '@/lib/friendLinks'
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),
@@ -9,6 +10,11 @@ vi.mock('next/navigation', () => ({
 vi.mock('@gsap/react', () => ({
   useGSAP: () => undefined,
 }))
+
+const friendLinks: FriendLink[] = [
+  { id: 'a', name: '示例友链甲', url: 'https://example.com/a', cover: null },
+  { id: 'b', name: '示例友链乙', url: 'https://example.com/b', cover: '/pic/friends/b.webp' },
+]
 
 const stories = [
   {
@@ -58,5 +64,15 @@ describe('StoriesClient Material 3 feed', () => {
     expect(html).toContain('data-story-motif="book-lines"')
     expect(html.match(/h-12 w-12/g)).toHaveLength(2)
     expect(html).not.toContain('role="note"')
+  })
+
+  it('lists Friend Links as a sidebar category and keeps friend cards out of the stories feed', () => {
+    const html = renderToStaticMarkup(
+      <StoriesClient locale="zh" articles={stories} friendLinks={friendLinks} />,
+    )
+
+    expect(html).toContain('>Friend Links</span>')
+    expect(html.match(/aspect-\[4\/3\]/g)).toHaveLength(2)
+    expect(html).not.toContain('data-friend-card=')
   })
 })
