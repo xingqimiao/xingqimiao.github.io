@@ -4,7 +4,7 @@ import { AboutKiraMyaoContent } from "@/app/about-kiramyao/AboutKiraMyaoContent"
 
 const page = {
   title: "关于 KiraMyao",
-  description: "了解 KiraMyao Equal 的起源与创始人的故事。",
+  description: "KiraMyao Equal（KiraEqual）关于页：了解这个关注中国跨性别与性少数群体的项目的起源、创始人故事与使命，以及 Stories、研究与行动如何帮更多真实经历被看见。",
   path: "/about",
 } as const;
 

@@ -26,7 +26,7 @@ const copy: Record<ArticleListType, ArticleListCopy> = {
     searchPlaceholder: '搜索猫窝文章',
     emptyText: '没有找到匹配的猫窝文章。',
     metadataTitle: '猫窝 · 随笔与社群札记',
-    metadataDescription: '阅读 KiraMyao Equal 的文章、随笔与社群札记。',
+    metadataDescription: 'KiraMyao Equal 的猫窝：随笔与碎碎念，收录项目更新、社群札记与跨性别相关的轻松短文，是研究与报告之外更柔软的角落。',
   },
   documents: {
     title: '资料，让事实有出处',
