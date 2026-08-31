@@ -149,6 +149,10 @@ body {
     transform: translateY(-2px);
     border-color: color-mix(in srgb, var(--md-sys-color-primary) 44%, var(--md-sys-color-outline-variant));
   }
+
+  .friend-card--tonal:hover {
+    background: var(--md-sys-color-surface-container-highest);
+  }
 }
 
 .friend-card {
@@ -185,22 +189,18 @@ body {
   outline-offset: -4px;
 }
 
-.friend-card__initial {
-  position: absolute;
-  right: 0;
-  top: 0;
-  display: flex;
-  height: 68%;
-  width: 82%;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: 4%;
-  font-size: 7rem;
-  font-weight: 600;
-  line-height: 1;
+.friend-card--tonal {
+  border-color: transparent;
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.friend-card__motif {
   color: var(--md-sys-color-primary);
-  opacity: 0.2;
-  user-select: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.22;
 }
 
 .friend-card__back {

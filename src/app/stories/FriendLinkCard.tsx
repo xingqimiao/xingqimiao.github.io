@@ -29,9 +29,10 @@ export function FriendLinkCard({
 
   return (
     <article
-      data-friend-card={link.cover ? "covered" : "initial"}
+      data-friend-card={link.cover ? "covered" : "tonal"}
       className={cn(
         "friend-card relative aspect-[4/3] overflow-hidden rounded-[var(--md-sys-shape-corner-large-increased)] border",
+        !link.cover && "friend-card--tonal",
         confirming && "friend-card--flipped",
       )}
     >
@@ -53,9 +54,17 @@ export function FriendLinkCard({
               className="friend-card__media absolute inset-0 h-full w-full object-cover"
             />
           ) : (
-            <span data-friend-initial aria-hidden="true" className="friend-card__initial">
-              {link.name.slice(0, 1)}
-            </span>
+            <svg
+              data-friend-motif="link"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              className="friend-card__motif absolute right-0 top-0 h-[62%] w-[74%]"
+              fill="none"
+            >
+              <path d="M9 17H7A5 5 0 0 1 7 7h2" />
+              <path d="M15 7h2a5 5 0 0 1 0 10h-2" />
+              <path d="m8 12h8" />
+            </svg>
           )}
 
           <div className="relative z-10 max-w-[92%]">

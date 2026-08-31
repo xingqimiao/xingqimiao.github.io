@@ -19,19 +19,18 @@ const coveredLink: FriendLink = {
 }
 
 describe('FriendLinkCard', () => {
-  it('renders the 4:3 front face with a first-letter block and title only', () => {
+  it('renders the 4:3 front face with a tonal link motif and title only', () => {
     const html = renderToStaticMarkup(
       <FriendLinkCard link={plainLink} confirming={false} onOpen={() => {}} onCancel={() => {}} onGo={() => {}} />,
     )
 
     expect(html).toContain('aspect-[4/3]')
-    expect(html).toContain('data-friend-card="initial"')
+    expect(html).toContain('data-friend-card="tonal"')
+    expect(html).toContain('data-friend-motif="link"')
     // 背面（确认层）始终在 DOM 中由 CSS 掌管可见性，正面断言须限定在正面片段内
     const front = html.slice(html.indexOf('friend-card__front'), html.indexOf('friend-card__back'))
     expect(front).toContain('示例友链甲')
-    expect(front).toContain('>示</span>')
-    expect(front).not.toContain('占位描述')
-    expect(front).not.toContain('example.com')
+    expect(front).not.toContain('friend-card__initial')
     expect(front).not.toContain('<img')
   })
 
