@@ -4,6 +4,8 @@ export type FriendLink = {
   url: string;
   description?: string;
   cover?: string | null;
+  /** 翻转确认层的定制文案（如官方广告）；存在时替代默认的离开提示/简介/域名 */
+  note?: string;
 };
 
 export const friendLinksCopy = {
@@ -25,8 +27,24 @@ export function filterFriendLinks(links: FriendLink[], query: string) {
   const normalizedQuery = query.trim().toLowerCase();
   if (!normalizedQuery) return links;
   return links.filter((link) =>
-    [link.name, link.description, link.url]
+    [link.name, link.description, link.note, link.url]
       .filter(Boolean)
       .some((field) => field!.toLowerCase().includes(normalizedQuery)),
   );
+}
+
+export const FRIEND_AD_ID = "ad-kiramyao";
+
+/** 官方广告卡排序：始终排在真实友链之后；友链多到换页时锁定第一页最后一格 */
+export function placeFriendLinkAd<T extends FriendLink>(links: T[], pageSize: number): T[] {
+  const list = [...links];
+  const adIndex = list.findIndex((link) => link.id === FRIEND_AD_ID);
+  if (adIndex === -1) return list;
+  const [ad] = list.splice(adIndex, 1);
+  if (list.length >= pageSize) {
+    list.splice(pageSize - 1, 0, ad);
+  } else {
+    list.push(ad);
+  }
+  return list;
 }

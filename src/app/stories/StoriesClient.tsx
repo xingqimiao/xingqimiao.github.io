@@ -14,7 +14,7 @@ import {
 } from "@/lib/storyListPresentation";
 import { getArticleHref } from "@/lib/articleRoute";
 import { migrateStoryBookmarks } from "@/lib/storySlugAliases";
-import { friendLinksCopy, filterFriendLinks, openFriendLink, type FriendLink } from "@/lib/friendLinks";
+import { friendLinksCopy, filterFriendLinks, openFriendLink, placeFriendLinkAd, type FriendLink } from "@/lib/friendLinks";
 import friendLinksData from "@/data/friend_links.json";
 import { toLocalePath, type Locale } from "@/i18n/locale";
 import { cn } from "@/lib/utils";
@@ -371,8 +371,8 @@ export default function StoriesClient({
   }, [activeView, bookmarks, searchTokens, stories, submittedSearch]);
 
   const filteredFriends = useMemo(
-    () => filterFriendLinks(friendLinks, submittedSearch),
-    [friendLinks, submittedSearch],
+    () => placeFriendLinkAd(filterFriendLinks(friendLinks, submittedSearch), pageSize),
+    [friendLinks, submittedSearch, pageSize],
   );
 
   const isFriendsView = activeView === "friends";

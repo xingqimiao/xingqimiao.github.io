@@ -78,15 +78,23 @@ export function FriendLinkCard({
         </button>
 
         <div className="friend-card__face friend-card__back absolute inset-0 flex flex-col justify-end gap-3 p-6 min-[840px]:p-7">
-          <p className="text-title-medium font-semibold text-[var(--md-sys-color-on-surface)]">
-            {friendLinksCopy.confirmNote}
-          </p>
-          {link.description && (
-            <p className="line-clamp-3 text-body-medium text-[var(--md-sys-color-on-surface-variant)]">
-              {link.description}
+          {link.note ? (
+            <p className="whitespace-pre-line text-body-large font-medium leading-relaxed text-[var(--md-sys-color-on-surface)]">
+              {link.note}
             </p>
+          ) : (
+            <>
+              <p className="text-title-medium font-semibold text-[var(--md-sys-color-on-surface)]">
+                {friendLinksCopy.confirmNote}
+              </p>
+              {link.description && (
+                <p className="line-clamp-3 text-body-medium text-[var(--md-sys-color-on-surface-variant)]">
+                  {link.description}
+                </p>
+              )}
+              <p className="text-body-medium text-[var(--md-sys-color-on-surface-variant)]">{host}</p>
+            </>
           )}
-          <p className="text-body-medium text-[var(--md-sys-color-on-surface-variant)]">{host}</p>
           <div className="flex items-center gap-3">
             <button
               type="button"

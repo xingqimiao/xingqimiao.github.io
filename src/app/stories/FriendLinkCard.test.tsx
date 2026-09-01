@@ -18,6 +18,13 @@ const coveredLink: FriendLink = {
   cover: '/pic/friends/example-b.webp',
 }
 
+const adLink: FriendLink = {
+  id: 'ad-kiramyao',
+  name: '承接个人网站设计',
+  url: 'https://x.com/KiraMyao',
+  note: '这是一个官方广告\n低成本建站服务，欢迎前往kiramyao推特联系我们。',
+}
+
 describe('FriendLinkCard', () => {
   it('renders the 4:3 front face with a tonal link motif and title only', () => {
     const html = renderToStaticMarkup(
@@ -65,6 +72,19 @@ describe('FriendLinkCard', () => {
     expect(html).toContain('example.com')
     expect(html).toContain('>确认前往</button>')
     expect(html).toContain('>取消</button>')
+  })
+
+  it('shows a custom note on the back face for ad cards instead of the leave-site notice', () => {
+    const html = renderToStaticMarkup(
+      <FriendLinkCard link={adLink} confirming={true} onOpen={() => {}} onCancel={() => {}} onGo={() => {}} />,
+    )
+
+    expect(html).toContain('friend-card--flipped')
+    expect(html).toContain('这是一个官方广告')
+    expect(html).toContain('低成本建站服务，欢迎前往kiramyao推特联系我们。')
+    expect(html).toContain('whitespace-pre-line')
+    expect(html).not.toContain('即将离开本站，前往外部链接')
+    expect(html).not.toContain('x.com')
   })
 })
 
