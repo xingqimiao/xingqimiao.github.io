@@ -195,9 +195,7 @@ describe('agent Markdown zh-only contract', () => {
       expect(allStoryResources).not.toContain('SECRET STORY DESC')
       expect(allStoryResources).not.toContain('SECRET STORY SUMMARY')
       expect(zhSearch.language).toBe('zh-CN')
-      expect(generatedWorker.CAT_CAVE_SLUG_ALIASES).toEqual({
-        'Becoming-a-Cat-cat!': 'becoming-a-cat-a-story-about-srs',
-      })
+      expect(generatedWorker.CAT_CAVE_SLUG_ALIASES).toEqual({})
       const removedStoryFallthrough = await generatedWorker.default.fetch(
         new Request('https://kiraequal.org/stories/88737526?source=old', {
           headers: { Accept: 'text/html' },
@@ -237,14 +235,19 @@ describe('agent Markdown zh-only contract', () => {
       expect(fetchProbe.status).toBe(404)
       expect(fetchProbe.headers.get('location')).toBeNull()
       expect(generatedWorker.CAT_CAVE_SLUG_ALIASES['2026-trans-survival-survey']).toBeUndefined()
-      const catRedirectEncoded = await generatedWorker.default.fetch(
+      expect(generatedWorker.CAT_CAVE_SLUG_ALIASES['Becoming-a-Cat-cat!']).toBeUndefined()
+      const catCaveFallthrough = await generatedWorker.default.fetch(
         new Request('https://kiraequal.org/cat-cave/Becoming-a-Cat-cat%21'),
-        {},
+        {
+          ASSETS: {
+            async fetch() {
+              return new Response('Not found', { status: 404 })
+            },
+          },
+        },
       )
-      expect(catRedirectEncoded.status).toBe(308)
-      expect(catRedirectEncoded.headers.get('location')).toBe(
-        'https://kiraequal.org/cat-cave/becoming-a-cat-a-story-about-srs',
-      )
+      expect(catCaveFallthrough.status).toBe(404)
+      expect(catCaveFallthrough.headers.get('location')).toBeNull()
 
       const englishRouteRequests = []
       const removedEnglishRoute = await generatedWorker.default.fetch(

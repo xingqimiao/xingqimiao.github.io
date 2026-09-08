@@ -5,7 +5,6 @@ import path from 'node:path'
 export const SLUG_MAPPINGS = [
   ['2026-trans-survival-survey', '2026-transgender-survival-survey'],
   ['ApplePride2026', 'ios-26-5-pride-wallpapers'],
-  ['Becoming-a-Cat-cat!', 'becoming-a-cat-a-story-about-srs'],
   ['blacknotebook', 'illustrated-hardcover-notebook-with-ribbon'],
   ['Meow-lets-survive', 'china-mtf-survival-guide'],
   ['KiraMyao_Equal__China_Trans', 'kiraequal-china-transgender-status-report'],

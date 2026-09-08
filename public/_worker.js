@@ -1,6 +1,6 @@
 const LINK_HEADER = "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/json\", </.well-known/service-doc.md>; rel=\"service-doc\"; type=\"text/markdown\", </llms.txt>; rel=\"alternate\"; type=\"text/markdown\"";
 const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
-export const CAT_CAVE_SLUG_ALIASES = Object.freeze({"Becoming-a-Cat-cat!":"becoming-a-cat-a-story-about-srs"});
+export const CAT_CAVE_SLUG_ALIASES = Object.freeze({});
 const MARKDOWN_ROUTES = new Map([
   ["/", "/ai/index.md"],
   ["/index.html", "/ai/index.md"],

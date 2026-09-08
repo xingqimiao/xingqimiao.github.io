@@ -17,9 +17,7 @@ const SITE_TITLE = "KiraMyao Equal";
 const SITE_DESCRIPTION =
   "KiraMyao Equal 关注中国跨性别与性别多元群体的生存处境、社群故事、资料整理和公共倡议，发布调查、报告、文章与参与方式。";
 const CONTENT_SIGNAL = "ai-train=no, search=yes, ai-input=yes";
-export const CAT_CAVE_SLUG_ALIASES = Object.freeze({
-  "Becoming-a-Cat-cat!": "becoming-a-cat-a-story-about-srs",
-});
+export const CAT_CAVE_SLUG_ALIASES = Object.freeze({});
 const LINK_HEADER = [
   '</.well-known/api-catalog>; rel="api-catalog"; type="application/json"',
   '</.well-known/service-doc.md>; rel="service-doc"; type="text/markdown"',
