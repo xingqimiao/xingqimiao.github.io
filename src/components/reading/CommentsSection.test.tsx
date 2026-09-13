@@ -27,6 +27,20 @@ const base = {
   pageTitle: '逃离上精卫',
 }
 
+// Tests below replace these with Object.defineProperty, which
+// vi.restoreAllMocks does not undo — so they leak into the next test (a stale
+// ?comments=1 makes an unrelated test think the reader asked for the thread).
+const ORIGINAL_LOCATION = window.location
+const ORIGINAL_HISTORY = window.history
+const ORIGINAL_SCROLL_TO = window.scrollTo
+
+const restoreWindowGlobals = () => {
+  Object.defineProperty(window, 'location', { configurable: true, value: ORIGINAL_LOCATION })
+  Object.defineProperty(window, 'history', { configurable: true, value: ORIGINAL_HISTORY })
+  Object.defineProperty(window, 'scrollTo', { configurable: true, value: ORIGINAL_SCROLL_TO })
+  window.sessionStorage.clear()
+}
+
 const emptyPayload = { viewer: { loggedIn: false }, comments: [] }
 
 const comment = (overrides: Record<string, unknown> = {}) => ({
@@ -74,6 +88,21 @@ const buttonByText = (container: HTMLElement, label: string) =>
 describe('CommentsSection (self-hosted)', () => {
   it('renders nothing until an API URL is configured', () => {
     expect(renderToStaticMarkup(<CommentsSection {...base} apiUrl="" />)).toBe('')
+  })
+
+  it('reserves the 40vh gap only on short pages', () => {
+    // Short pages float the pill over the body, so the gap keeps it clear of
+    // the text. Long pages have no floating pill and must butt straight up
+    // against the article rather than leaving a screen of empty space.
+    const short = renderToStaticMarkup(<CommentsSection {...base} shortPage={true} />)
+    expect(short).toContain('mt-[40vh]')
+
+    const long = renderToStaticMarkup(<CommentsSection {...base} shortPage={false} />)
+    expect(long).not.toContain('mt-[40vh]')
+    expect(long).not.toContain('40vh')
+    // The separator rule and heading stay; only the gap goes.
+    expect(long).toContain('reading-rule')
+    expect(long).toContain(COMMENT_COPY.heading)
   })
 
   it('renders the floating pill in server HTML on short pages', () => {
@@ -183,6 +212,7 @@ describe('CommentsSection (self-hosted) thread', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
     vi.restoreAllMocks()
+    restoreWindowGlobals()
     container?.remove()
     if (root) {
       void act(() => {
@@ -283,9 +313,42 @@ describe('CommentsSection (self-hosted) thread', () => {
     })
     expect(assigned).toHaveLength(1)
     expect(assigned[0].startsWith('https://api.kiramyao.com/comments/auth/x/start?return_to=')).toBe(true)
-    expect(decodeURIComponent(assigned[0])).toContain('/stories/47228326')
-    // The reopen intent survives the round trip through X.
+    // The intent rides in the query, because the callback is a server redirect
+    // and a URL fragment would never reach the server.
+    const returnTo = decodeURIComponent(assigned[0].split('return_to=')[1])
+    expect(returnTo).toContain('/stories/47228326')
+    expect(returnTo).toContain('comments=1')
+    // sessionStorage backs it up for the case where the query is stripped.
     expect(window.sessionStorage.getItem('kira-comments-open')).toBe('story:47228326')
+  })
+
+  it('keeps an existing query string when building the login return path', async () => {
+    stubFetch(emptyPayload)
+    await mount()
+    await expand()
+    const assigned: string[] = []
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      value: {
+        pathname: '/stories/47228326',
+        search: '?utm_source=x',
+        hash: '#top',
+        set href(value: string) {
+          assigned.push(value)
+        },
+        get href() {
+          return 'https://kiramyao.com/stories/47228326'
+        },
+      },
+    })
+    await act(async () => {
+      ;(buttonByText(container, COMMENT_COPY.loginCta) as HTMLButtonElement).dispatchEvent(
+        new MouseEvent('click', { bubbles: true }),
+      )
+    })
+    const returnTo = decodeURIComponent(assigned[0].split('return_to=')[1])
+    expect(returnTo).toContain('utm_source=x')
+    expect(returnTo).toContain('comments=1')
   })
 
   it('reopens the thread when the reader comes back from X', async () => {
@@ -297,6 +360,39 @@ describe('CommentsSection (self-hosted) thread', () => {
     expect(container.textContent).toContain(COMMENT_COPY.heading)
     expect((container.querySelector('textarea') as HTMLTextAreaElement).disabled).toBe(false)
     expect(window.sessionStorage.getItem('kira-comments-open')).toBeNull()
+  })
+
+  it('reopens from the ?comments=1 query marker when storage is empty', async () => {
+    stubFetch({ viewer: { loggedIn: true, username: 'neko' }, comments: [] })
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      value: { pathname: '/stories/47228326', search: '?comments=1', hash: '', href: 'https://kiramyao.com/stories/47228326?comments=1' },
+    })
+    Object.defineProperty(window, 'history', { configurable: true, value: { replaceState: vi.fn() } })
+    await mount()
+    expect(container.textContent).toContain(COMMENT_COPY.heading)
+    expect(container.querySelector('.comment-pill-float')).toBeNull()
+  })
+
+  it('scrolls the reader back to the thread on the return trip', async () => {
+    stubFetch(emptyPayload)
+    const scrollTo = vi.fn()
+    Object.defineProperty(window, 'scrollTo', { configurable: true, value: scrollTo })
+    window.sessionStorage.setItem('kira-comments-open', base.pageId)
+    await mount()
+    // Landing at the top of a long article is exactly what this prevents.
+    expect(scrollTo).toHaveBeenCalled()
+    const arg = scrollTo.mock.calls.at(-1)![0] as { top: number }
+    expect(typeof arg.top).toBe('number')
+    expect(arg.top).toBeGreaterThanOrEqual(0)
+  })
+
+  it('does not scroll when the reader never asked for the thread', async () => {
+    stubFetch(emptyPayload)
+    const scrollTo = vi.fn()
+    Object.defineProperty(window, 'scrollTo', { configurable: true, value: scrollTo })
+    await mount()
+    expect(scrollTo).not.toHaveBeenCalled()
   })
 
   it('posts a signed-in comment and reloads the thread', async () => {

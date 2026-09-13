@@ -229,8 +229,10 @@ export function CommentsSection({
     if (typeof window === "undefined") return;
     window.sessionStorage.removeItem(REOPEN_FLAG);
     const params = new URLSearchParams(window.location.search);
-    if (!params.has("comment_error")) return;
+    // Both markers are one-shot: drop them so a copied URL stays canonical.
+    if (!params.has("comment_error") && !params.has(OPEN_QUERY)) return;
     params.delete("comment_error");
+    params.delete(OPEN_QUERY);
     const query = params.toString();
     window.history.replaceState(
       null,
@@ -239,11 +241,27 @@ export function CommentsSection({
     );
   }, []);
 
-  // Phones only: the thread opens 40vh below the story body, so a tap on the
-  // pill would leave the form below the fold. Glide there — the landing puts
-  // the section header about a third of a viewport down, and the movement is
-  // capped so the page never lurches a whole screen away. Desktop keeps its
-  // no-scroll behaviour.
+  // Coming back from X is a fresh page load, so the browser drops the reader at
+  // the top of the article. Put them back on the thread they opened.
+  useEffect(() => {
+    if (!entry.reopen) return;
+    const section = sectionRef.current;
+    if (!section) return;
+    // Measured from layout offsets rather than getBoundingClientRect: the
+    // reading page is mid-entrance (0.72s) and its live transform would shift a
+    // rect, while offsetTop is unaffected. This lands correctly on the first
+    // frame instead of showing the top of the page and then jumping.
+    let top = 0;
+    for (let node: HTMLElement | null = section; node; node = node.offsetParent as HTMLElement | null) {
+      top += node.offsetTop;
+    }
+    window.scrollTo({ top: Math.max(0, top - 16) });
+  }, [entry.reopen]);
+
+  // Phones only, short pages only: there the comment pill floats over the page
+  // and a tap should glide down to the form rather than leave it below the
+  // fold. Long articles have no floating pill and no reserved gap, so there is
+  // nothing to scroll away from.
   const scrollThreadIntoView = () => {
     if (!window.matchMedia("(pointer: coarse)").matches) return;
     const section = sectionRef.current;
@@ -331,17 +349,22 @@ export function CommentsSection({
 
   const loginHref = () => {
     if (typeof window === "undefined") return resolve("/auth/x/start");
-    const returnTo = `${window.location.pathname}${window.location.search}`;
+    // Carry the reopen intent in the query, not the hash: the callback is a
+    // server redirect, and a fragment never reaches the server. The query also
+    // survives private mode, where sessionStorage may be unavailable.
+    const params = new URLSearchParams(window.location.search);
+    params.set(OPEN_QUERY, "1");
+    const returnTo = `${window.location.pathname}?${params.toString()}`;
     return resolve(`/auth/x/start?return_to=${encodeURIComponent(returnTo)}`);
   };
 
   const startLogin = () => {
-    // Mark the reopen intent before the page unloads; the callback redirect
-    // brings the reader back to a thread that is already open.
+    // Belt and braces alongside the query marker: whichever survives, the
+    // reader comes back to an open thread rather than a collapsed pill.
     try {
       window.sessionStorage.setItem(REOPEN_FLAG, pageId);
     } catch {
-      // Private mode can refuse storage; the reader just gets the pill again.
+      // Private mode can refuse storage; the query marker still applies.
     }
     window.location.href = loginHref();
   };
@@ -466,7 +489,9 @@ export function CommentsSection({
   return (
     <section
       ref={sectionRef}
-      className="reading-rule mx-auto mt-[40vh] max-w-[720px] border-t border-black/5 pt-5"
+      className={`reading-rule mx-auto max-w-[720px] border-t border-black/5 pt-5 ${
+        shortPage ? "mt-[40vh]" : ""
+      }`}
     >
       <h2 className="mb-3 text-label-large font-medium text-text-main">{COMMENT_COPY.heading}</h2>
       {!expanded && (
