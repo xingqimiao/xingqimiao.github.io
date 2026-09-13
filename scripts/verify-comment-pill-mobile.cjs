@@ -124,13 +124,21 @@ const hiddenWhileCaged = (label, s) => {
   await page2.unrouteAll({ behavior: "ignoreErrors" });
   await page2.close();
 
-  // E. long page — pill pinned mid-scroll there too (uniform behaviour)
+  // E. long page — deliberately NOT pinned: ed0ebe6 flows the pill in document
+  // flow on long articles (it has enough room below the body) and reserves the
+  // floating pill for short ones. A-D exercise the pinned path on SHORT.
   await page.goto(BASE + LONG, { waitUntil: "load" });
   await page.waitForTimeout(2200);
   const maxYL = await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
   await page.evaluate((y) => window.scrollTo(0, y), Math.round(maxYL * 0.5));
   await page.waitForTimeout(250);
-  pinned("E long page mid-scroll", await state(page));
+  const longState = await state(page);
+  if (!longState.found) throw new Error("E: pill not found on long page");
+  if (longState.position !== "static")
+    throw new Error(`E: long-page pill should flow in the document, got position=${longState.position}`);
+  if (longState.cage.length) throw new Error(`E: caging ancestors: ${longState.cage.join(" | ")}`);
+  if (Number(longState.opacity) < 0.99) throw new Error(`E: opacity=${longState.opacity}`);
+  results.push("E long page mid-scroll: OK (in-flow, visible, not pinned)");
 
   // F. open thread — pill gone, thread mounted
   await page.evaluate(() => window.scrollTo(0, 0));
@@ -138,7 +146,7 @@ const hiddenWhileCaged = (label, s) => {
   await page.getByRole("button", { name: /添加公开评论/ }).click();
   await page.waitForTimeout(1200);
   if ((await state(page)).found) throw new Error("F: pill still present after open");
-  if (!(await page.$("#cusdis_thread"))) throw new Error("F: thread not mounted");
+  if (!(await page.$(".comment-composer"))) throw new Error("F: thread not mounted");
   results.push("F open thread: OK (pill gone, thread mounted)");
 
   await browser.close();

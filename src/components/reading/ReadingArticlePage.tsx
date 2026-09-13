@@ -27,8 +27,8 @@ interface ReadingArticlePageProps {
   contentLanguage?: "zh-CN" | "en";
   /** English translation of the article body; readers without one hide the switch. */
   enArticle?: { title: string; contentHtml: string } | null;
-  /** Comment thread (Cusdis) config; empty appId keeps the section hidden. */
-  commentAppId?: string;
+  /** Comment thread config; an empty apiUrl keeps the whole section hidden. */
+  commentApiUrl?: string;
   commentPageId?: string;
   commentPageUrl?: string;
   initialTheme?: ReadingTheme;
@@ -51,7 +51,7 @@ export function ReadingArticlePage({
   contentHtml,
   contentLanguage,
   enArticle,
-  commentAppId,
+  commentApiUrl,
   commentPageId,
   commentPageUrl,
   initialTheme = "light",
@@ -174,9 +174,9 @@ export function ReadingArticlePage({
           dangerouslySetInnerHTML={{ __html: shownContentHtml }}
         />
 
-        {commentAppId ? (
+        {commentApiUrl ? (
           <CommentsSection
-            appId={commentAppId}
+            apiUrl={commentApiUrl}
             pageId={commentPageId ?? ""}
             pageUrl={commentPageUrl ?? ""}
             pageTitle={shownTitle}

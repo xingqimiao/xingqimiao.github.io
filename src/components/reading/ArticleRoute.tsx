@@ -104,11 +104,13 @@ export function ArticleRouteView({
   if (!article) notFound()
 
   const presentation = buildArticlePagePresentation(locale, article)
-  const commentAppId = article.allowComments
-    ? String((globalConfig as { cusdis_app_id?: string }).cusdis_app_id ?? '').trim()
+  // Self-hosted comments (see equal-comments/): an empty apiUrl means the site
+  // runs with no comment section at all, which is the rollback switch.
+  const commentApiUrl = article.allowComments
+    ? String((globalConfig as { comments_api_url?: string }).comments_api_url ?? '').trim()
     : ''
   const siteUrl = String(globalConfig.website_url || 'https://kiramyao.com').replace(/\/+$/, '')
-  const commentPageUrl = commentAppId ? `${siteUrl}${getArticleHref(article.type, article.slug)}` : ''
+  const commentPageUrl = commentApiUrl ? `${siteUrl}${getArticleHref(article.type, article.slug)}` : ''
 
   return (
     <>
@@ -142,7 +144,7 @@ export function ArticleRouteView({
         enArticle={enArticleByKey.get(`${article.type}:${article.slug}`) ?? null}
         initialTheme={article.type === 'stories' ? 'dark' : 'light'}
         disclaimer={article.type === 'stories' ? storyDisclaimer(article.slug) : undefined}
-        commentAppId={commentAppId}
+        commentApiUrl={commentApiUrl}
         commentPageId={`${article.type}:${article.slug}`}
         commentPageUrl={commentPageUrl}
       />

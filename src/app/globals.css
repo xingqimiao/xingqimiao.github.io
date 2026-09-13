@@ -491,7 +491,7 @@ body {
   border-color: rgba(255, 255, 255, 0.12);
 }
 
-/* The comment preview lands after the Cusdis round trip; without motion it
+/* The comment preview lands after the comments fetch; without motion it
  * pops into place. It rises and fades in while its grid row grows open —
  * the same motion language as the opened thread. The transform is a mount
  * animation on an in-flow element, so no containing-block hazard. */

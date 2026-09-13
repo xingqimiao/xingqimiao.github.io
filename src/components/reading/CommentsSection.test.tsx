@@ -17,72 +17,84 @@ import React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { createRoot, type Root } from 'react-dom/client'
 import { act } from 'react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { CommentsSection, CUSDIS_ZH_CN_LOCALE, CAT_EMPTY_LINES } from './CommentsSection'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { CommentsSection, COMMENT_COPY, CAT_EMPTY_LINES } from './CommentsSection'
 
-const emptyComments = { data: { data: [], commentCount: 0 } }
+const base = {
+  apiUrl: 'https://api.kiramyao.com',
+  pageId: 'story:47228326',
+  pageUrl: 'https://kiramyao.com/stories/47228326',
+  pageTitle: '逃离上精卫',
+}
+
+const emptyPayload = { viewer: { loggedIn: false }, comments: [] }
+
+const comment = (overrides: Record<string, unknown> = {}) => ({
+  id: 'c1',
+  bodyHtml: '第一句话',
+  createdAt: '2026-09-01T10:00:00.000Z',
+  edited: false,
+  isMine: false,
+  author: { username: 'neko', name: '猫猫', avatar: null },
+  replies: [],
+  ...overrides,
+})
 
 const stubFetch = (body: unknown) =>
   vi.stubGlobal(
     'fetch',
-    vi.fn(async () =>
-      new Response(JSON.stringify(body), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      }),
+    vi.fn(
+      async () =>
+        new Response(JSON.stringify(body), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
     ),
   )
 
-// Builds a minimal widget document matching the real srcdoc structure:
-// #root > div > div.grid.grid-cols-1.gap-4 (form) + div.mt-4.px-1 (list).
-const buildWidgetDoc = (doc: Document) => {
-  const root = doc.createElement('div')
-  root.id = 'root'
-  const shell = doc.createElement('div')
-  const form = doc.createElement('div')
-  form.className = 'grid grid-cols-1 gap-4'
-  const list = doc.createElement('div')
-  list.className = 'mt-4 px-1'
-  const ta = doc.createElement('textarea')
-  ta.name = 'reply_content'
-  form.appendChild(ta)
-  root.appendChild(shell)
-  shell.appendChild(form)
-  shell.appendChild(list)
-  doc.body.appendChild(root)
+// Flush the two rAF hops the grow animations wait on, plus a timer turn.
+const settle = async () => {
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise((resolve) => setTimeout(resolve, 0))
+  })
 }
 
-describe('CommentsSection (Cusdis)', () => {
-  const base = {
-    appId: '12345',
-    pageId: 'stories:47228326',
-    pageUrl: 'https://kiramyao.com/stories/47228326',
-    pageTitle: '逃离上精卫',
-  }
+const setTextarea = async (textarea: HTMLTextAreaElement, value: string) => {
+  const setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value')!.set!
+  await act(async () => {
+    setter.call(textarea, value)
+    textarea.dispatchEvent(new Event('input', { bubbles: true }))
+  })
+}
 
-  it('renders nothing until an App ID is configured', () => {
-    const html = renderToStaticMarkup(<CommentsSection {...base} appId="" />)
-    expect(html).toBe('')
+const buttonByText = (container: HTMLElement, label: string) =>
+  Array.from(container.querySelectorAll('button')).find((button) => button.textContent === label)
+
+describe('CommentsSection (self-hosted)', () => {
+  it('renders nothing until an API URL is configured', () => {
+    expect(renderToStaticMarkup(<CommentsSection {...base} apiUrl="" />)).toBe('')
   })
 
   it('renders the floating pill in server HTML on short pages', () => {
     const html = renderToStaticMarkup(<CommentsSection {...base} shortPage={true} />)
-    expect(html).toContain('添加公开评论…')
+    expect(html).toContain(COMMENT_COPY.pill)
     expect(html).toContain('fixed')
     expect(html).toContain('bottom-4')
     expect(html).toContain('comment-pill-float')
     expect(html).toContain('grid-template-rows:0fr')
-    expect(html).not.toContain('id="cusdis_thread"')
+    // No third-party widget markup survives the migration.
+    expect(html).not.toContain('cusdis')
     expect(html).not.toContain('data-app-id')
-    const headlineIndex = html.indexOf('评论区')
-    const pillIndex = html.indexOf('添加公开评论…')
+    const headlineIndex = html.indexOf(COMMENT_COPY.heading)
+    const pillIndex = html.indexOf(COMMENT_COPY.pill)
     expect(headlineIndex).toBeGreaterThan(-1)
     expect(pillIndex).toBeGreaterThan(headlineIndex)
   })
 
   it('renders the pill in normal document flow for long articles without fixing it to viewport', () => {
     const html = renderToStaticMarkup(<CommentsSection {...base} shortPage={false} />)
-    expect(html).toContain('添加公开评论…')
+    expect(html).toContain(COMMENT_COPY.pill)
     expect(html).not.toContain('fixed')
     expect(html).not.toContain('bottom-4')
     expect(html).not.toContain('comment-pill-float')
@@ -91,9 +103,8 @@ describe('CommentsSection (Cusdis)', () => {
 
   it('keys the pill colours off the reader theme, not the site theme', () => {
     // The reading page manages its own light/dark palette through
-    // main[data-theme]; the site-wide `.dark` class (which tailwind `dark:`
-    // variants and --background follow) is independent of that toggle, so
-    // site-scoped colour utilities leave the pill light on a dark read.
+    // main[data-theme]; the site-wide `.dark` class is independent of that
+    // toggle, so site-scoped colour utilities leave the pill light on a dark read.
     const html = renderToStaticMarkup(<CommentsSection {...base} />)
     expect(html).toContain('comment-pill')
     expect(html).not.toContain('bg-background/90')
@@ -101,68 +112,50 @@ describe('CommentsSection (Cusdis)', () => {
     expect(html).not.toContain('dark:bg-white/10')
   })
 
-  it('ships the full Simplified Chinese pack for the widget', () => {
-    expect(CUSDIS_ZH_CN_LOCALE.nickname).toBe('昵称')
-    expect(CUSDIS_ZH_CN_LOCALE.powered_by).toBe('评论由 Cusdis 提供')
-    expect(CUSDIS_ZH_CN_LOCALE.reply_placeholder).toBe('回复内容…')
+  it('carries no third-party widget code', async () => {
+    const fs = await import('node:fs/promises')
+    const path = await import('node:path')
+    const source = await fs.readFile(
+      path.resolve(process.cwd(), 'src/components/reading/CommentsSection.tsx'),
+      'utf8',
+    )
+    expect(source).not.toMatch(/cusdis/i)
+    expect(source).not.toContain('<iframe')
+    expect(source).not.toContain("createElement('script')")
+    expect(source).not.toContain('contentDocument')
   })
 })
 
-describe('CommentsSection (Cusdis) lazy thread', () => {
-  const base = {
-    appId: '12345',
-    pageId: 'stories:47228326',
-    pageUrl: 'https://kiramyao.com/stories/47228326',
-    pageTitle: '逃离上精卫',
-  }
+describe('CommentsSection (self-hosted) thread', () => {
   let root: Root
   let container: HTMLDivElement
 
-  const mount = async (
-    options?:
-      | ((el: HTMLElement) => void)
-      | { renderTo?: (el: HTMLElement) => void; shortPage?: boolean },
-  ) => {
-    const renderTo = typeof options === 'function' ? options : options?.renderTo
-    const shortPage = typeof options === 'object' ? options?.shortPage : undefined
-    ;(window as unknown as { CUSDIS?: unknown }).CUSDIS = {
-      renderTo:
-        renderTo ??
-        ((el: HTMLElement) => {
-          const iframe = document.createElement('iframe')
-          el.appendChild(iframe)
-          buildWidgetDoc(iframe.contentDocument!)
-        }),
-      setTheme: () => {},
-    }
+  const mount = async () => {
     container = document.createElement('div')
     document.body.appendChild(container)
     root = createRoot(container)
     await act(async () => {
-      root.render(<CommentsSection {...base} shortPage={shortPage} />)
+      root.render(<CommentsSection {...base} />)
     })
+    await settle()
   }
 
   const expand = async () => {
-    const trigger = container.querySelector('button') as HTMLButtonElement
+    const trigger = buttonByText(container, COMMENT_COPY.pill) as HTMLButtonElement
     expect(trigger).toBeTruthy()
     await act(async () => {
       trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     })
-    // openThread fades the pill away first, mounts the thread 160ms later.
-    await waitForAssert(() => {
-      if (!container.querySelector('button')) return
-      throw new Error('pill still visible')
+    // openThread fades the pill away first and mounts the thread 160ms later.
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 200))
     })
+    await settle()
   }
-
-  beforeEach(() => {
-    stubFetch(emptyComments)
-  })
 
   afterEach(() => {
     vi.unstubAllGlobals()
-    delete (window as unknown as { CUSDIS?: unknown }).CUSDIS
+    vi.restoreAllMocks()
     container?.remove()
     if (root) {
       void act(() => {
@@ -171,405 +164,265 @@ describe('CommentsSection (Cusdis) lazy thread', () => {
     }
   })
 
-  it('renders approved comments from the public API without mounting the widget', async () => {
-    stubFetch({
-      data: {
-        data: [
-          {
-            id: 'c1',
-            by_nickname: '读者甲',
-            content: '说得对',
-            parsedContent: '<p>说得对</p>',
-            createdAt: '2026-08-24T19:38:10.410Z',
-            // The service-side field is broken; the host page must ignore it.
-            parsedCreatedAt: 'Invalid Date',
-            replies: {
-              data: [
-                {
-                  id: 'c2',
-                  by_nickname: '作者',
-                  content: '谢谢',
-                  parsedContent: '<p>谢谢</p>',
-                  createdAt: '2026-08-25T08:00:00.000Z',
-                  parsedCreatedAt: 'Invalid Date',
-                },
-              ],
-            },
-          },
-        ],
-      },
-    })
+  it('lists published comments straight from our API without opening the thread', async () => {
+    stubFetch({ viewer: { loggedIn: false }, comments: [comment()] })
     await mount()
-    await waitForAssert(() => {
-      if (!container.textContent!.includes('读者甲')) {
-        throw new Error('comment not rendered')
-      }
-    })
-    expect(container.textContent).toContain('说得对')
-    // createdAt is rendered as a local date; the broken field never leaks.
-    expect(container.textContent).toContain('2026-')
-    expect(container.textContent).not.toContain('Invalid Date')
-    expect(container.querySelector('iframe')).toBeNull()
-    // The reply indent follows the reader theme like the pill does; the
-    // site-scoped `dark:` variant never flips with main[data-theme].
-    const replyList = container.querySelector('ul.comment-reply-thread')
-    expect(replyList).not.toBeNull()
-    expect(replyList!.className).not.toContain('dark:border-white/10')
+    expect(container.textContent).toContain('第一句话')
+    expect(container.textContent).toContain('猫猫')
+    expect(container.textContent).toContain('@neko')
+    expect(container.textContent).toContain('2026-09-01')
   })
 
-  it('leaves the pill in normal document flow for long articles without fixing it to viewport', async () => {
-    await mount({ shortPage: false })
-    const wrapper = container.querySelector('button')!.parentElement!
-    expect(wrapper.className).not.toContain('fixed')
-    expect(wrapper.className).not.toContain('bottom-4')
-    expect(wrapper.className).toContain('max-w-[720px]')
+  it('renders a cat line when the thread is empty', async () => {
+    stubFetch(emptyPayload)
+    await mount()
+    const text = container.textContent ?? ''
+    expect(CAT_EMPTY_LINES.some((line) => text.includes(line))).toBe(true)
   })
 
-  it('pins the pill fixed at viewport bottom only on short pages without measuring or listening to scroll', async () => {
-    const listenerSpy = vi.spyOn(window, 'addEventListener')
-    await mount({ shortPage: true })
-    const wrapper = container.querySelector('button')!.parentElement!
-    expect(wrapper.className).toContain('fixed')
-    expect(wrapper.className).toContain('bottom-4')
-    expect(wrapper.className).toContain('comment-pill-float')
-    const listened = listenerSpy.mock.calls.filter(
-      ([type]) => type === 'scroll' || type === 'resize',
+  it('shows a recoverable message when the API is unreachable', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => {
+        throw new Error('offline')
+      }),
     )
-    expect(listened).toHaveLength(0)
-    listenerSpy.mockRestore()
-  }, 4000)
+    await mount()
+    expect(container.textContent).toContain(COMMENT_COPY.loadFailed)
+  })
 
-  it('grows the comment preview in instead of popping it', async () => {
-    // The preview lands after the Cusdis round trip; without motion it pops
-    // into place. It must arrive the same way the opened thread does: inside
-    // a clipped grid row that transitions 0fr -> 1fr while the content fades
-    // and rises, so everything below slides down with it.
+  it('requests the thread for the page it was given', async () => {
+    stubFetch(emptyPayload)
+    await mount()
+    const called = (globalThis.fetch as unknown as { mock: { calls: unknown[][] } }).mock.calls[0][0] as string
+    expect(called).toBe(
+      `https://api.kiramyao.com/comments/api/comments?pageId=${encodeURIComponent('story:47228326')}`,
+    )
+  })
+
+  it('renders nested replies from the API payload', async () => {
     stubFetch({
-      data: {
-        data: [
-          { id: 'c1', by_nickname: '读者甲', parsedContent: '<p>说得对</p>', createdAt: '2026-08-24T19:38:10.410Z' },
-        ],
-      },
+      viewer: { loggedIn: false },
+      comments: [
+        comment({
+          replies: [
+            comment({
+              id: 'c2',
+              bodyHtml: '回复你',
+              author: { username: 'other', name: '别人', avatar: null },
+            }),
+          ],
+        }),
+      ],
     })
     await mount()
-    await waitForAssert(() => {
-      const list = container.querySelector('ol')
-      if (!list) throw new Error('comment list missing')
-      const enter = list.parentElement as HTMLElement
-      if (!enter.className.includes('comment-preview-enter')) {
-        throw new Error('preview content has no enter animation')
-      }
-      const clip = enter.parentElement as HTMLElement
-      const row = clip.parentElement as HTMLElement
-      if (!row.className.includes('transition-[grid-template-rows]')) {
-        throw new Error('preview row is not animated')
-      }
-      if (row.style.gridTemplateRows !== '1fr') {
-        throw new Error(`preview row still ${row.style.gridTemplateRows}`)
-      }
-      if (!clip.className.includes('overflow-hidden')) {
-        throw new Error('preview row is not clipped while growing')
-      }
-    })
-  }, 4000)
+    expect(container.textContent).toContain('第一句话')
+    expect(container.textContent).toContain('回复你')
+    expect(container.querySelector('.comment-reply-thread')).toBeTruthy()
+  })
 
-  it('keeps host-rendered comments visible after the thread is opened', async () => {
-    stubFetch({
-      data: {
-        data: [
-          { id: 'c1', by_nickname: '读者甲', parsedContent: '说得对', createdAt: '2026-08-24T19:38:10.410Z' },
-        ],
-      },
-    })
+  it('offers X login when nobody is signed in', async () => {
+    stubFetch(emptyPayload)
     await mount()
     await expand()
-    await waitForAssert(() => {
-      if (!container.textContent!.includes('读者甲')) {
-        throw new Error('comment list disappeared after expanding')
-      }
-    })
-  }, 4000)
+    expect(container.textContent).toContain(COMMENT_COPY.loginCta)
+    const textarea = container.querySelector('textarea') as HTMLTextAreaElement
+    expect(textarea.disabled).toBe(true)
+    expect(textarea.placeholder).toBe(COMMENT_COPY.loginRequired)
+  })
 
-  it('hides the widget\u2019s own comment list so host-rendered comments never reload', async () => {
+  it('sends the reader to our own OAuth start with a return path', async () => {
+    stubFetch(emptyPayload)
     await mount()
     await expand()
-    const doc = container.querySelector('iframe')!.contentDocument!
-    expect(doc.getElementById('kira-widget-list-hidden')).toBeTruthy()
-  }, 4000)
-
-  it('greets with a cat line when there are no comments yet', async () => {
-    await mount()
-    await waitForAssert(() => {
-      if (!container.textContent!.includes('喵')) {
-        throw new Error('empty-state cat line missing')
-      }
-    })
-  }, 4000)
-
-  it('draws the empty-state line randomly from the cat phrase pool', async () => {
-    expect(CAT_EMPTY_LINES.length).toBeGreaterThanOrEqual(5)
-    for (const line of CAT_EMPTY_LINES) {
-      expect(line).toContain('喵')
-    }
-    await mount()
-    await waitForAssert(() => {
-      const line = container.querySelector('.comment-preview-enter p')
-      if (!line) throw new Error('empty-state line missing')
-      if (!CAT_EMPTY_LINES.includes(line.textContent!.trim())) {
-        throw new Error(`empty line not from pool: ${line.textContent}`)
-      }
-    })
-  }, 4000)
-
-  const setPointerCoarse = (coarse: boolean) => {
-    vi.spyOn(window, 'matchMedia').mockImplementation((query: string) => ({
-      matches: query.includes('pointer: coarse') ? coarse : false,
-      media: query,
-      onchange: null,
-      addEventListener: () => {},
-      removeEventListener: () => {},
-      addListener: () => {},
-      removeListener: () => {},
-      dispatchEvent: () => false,
-    }) as unknown as MediaQueryList)
-  }
-
-  const stubScrollTo = () => {
-    const scrollTo = vi.fn()
-    Object.defineProperty(window, 'scrollTo', {
-      value: scrollTo,
+    const assigned: string[] = []
+    Object.defineProperty(window, 'location', {
       configurable: true,
-      writable: true,
-    })
-    return scrollTo
-  }
-
-  const deepSection = () =>
-    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
-      top: 2000,
-      bottom: 2000,
-      left: 0,
-      right: 0,
-      width: 0,
-      height: 0,
-      x: 0,
-      y: 0,
-      toJSON: () => ({}),
-    } as DOMRect)
-
-  it('glides the pill target into view on a coarse pointer, capped at 60% of the screen', async () => {
-    setPointerCoarse(true)
-    const scrollTo = stubScrollTo()
-    const spy = deepSection()
-    try {
-      await mount()
-      await expand()
-      expect(scrollTo).toHaveBeenCalledTimes(1)
-      const [arg] = scrollTo.mock.calls[0]
-      expect(arg.behavior).toBe('smooth')
-      // 2000px away, landing offset 35% of the viewport: the 60% cap wins.
-      expect(arg.top).toBe(Math.round(window.innerHeight * 0.6))
-    } finally {
-      spy.mockRestore()
-    }
-  }, 4000)
-
-  it('does not move the page at all on a fine pointer', async () => {
-    setPointerCoarse(false)
-    const scrollTo = stubScrollTo()
-    const spy = deepSection()
-    try {
-      await mount()
-      await expand()
-      expect(scrollTo).not.toHaveBeenCalled()
-    } finally {
-      spy.mockRestore()
-    }
-  }, 4000)
-
-  it('mounts the widget only when the sticky trigger is opened', async () => {
-    await mount()
-    expect(container.querySelector('iframe')).toBeNull()
-    await expand()
-    await waitForAssert(() => {
-      if (!container.querySelector('iframe')) {
-        throw new Error('widget iframe not mounted after expand')
-      }
-    })
-  }, 4000)
-
-  it('grows the thread open through an animated row instead of snapping in', async () => {
-    // The reader sees everything below the thread slide down with it; that
-    // only happens when the panel sits in a grid row that transitions from
-    // 0fr to 1fr inside an overflow-clipped track. A bare panel mount is the
-    // instant reflow readers experienced as the thread "jumping down".
-    await mount()
-    await expand()
-    await waitForAssert(() => {
-      const thread = container.querySelector('#cusdis_thread')
-      if (!thread) throw new Error('thread missing')
-      // thread -> panel -> clip -> row
-      const clip = thread.parentElement!.parentElement as HTMLElement
-      const row = clip.parentElement as HTMLElement
-      if (!row.className.includes('transition-[grid-template-rows]')) {
-        throw new Error('row is not animated')
-      }
-      if (row.style.gridTemplateRows !== '1fr') {
-        throw new Error(`row still ${row.style.gridTemplateRows}`)
-      }
-      if (!clip.className.includes('overflow-hidden')) {
-        throw new Error('row content is not clipped while growing')
-      }
-    })
-  }, 4000)
-
-  it('sizes the widget iframe as soon as the widget renders', async () => {
-    await mount()
-    await expand()
-    const iframe = container.querySelector('iframe')
-    expect(iframe).toBeTruthy()
-    await waitForAssert(() => {
-      if (iframe!.style.height !== '48px') {
-        throw new Error(`iframe height still ${iframe!.style.height}`)
-      }
-    })
-  }, 4000)
-
-  it('grows the iframe immediately when the widget content changes', async () => {
-    await mount()
-    await expand()
-    const iframe = container.querySelector('iframe')!
-    const body = iframe.contentDocument!.body
-    Object.defineProperty(body, 'scrollHeight', { get: () => 600, configurable: true })
-    body.appendChild(document.createElement('p'))
-    await waitForAssert(() => {
-      if (iframe.style.height !== '600px') {
-        throw new Error(`iframe height still ${iframe.style.height}`)
-      }
-    })
-  }, 4000)
-
-  it('never lets the widget document scroll inside the iframe', async () => {
-    // The srcdoc swap between the widget's temp and real documents can
-    // briefly or permanently lose the compaction style and the height tune,
-    // which lets the iframe grow its own inner scrollbar. The injected style
-    // must clamp the widget document so no inner scrollbar can ever appear.
-    await mount()
-    await expand()
-    const doc = container.querySelector('iframe')!.contentDocument!
-    await waitForAssert(() => {
-      const style = doc.getElementById('kira-comment-shape')
-      if (style && style.textContent!.includes('overflow: hidden')) return
-      if (style?.sheet && [...style.sheet.cssRules].some((r) => r.cssText.includes('overflow:hidden'))) return
-      throw new Error('widget doc is not clamped from inner scrolling')
-    })
-  }, 4000)
-
-  it('tunes the iframe to the taller of body and documentElement', async () => {
-    // Some widget states grow the html box beyond the body (margins, swapped
-    // root); body-only tuning left the iframe short and the doc scrollable.
-    await mount()
-    await expand()
-    const iframe = container.querySelector('iframe')!
-    const doc = iframe.contentDocument!
-    Object.defineProperty(doc.body, 'scrollHeight', { get: () => 48, configurable: true })
-    Object.defineProperty(doc.documentElement, 'scrollHeight', {
-      get: () => 700,
-      configurable: true,
-    })
-    doc.body.appendChild(document.createElement('p'))
-    await waitForAssert(() => {
-      if (iframe.style.height !== '700px') {
-        throw new Error(`iframe height still ${iframe.style.height}`)
-      }
-    })
-  }, 4000)
-
-  it('re-sizes the widget once its inner document finishes loading', async () => {
-    // The widget first renders a temporary document and swaps in the real
-    // srcdoc document after it loads, so the height observer armed at render
-    // time watches a dead document. The iframe load event must re-tune.
-    let innerDoc: Document | null = null
-    await mount((el: HTMLElement) => {
-      const iframe = document.createElement('iframe')
-      Object.defineProperty(iframe, 'contentDocument', {
-        get: () => innerDoc,
-        configurable: true,
-      })
-      el.appendChild(iframe)
-    })
-    await expand()
-    const iframe = container.querySelector('iframe')!
-    expect(iframe.style.height).toBe('')
-    innerDoc = document.implementation.createHTMLDocument('widget')
-    iframe.dispatchEvent(new Event('load'))
-    await waitForAssert(() => {
-      if (iframe.style.height !== '48px') {
-        throw new Error(`iframe height still ${iframe.style.height}`)
-      }
-    })
-  }, 4000)
-
-  it('re-tunes when the widget box grows without any DOM mutation (font/image load)', async () => {
-    // Font loading and image decoding change the widget's box height without
-    // adding/removing nodes, so no DOM mutation fires. The widget's own
-    // ResizeObserver must be wired up so the host page still follows.
-    let widgetResize: (() => void) | null = null
-    await mount((el: HTMLElement) => {
-      const iframe = document.createElement('iframe')
-      el.appendChild(iframe)
-      Object.defineProperty(iframe.contentWindow!, 'ResizeObserver', {
-        value: class {
-          constructor(cb: () => void) {
-            widgetResize = cb
-          }
-          observe() {}
-          unobserve() {}
-          disconnect() {}
+      value: {
+        pathname: '/stories/47228326',
+        search: '',
+        hash: '',
+        set href(value: string) {
+          assigned.push(value)
         },
-        configurable: true,
-      })
+        get href() {
+          return 'https://kiramyao.com/stories/47228326'
+        },
+      },
     })
-    await expand()
-    const iframe = container.querySelector('iframe')!
-    expect(widgetResize).toBeTruthy()
-    const body = iframe.contentDocument!.body
-    Object.defineProperty(body, 'scrollHeight', { get: () => 600, configurable: true })
-    widgetResize!()
-    await waitForAssert(() => {
-      if (iframe.style.height !== '600px') {
-        throw new Error(`iframe height still ${iframe.style.height}`)
-      }
+    const loginButton = buttonByText(container, COMMENT_COPY.loginCta) as HTMLButtonElement
+    await act(async () => {
+      loginButton.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     })
-  }, 4000)
+    expect(assigned).toHaveLength(1)
+    expect(assigned[0].startsWith('https://api.kiramyao.com/comments/auth/x/start?return_to=')).toBe(true)
+    expect(decodeURIComponent(assigned[0])).toContain('/stories/47228326')
+    // The reopen intent survives the round trip through X.
+    expect(window.sessionStorage.getItem('kira-comments-open')).toBe('story:47228326')
+  })
 
-  it('grows the reply box with input instead of scrolling', async () => {
+  it('reopens the thread when the reader comes back from X', async () => {
+    stubFetch({ viewer: { loggedIn: true, username: 'neko' }, comments: [comment({ isMine: true })] })
+    window.sessionStorage.setItem('kira-comments-open', base.pageId)
+    await mount()
+    // No pill means openThread already ran on mount.
+    expect(container.querySelector('.comment-pill-float')).toBeNull()
+    expect(container.textContent).toContain(COMMENT_COPY.heading)
+    expect((container.querySelector('textarea') as HTMLTextAreaElement).disabled).toBe(false)
+    expect(window.sessionStorage.getItem('kira-comments-open')).toBeNull()
+  })
+
+  it('posts a signed-in comment and reloads the thread', async () => {
+    const fetchMock = vi.fn(async (_input: unknown, init?: RequestInit) => {
+      if (init?.method === 'POST') {
+        return new Response(JSON.stringify({ comment: { id: 'new' } }), {
+          status: 201,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+      return new Response(
+        JSON.stringify({ viewer: { loggedIn: true, username: 'neko' }, comments: [comment()] }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      )
+    })
+    vi.stubGlobal('fetch', fetchMock)
     await mount()
     await expand()
-    const doc = container.querySelector('iframe')!.contentDocument!
-    const textarea = doc.querySelector('textarea')!
-    Object.defineProperty(textarea, 'scrollHeight', { get: () => 120, configurable: true })
-    textarea.value = '第一行\n第二行第三行'
-    textarea.dispatchEvent(new Event('input', { bubbles: true }))
-    await waitForAssert(() => {
-      if (textarea.style.height !== '120px') {
-        throw new Error(`textarea height still ${textarea.style.height}`)
-      }
-    })
-  }, 4000)
-})
+    await setTextarea(container.querySelector('textarea') as HTMLTextAreaElement, ' 第二句话 ')
 
-async function waitForAssert(assert: () => void, timeoutMs = 500) {
-  const start = Date.now()
-  let lastError: unknown
-  while (Date.now() - start < timeoutMs) {
-    try {
-      assert()
-      return
-    } catch (error) {
-      lastError = error
-    }
-    await new Promise((resolve) => setTimeout(resolve, 10))
-  }
-  throw lastError
-}
+    await act(async () => {
+      (container.querySelector('form') as HTMLFormElement).dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true }),
+      )
+    })
+    await settle()
+
+    const post = fetchMock.mock.calls.find(([, init]) => (init as RequestInit)?.method === 'POST')
+    expect(post).toBeTruthy()
+    const body = JSON.parse((post![1] as RequestInit).body as string)
+    expect(body.pageId).toBe('story:47228326')
+    expect(body.body).toBe('第二句话')
+    expect(body.pageTitle).toBe('逃离上精卫')
+    // An absent parentId means a top-level comment, not a reply.
+    expect(body.parentId).toBeUndefined()
+    // The box is cleared once the comment is accepted.
+    expect((container.querySelector('textarea') as HTMLTextAreaElement).value).toBe('')
+  })
+
+  it('turns a failed post into a message instead of losing the text', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (_input: unknown, init?: RequestInit) => {
+        if (init?.method === 'POST') {
+          return new Response(JSON.stringify({ error: 'too many comments' }), { status: 429 })
+        }
+        return new Response(
+          JSON.stringify({ viewer: { loggedIn: true, username: 'neko' }, comments: [] }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        )
+      }),
+    )
+    await mount()
+    await expand()
+    await setTextarea(container.querySelector('textarea') as HTMLTextAreaElement, '会失败的评论')
+    await act(async () => {
+      (container.querySelector('form') as HTMLFormElement).dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true }),
+      )
+    })
+    await settle()
+    expect(container.textContent).toContain(COMMENT_COPY.sendFailed)
+    // The reader's text is still there to retry.
+    expect((container.querySelector('textarea') as HTMLTextAreaElement).value).toBe('会失败的评论')
+  })
+
+  it('only offers delete on the reader’s own comments', async () => {
+    stubFetch({
+      viewer: { loggedIn: true, username: 'neko' },
+      comments: [
+        comment({ id: 'mine', bodyHtml: '我的', isMine: true }),
+        comment({
+          id: 'theirs',
+          bodyHtml: '别人的',
+          isMine: false,
+          author: { username: 'other', name: '别人', avatar: null },
+        }),
+      ],
+    })
+    await mount()
+    await expand()
+    const removeButtons = Array.from(container.querySelectorAll('button')).filter(
+      (button) => button.textContent === COMMENT_COPY.remove,
+    )
+    expect(removeButtons).toHaveLength(1)
+  })
+
+  it('replies to a specific comment by sending its id', async () => {
+    const fetchMock = vi.fn(async (_input: unknown, init?: RequestInit) => {
+      if (init?.method === 'POST') {
+        return new Response(JSON.stringify({ comment: { id: 'r1' } }), { status: 201 })
+      }
+      return new Response(
+        JSON.stringify({ viewer: { loggedIn: true, username: 'neko' }, comments: [comment()] }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      )
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    await mount()
+    await expand()
+
+    await act(async () => {
+      (buttonByText(container, COMMENT_COPY.reply) as HTMLButtonElement).dispatchEvent(
+        new MouseEvent('click', { bubbles: true }),
+      )
+    })
+    expect(container.textContent).toContain('回复 @猫猫')
+
+    const textarea = container.querySelector('textarea') as HTMLTextAreaElement
+    expect(textarea.placeholder).toBe(COMMENT_COPY.replyPlaceholder)
+    await setTextarea(textarea, '回复内容')
+    await act(async () => {
+      (container.querySelector('form') as HTMLFormElement).dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true }),
+      )
+    })
+    await settle()
+
+    const post = fetchMock.mock.calls.find(([, init]) => (init as RequestInit)?.method === 'POST')
+    expect(JSON.parse((post![1] as RequestInit).body as string).parentId).toBe('c1')
+  })
+
+  it('surfaces a failed X login from the callback flag', async () => {
+    stubFetch(emptyPayload)
+    const replaceState = vi.fn()
+    Object.defineProperty(window, 'history', { configurable: true, value: { replaceState } })
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      value: {
+        pathname: '/stories/47228326',
+        search: '?comment_error=login_failed',
+        hash: '',
+        href: 'https://kiramyao.com/stories/47228326?comment_error=login_failed',
+      },
+    })
+    await mount()
+    expect(container.textContent).toContain(COMMENT_COPY.loginFailed)
+    expect(replaceState).toHaveBeenCalled()
+  })
+
+  it('reports a blocked account distinctly from a failed login', async () => {
+    stubFetch(emptyPayload)
+    Object.defineProperty(window, 'history', { configurable: true, value: { replaceState: vi.fn() } })
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      value: {
+        pathname: '/stories/47228326',
+        search: '?comment_error=blocked',
+        hash: '',
+        href: 'https://kiramyao.com/stories/47228326?comment_error=blocked',
+      },
+    })
+    await mount()
+    expect(container.textContent).toContain(COMMENT_COPY.loginBlocked)
+  })
+})

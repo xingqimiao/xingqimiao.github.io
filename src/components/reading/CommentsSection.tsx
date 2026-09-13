@@ -1,47 +1,49 @@
 "use client";
 
 import gsap from "gsap";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-const CUSDIS_SCRIPT = "https://cusdis.com/js/cusdis.es.js";
+export type CommentAuthor = {
+  username: string;
+  name: string;
+  avatar: string | null;
+};
 
-type CusComment = {
+export type CommentNode = {
   id: string;
-  by_nickname?: string;
-  moderator?: { displayName?: string } | null;
-  // API returns createdAt (ISO); parsedCreatedAt is a broken service-side
-  // string that surfaces as the literal "Invalid Date", so never trust it.
-  createdAt?: string;
-  parsedContent?: string;
-  content?: string;
-  replies?: { data?: CusComment[] };
+  bodyHtml: string;
+  createdAt: string;
+  edited: boolean;
+  isMine: boolean;
+  author: CommentAuthor;
+  replies: CommentNode[];
 };
 
-const formatCommentDate = (iso?: string) => {
-  if (!iso) return "";
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "";
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${date.getFullYear()}-${month}-${day}`;
+export type Viewer = {
+  loggedIn: boolean;
+  username?: string;
+  name?: string;
+  avatar?: string | null;
 };
 
-// Official Simplified Chinese pack (djyde/cusdis -> widget/lang/zh-cn.js).
-// The widget reads its own window.CUSDIS_LOCALE and only falls back to the
-// English defaults for keys it does not find, so the full pack is required.
-export const CUSDIS_ZH_CN_LOCALE = {
-  powered_by: "评论由 Cusdis 提供",
-  post_comment: "发送",
-  loading: "加载中",
-  email: "邮箱地址 (可选)",
-  nickname: "昵称",
-  reply_placeholder: "回复内容…",
-  reply_btn: "回复",
+export const COMMENT_COPY = {
+  heading: "评论区",
+  pill: "添加公开评论…",
+  loginCta: "使用 X 登录后评论",
+  placeholder: "写下你的想法…",
+  replyPlaceholder: "写下你的回复…",
+  submit: "发送",
   sending: "发送中…",
-  mod_badge: "管理员",
-  content_is_required: "内容不能为空",
-  nickname_is_required: "昵称不能为空",
-  comment_has_been_sent: "评论已发送，管理员审核通过后会展示",
+  reply: "回复",
+  cancel: "取消",
+  remove: "删除",
+  loginRequired: "请先使用 X 登录，再发表评论。",
+  sendFailed: "发送失败，请稍后再试。",
+  loadFailed: "评论加载失败，请刷新页面重试。",
+  loginFailed: "登录没有完成，请再试一次。",
+  loginBlocked: "该账号已被禁止评论。",
+  confirmRemove: "确定删除这条评论吗？",
+  poweredBy: "评论由本站自建服务提供",
 } as const;
 
 // Empty-state pool for the no-comment preview: one is drawn per mount. The
@@ -56,88 +58,183 @@ export const CAT_EMPTY_LINES = [
   "这里连一根猫毛都没有，喵～ 说句话证明你来过？",
 ] as const;
 
+const formatCommentDate = (iso?: string) => {
+  if (!iso) return "";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${day}`;
+};
+
+// Set before handing the reader to X so the thread is already open when they
+// come back: a full page load otherwise drops them next to a collapsed pill.
+const REOPEN_FLAG = "kira-comments-open";
+const OPEN_QUERY = "comments";
+
+// The grow-open animations must wait two frames: the browser has to commit the
+// 0fr track before it can transition to 1fr, or the growth snaps.
+const nextFrame = (cb: () => void) =>
+  typeof window.requestAnimationFrame === "function"
+    ? window.requestAnimationFrame(cb)
+    : (window.setTimeout(cb, 16) as unknown as number);
+
+const cancelFrame = (handle: number) => {
+  if (typeof window.cancelAnimationFrame === "function") window.cancelAnimationFrame(handle);
+  else window.clearTimeout(handle);
+};
+
+const afterTwoFrames = (callback: () => void): (() => void) => {
+  let second = 0;
+  const first = nextFrame(() => {
+    second = nextFrame(callback);
+  });
+  return () => {
+    cancelFrame(first);
+    cancelFrame(second);
+  };
+};
+
 /**
- * Cusdis-hosted comments for story pages. Approved comments are listed via
- * the lightweight public API (/api/open/comments) straight away; the widget
- * script, iframe and compose form stay lazy — they mount only when the
- * reader opens the thread from the pill that sticks to the viewport bottom.
+ * Self-hosted comments for story pages. The thread reads from our own API
+ * (see `equal-comments/`), so there is no third-party iframe to style around:
+ * the list, the compose form and the X login all live in this page.
  */
 export function CommentsSection({
-  appId,
+  apiUrl,
   pageId,
   pageUrl,
   pageTitle,
   shortPage = false,
 }: {
-  appId: string;
+  apiUrl: string;
   pageId: string;
   pageUrl: string;
   pageTitle: string;
   shortPage?: boolean;
 }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const collapsibleRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const pillRef = useRef<HTMLButtonElement>(null);
-  const [expanded, setExpanded] = useState(false);
+  const composerRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // The service lives under /comments on its origin so sibling services can
+  // claim their own paths later; apiUrl is origin-only and we add the prefix.
+  // An empty apiUrl stays empty so the rollback guard below still sees "unset".
+  const apiOrigin = apiUrl.replace(/\/+$/, "");
+  const api = apiOrigin ? `${apiOrigin}/comments` : "";
+  const resolve = (path: string) => `${api}${path}`;
+
+  // Both of these are entry conditions rather than state that changes while the
+  // page is open — the callback's ?comment_error flag, and the intent to reopen
+  // the thread after a full page load back from X. Reading them during the
+  // first render avoids a collapsed flash that an effect would cause.
+  const [entry] = useState(() => {
+    if (typeof window === "undefined") return { notice: "", reopen: false };
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get("comment_error");
+    return {
+      notice: error === "blocked" ? COMMENT_COPY.loginBlocked : error ? COMMENT_COPY.loginFailed : "",
+      // A login error has to land where the reader can see it, so it opens the
+      // thread the same way the reopen flag does.
+      reopen:
+        Boolean(error) ||
+        window.sessionStorage.getItem(REOPEN_FLAG) === pageId ||
+        params.get(OPEN_QUERY) === "1",
+    };
+  });
+
+  const [expanded, setExpanded] = useState(entry.reopen);
   // Grows the thread open: the panel lives in a grid row that transitions
   // 0fr -> 1fr, so everything below it slides down with the panel instead of
   // teleporting in a single reflow.
   const [rowOpen, setRowOpen] = useState(false);
-  const [comments, setComments] = useState<CusComment[] | null>(null);
-  // Same motion for the comment preview: the row stays closed until the
-  // Cusdis round trip lands, then grows open so the list never pops in.
+  const [comments, setComments] = useState<CommentNode[] | null>(null);
+  const [viewer, setViewer] = useState<Viewer>({ loggedIn: false });
+  const [loadError, setLoadError] = useState(false);
+  // Same motion for the comment preview: the row stays closed until the fetch
+  // lands, then grows open so the list never pops in.
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [body, setBody] = useState("");
+  const [replyTo, setReplyTo] = useState<CommentNode | null>(null);
+  const [pending, setPending] = useState(false);
+  const [notice, setNotice] = useState(entry.notice);
   // Drawn once per mount: re-renders (e.g. a theme toggle) must not swap
   // the cat line under the reader.
   const [emptyLine] = useState(
     () => CAT_EMPTY_LINES[Math.floor(Math.random() * CAT_EMPTY_LINES.length)],
   );
 
+  // Fetch resolves to a plain payload; the state lands in a callback so the
+  // mount effect below never sets state synchronously (which would cascade).
+  const fetchThread = useCallback(async () => {
+    if (!api || !pageId) return null;
+    try {
+      // Built from the stable `api` string rather than the `resolve` helper:
+      // a fresh closure per render would destabilise this useCallback.
+      const response = await fetch(`${api}/api/comments?pageId=${encodeURIComponent(pageId)}`, {
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error(String(response.status));
+      const json: { viewer?: Viewer; comments?: CommentNode[] } = await response.json();
+      return { ok: true as const, viewer: json.viewer ?? { loggedIn: false }, comments: json.comments ?? [] };
+    } catch {
+      return { ok: false as const };
+    }
+  }, [api, pageId]);
+
+  const applyThread = useCallback(
+    (payload: Awaited<ReturnType<typeof fetchThread>>) => {
+      if (!payload) return;
+      if (payload.ok) {
+        setViewer(payload.viewer);
+        setComments(payload.comments);
+        setLoadError(false);
+      } else {
+        setComments([]);
+        setLoadError(true);
+      }
+    },
+    [],
+  );
+
+  const loadComments = useCallback(async () => {
+    applyThread(await fetchThread());
+  }, [applyThread, fetchThread]);
+
+  useEffect(() => {
+    let alive = true;
+    void fetchThread().then((payload) => {
+      if (alive) applyThread(payload);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [applyThread, fetchThread]);
+
   // Flip the preview row open two frames after the comments land: the
   // browser must commit the 0fr row first, or the growth snaps instead of
   // animating (same mechanism as the thread row below).
   useEffect(() => {
     if (!comments) return;
-    const frame = (cb: () => void) =>
-      typeof window.requestAnimationFrame === "function"
-        ? window.requestAnimationFrame(cb)
-        : (window.setTimeout(cb, 16) as unknown as number);
-    const cancel = (handle: number) => {
-      if (typeof window.cancelAnimationFrame === "function") window.cancelAnimationFrame(handle);
-      else window.clearTimeout(handle);
-    };
-    let second = 0;
-    const first = frame(() => {
-      second = frame(() => setPreviewOpen(true));
-    });
-    return () => {
-      cancel(first);
-      cancel(second);
-    };
+    return afterTwoFrames(() => setPreviewOpen(true));
   }, [comments]);
 
-  // Fetch approved comments separately from the widget so the list is
-  // visible without loading Cusdis' script/iframe. First page only; the full
-  // thread (pagination, reply) lives in the widget after opening.
+  // Clear the one-shot entry flags once they have been consumed. No state is
+  // written here, so this cannot cascade a render.
   useEffect(() => {
-    if (!appId || !pageId) return;
-    let alive = true;
-    fetch(
-      `https://cusdis.com/api/open/comments?page=1&appId=${encodeURIComponent(appId)}&pageId=${encodeURIComponent(pageId)}`,
-    )
-      .then((response) => response.json())
-      .then((json: { data?: { data?: CusComment[] } }) => {
-        if (alive) setComments(json.data?.data ?? []);
-      })
-      .catch(() => {
-        // A failed preview must not break the thread; the widget shows the
-        // same list once opened.
-      });
-    return () => {
-      alive = false;
-    };
-  }, [appId, pageId]);
+    if (typeof window === "undefined") return;
+    window.sessionStorage.removeItem(REOPEN_FLAG);
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has("comment_error")) return;
+    params.delete("comment_error");
+    const query = params.toString();
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`,
+    );
+  }, []);
 
   // Phones only: the thread opens 40vh below the story body, so a tap on the
   // pill would leave the form below the fold. Glide there — the landing puts
@@ -173,27 +270,10 @@ export function CommentsSection({
 
   // Flip the row open two frames after the panel mounts: the browser must
   // commit the 0fr row first, or the transition to 1fr snaps instead of
-  // animating. tuneHeight's observers only ever resize the widget iframe —
-  // the row track follows the content on every frame, which is why this
-  // animation cannot be fought the way the old height tween was.
+  // animating.
   useEffect(() => {
     if (!expanded) return;
-    const frame = (cb: () => void) =>
-      typeof window.requestAnimationFrame === "function"
-        ? window.requestAnimationFrame(cb)
-        : (window.setTimeout(cb, 16) as unknown as number);
-    const cancel = (handle: number) => {
-      if (typeof window.cancelAnimationFrame === "function") window.cancelAnimationFrame(handle);
-      else window.clearTimeout(handle);
-    };
-    let second = 0;
-    const first = frame(() => {
-      second = frame(() => setRowOpen(true));
-    });
-    return () => {
-      cancel(first);
-      cancel(second);
-    };
+    return afterTwoFrames(() => setRowOpen(true));
   }, [expanded]);
 
   // Reveal the thread content while the row grows around it: the panel fades
@@ -201,9 +281,7 @@ export function CommentsSection({
   // reader is never scrolled.
   useEffect(() => {
     if (!expanded) return;
-    const el = collapsibleRef.current;
-    if (!el) return;
-    const content = el.firstElementChild;
+    const content = composerRef.current;
     if (!content) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       gsap.set(content, { opacity: 1, y: 0 });
@@ -219,231 +297,155 @@ export function CommentsSection({
     };
   }, [expanded]);
 
+  // Grow the reply box with the reader's input so long comments never scroll
+  // inside a 3-line box.
   useEffect(() => {
-    const container = containerRef.current;
-    if (!appId || !container || !expanded) return;
-    // Cusdis localizes via a page-level global read when its script evaluates;
-    // data-lang alone is not honoured by the widget script.
-    (window as unknown as { CUSDIS_LOCALE?: unknown }).CUSDIS_LOCALE = CUSDIS_ZH_CN_LOCALE;
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    textarea.style.height = "auto";
+    textarea.style.height = `${Math.min(Math.max(textarea.scrollHeight, 44), 260)}px`;
+  }, [body, replyTo, expanded]);
 
-    // data-theme="auto" would follow the OS scheme; the reader's own toggle is
-    // the source of truth here, so keep the widget in sync with main[data-theme].
-    const cusdisApi = () => (
-      window as unknown as {
-        CUSDIS?: { renderTo?: (el: HTMLElement) => void; setTheme?: (theme: string) => void };
-      }
-    ).CUSDIS;
-    const readerTheme = () => {
-      const main = container.closest("main[data-theme]") as HTMLElement | null;
-      return main?.dataset.theme === "dark" ? "dark" : "light";
-    };
-    // The widget sets color-scheme: dark on its document, which makes the
-    // browser paint an opaque dark canvas behind the transparent content —
-    // visible as a tinted block against the reading page. Sync the iframe
-    // canvas with the reader's own background colour to blend it in.
-    const syncWidgetCanvas = () => {
-      const iframe = container.querySelector("iframe") as HTMLIFrameElement | null;
-      const doc = iframe?.contentDocument;
-      if (!doc?.documentElement) return;
-      const reader = container.closest("main[data-theme]");
-      const computed = reader ? getComputedStyle(reader).backgroundColor : "rgba(0, 0, 0, 0)";
-      const solid = computed !== "rgba(0, 0, 0, 0)" && computed !== "transparent"
-        ? computed
-        : readerTheme() === "dark"
-          ? "rgb(13, 13, 18)"
-          : "rgb(255, 255, 255)";
-      doc.documentElement.style.backgroundColor = solid;
-    };
+  const loginHref = () => {
+    if (typeof window === "undefined") return resolve("/auth/x/start");
+    const returnTo = `${window.location.pathname}${window.location.search}`;
+    return resolve(`/auth/x/start?return_to=${encodeURIComponent(returnTo)}`);
+  };
 
-    const applyTheme = () => {
-      const theme = readerTheme();
-      container.dataset.theme = theme;
-      const cusdis = cusdisApi();
-      if (cusdis?.setTheme) cusdis.setTheme(theme);
-      syncWidgetCanvas();
-    };
-    applyTheme();
-    const themeObserver = new MutationObserver(applyTheme);
-    const readerMain = container.closest("main[data-theme]");
-    if (readerMain) {
-      themeObserver.observe(readerMain, { attributes: true, attributeFilter: ["data-theme"] });
+  const startLogin = () => {
+    // Mark the reopen intent before the page unloads; the callback redirect
+    // brings the reader back to a thread that is already open.
+    try {
+      window.sessionStorage.setItem(REOPEN_FLAG, pageId);
+    } catch {
+      // Private mode can refuse storage; the reader just gets the pill again.
     }
+    window.location.href = loginHref();
+  };
 
-    // The widget's fields, labels and buttons render large (16px, 96px box);
-    // compact them so the thread does not dominate the page, keep the M3
-    // shapes, and make the reply box single-line that grows with input.
-    const widgetStyles = () => {
-      const iframe = container.querySelector("iframe") as HTMLIFrameElement | null;
-      const doc = iframe?.contentDocument;
-      if (!iframe || !doc?.head) return;
-      if (doc.getElementById("kira-comment-shape")) return;
-      const style = doc.createElement("style");
-      style.id = "kira-comment-shape";
-      const documentStyles = [
-        // The widget doc must never grow its own scrollbar: between the
-        // srcdoc swap and the next height tune the iframe can be a few
-        // pixels short, which surfaces as an inner scrollbar beside the
-        // fields. Clamp the doc; the height tune follows within one poll.
-        "html, body { overflow: hidden !important; }",
-        "input, textarea { border-radius: 12px !important; }",
-        "button { border-radius: 9999px !important; }",
-        "input:focus, textarea:focus { outline-offset: 2px; }",
-        "label { margin-bottom: 4px !important; }",
-        "label, button { font-size: 13px !important; }",
-        "input, textarea { font-size: 14px !important; }",
-        "input { padding: 6px 10px !important; }",
-        // Single-line start; the input listener grows it, so never scroll.
-        "textarea { height: 36px !important; min-height: 36px !important; max-height: 240px !important; padding: 8px 10px !important; resize: none !important; overflow-y: hidden !important; }",
-        "button { padding: 6px 14px !important; }",
-        "div.grid.grid-cols-2.gap-4 { gap: 8px !important; }",
-        // The form rows only; :has keeps comment lists (same grid classes) intact.
-        "div.grid.grid-cols-1.gap-4:has(textarea) { gap: 8px !important; }",
-      ].join("\n");
-      style.textContent = documentStyles;
-      doc.head.appendChild(style);
-      // The host page already renders the comment list; hide the widget's own
-      // copy so opening the thread never doubles or reloads it.
-      if (!doc.getElementById("kira-widget-list-hidden")) {
-        const listHidden = doc.createElement("style");
-        listHidden.id = "kira-widget-list-hidden";
-        listHidden.textContent = "div.mt-4.px-1 { display: none !important; }";
-        doc.head.appendChild(listHidden);
-      }
-    };
-
-    // Grow the single-line reply box with the reader's input (no inner
-    // scrollbar); marker keeps the binding idempotent across re-tunes and
-    // fresh documents. Re-tuning on input avoids the poll window where the
-    // taller box would briefly scroll inside the iframe.
-    const bindAutoGrow = () => {
-      const iframe = container.querySelector("iframe") as HTMLIFrameElement | null;
-      const doc = iframe?.contentDocument;
-      const textarea = doc?.querySelector("textarea") as HTMLTextAreaElement | null;
-      if (!textarea || (textarea as unknown as { __kiraGrow?: boolean }).__kiraGrow) return;
-      textarea.addEventListener("input", () => {
-        textarea.style.height = "auto";
-        textarea.style.height = `${Math.min(textarea.scrollHeight, 240)}px`;
-        tuneHeight();
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const text = body.trim();
+    if (!text || pending) return;
+    if (!viewer.loggedIn) {
+      setNotice(COMMENT_COPY.loginRequired);
+      return;
+    }
+    setPending(true);
+    setNotice("");
+    try {
+      const response = await fetch(resolve("/api/comments"), {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pageId,
+          pageUrl,
+          pageTitle,
+          body: text,
+          parentId: replyTo?.id,
+        }),
       });
-      (textarea as unknown as { __kiraGrow?: boolean }).__kiraGrow = true;
-    };
-
-    // Hard backstop: if the widget ever ends up taller than the iframe (any
-    // race, old build, odd font timing) a scrollbar appears inside; the first
-    // scroll event re-tunes and the height snaps back to the content.
-    const bindScrollBackstop = () => {
-      const iframe = container.querySelector("iframe") as HTMLIFrameElement | null;
-      const doc = iframe?.contentDocument;
-      if (!doc || (doc as unknown as { __kiraScrollGuard?: boolean }).__kiraScrollGuard) return;
-      doc.addEventListener("scroll", () => tuneHeight(), { passive: true });
-      (doc as unknown as { __kiraScrollGuard?: boolean }).__kiraScrollGuard = true;
-    };
-
-    // The widget never posts its content height back (its resize messages do
-    // not reach this page), so the iframe would stay pinned at 150px with an
-    // inner scrollbar. Tune the iframe to the inner document height instead.
-    let observedBody: HTMLElement | null = null;
-    let heightObserver: MutationObserver | null = null;
-    let resizeObserver: ResizeObserver | null = null;
-    const tuneHeight = () => {
-      widgetStyles();
-      bindAutoGrow();
-      bindScrollBackstop();
-      syncWidgetCanvas();
-      const iframe = container.querySelector("iframe") as HTMLIFrameElement | null;
-      const doc = iframe?.contentDocument;
-      if (!iframe || !doc?.body) return;
-      // The widget re-renders its body as it works (submitting a comment swaps
-      // in a confirmation message), so mirror height changes the moment they
-      // land — waiting for the poll below is what let the inner scrollbar
-      // flash for up to a second and a half. Re-arm the observer whenever the
-      // inner document is replaced (e.g. the srcdoc reloads after render).
-      if (doc.body !== observedBody) {
-        heightObserver?.disconnect();
-        resizeObserver?.disconnect();
-        heightObserver = new MutationObserver(tuneHeight);
-        heightObserver.observe(doc.body, {
-          childList: true,
-          subtree: true,
-          characterData: true,
-        });
-        // Font loading and image decoding grow the widget content without any
-        // DOM mutation, which MutationObserver cannot see. Observe the body
-        // (its box grows with the content); observing documentElement would
-        // track the iframe viewport instead, which never changes.
-        const frameWin = iframe.contentWindow as (Window & { ResizeObserver?: typeof ResizeObserver }) | null;
-        if (frameWin?.ResizeObserver) {
-          resizeObserver = new frameWin.ResizeObserver(() => tuneHeight());
-          resizeObserver.observe(doc.body);
-        }
-        observedBody = doc.body;
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.error ?? String(response.status));
       }
-      // The taller of the two boxes: some widget states grow the html box
-      // beyond the body (margins, a swapped root), and body-only tuning
-      // leaves the iframe short and the doc scrolling inside it.
-      const available = Math.max(
-        48,
-        Math.min(2400, Math.ceil(Math.max(doc.body?.scrollHeight ?? 0, doc.documentElement?.scrollHeight ?? 0))),
-      );
-      if (iframe.style.height !== `${available}px`) {
-        iframe.style.height = `${available}px`;
-      }
-      // If the panel ever holds a fixed px height (stale state, interrupted
-      // tween) the widget content would scroll inside it; nudge it to auto.
-      const panel = container.parentElement as HTMLElement | null;
-      if (panel && panel.style.height && panel.style.height !== "auto") {
-        panel.style.height = "auto";
-      }
-    };
-    // Polling stays as a fallback for height changes that mutate no DOM (font
-    // loading, images decoding)…
-    const heightTimer = window.setInterval(tuneHeight, 1500);
-    // …while the call below sizes the iframe before the first poll fires, and
-    // the observer makes content-driven changes instant.
-    tuneHeight();
-
-    const cusdis = cusdisApi();
-    if (cusdis?.renderTo) {
-      cusdis.renderTo(container);
-      // The widget swaps its temporary blank document for the real srcdoc one
-      // asynchronously, and armed the observer inside tuneHeight on the
-      // temp document it dies with it — so the first tune above can fix an
-      // empty doc and leave a scrollbar up to the next poll. Re-tune when the
-      // iframe finishes loading (also re-arms the observer on the live body).
-      container.querySelector("iframe")?.addEventListener("load", tuneHeight);
-      tuneHeight();
-      return () => {
-        themeObserver.disconnect();
-        window.clearInterval(heightTimer);
-        heightObserver?.disconnect();
-        resizeObserver?.disconnect();
-      };
+      setBody("");
+      setReplyTo(null);
+      await loadComments();
+    } catch {
+      setNotice(COMMENT_COPY.sendFailed);
+    } finally {
+      setPending(false);
     }
-    const script = document.createElement("script");
-    script.src = CUSDIS_SCRIPT;
-    script.async = true;
-    script.onload = () => {
-      (window as unknown as { CUSDIS?: { renderTo?: (el: HTMLElement) => void } }).CUSDIS?.renderTo?.(container);
-      container.querySelector("iframe")?.addEventListener("load", tuneHeight);
-      tuneHeight();
-    };
-    document.body.appendChild(script);
-    return () => {
-      themeObserver.disconnect();
-      window.clearInterval(heightTimer);
-      heightObserver?.disconnect();
-      resizeObserver?.disconnect();
-    };
-  }, [appId, expanded]);
+  };
 
-  if (!appId) return null;
+  const remove = async (comment: CommentNode) => {
+    if (!window.confirm(COMMENT_COPY.confirmRemove)) return;
+    try {
+      const response = await fetch(resolve(`/api/comments/${encodeURIComponent(comment.id)}/delete`), {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error(String(response.status));
+      await loadComments();
+    } catch {
+      setNotice(COMMENT_COPY.sendFailed);
+    }
+  };
+
+  const reply = (comment: CommentNode) => {
+    setReplyTo(comment);
+    setNotice("");
+    textareaRef.current?.focus();
+  };
+
+  // Rollback switch: no API configured means the site has no comments at all.
+  if (!api || !pageId) return null;
+
+  const composer = (
+    <form onSubmit={submit} className="mt-4">
+      {notice && (
+        <p role="status" className="mb-2 text-label-medium text-text-sub/85">
+          {notice}
+        </p>
+      )}
+      {replyTo && (
+        <div className="mb-2 flex items-center gap-2 text-label-medium text-text-sub/85">
+          <span>回复 @{replyTo.author.name || replyTo.author.username}</span>
+          <button
+            type="button"
+            onClick={() => setReplyTo(null)}
+            className="underline decoration-dotted underline-offset-2"
+          >
+            {COMMENT_COPY.cancel}
+          </button>
+        </div>
+      )}
+      <textarea
+        ref={textareaRef}
+        value={body}
+        onChange={(event) => setBody(event.target.value)}
+        disabled={!viewer.loggedIn}
+        aria-label={replyTo ? COMMENT_COPY.replyPlaceholder : COMMENT_COPY.placeholder}
+        placeholder={
+          viewer.loggedIn
+            ? replyTo
+              ? COMMENT_COPY.replyPlaceholder
+              : COMMENT_COPY.placeholder
+            : COMMENT_COPY.loginRequired
+        }
+        className="comment-composer w-full resize-none rounded-2xl border border-black/10 bg-white/60 px-4 py-3 text-body-large text-text-main outline-none transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+        rows={1}
+      />
+      <div className="mt-2 flex items-center justify-end gap-3">
+        {viewer.loggedIn ? (
+          <button
+            type="submit"
+            disabled={pending || !body.trim()}
+            className="comment-pill rounded-full px-5 py-2.5 text-label-large disabled:opacity-50"
+          >
+            {pending ? COMMENT_COPY.sending : COMMENT_COPY.submit}
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={startLogin}
+            className="comment-pill rounded-full px-5 py-2.5 text-label-large"
+          >
+            {COMMENT_COPY.loginCta}
+          </button>
+        )}
+      </div>
+    </form>
+  );
 
   return (
     <section
       ref={sectionRef}
       className="reading-rule mx-auto mt-[40vh] max-w-[720px] border-t border-black/5 pt-5"
     >
-      <h2 className="mb-3 text-label-large font-medium text-text-main">评论区</h2>
+      <h2 className="mb-3 text-label-large font-medium text-text-main">{COMMENT_COPY.heading}</h2>
       {!expanded && (
         <div
           className={
@@ -458,7 +460,7 @@ export function CommentsSection({
             onClick={openThread}
             className="comment-pill block w-full rounded-full px-6 py-3.5 text-left text-body-large text-text-sub/80 shadow-soft backdrop-blur-md transition-colors duration-300 active:scale-[0.99]"
           >
-            添加公开评论…
+            {COMMENT_COPY.pill}
           </button>
         </div>
       )}
@@ -469,10 +471,17 @@ export function CommentsSection({
         <div className="min-h-0 overflow-hidden">
           {comments && (
             <div className="comment-preview-enter">
-              {comments.length === 0 && (
+              {loadError && (
+                <p role="status" className="mb-3 text-label-medium text-text-sub/60">
+                  {COMMENT_COPY.loadFailed}
+                </p>
+              )}
+              {!loadError && comments.length === 0 && (
                 <p className="mb-3 text-label-medium text-text-sub/60">{emptyLine}</p>
               )}
-              {comments.length > 0 && <CommentList comments={comments} />}
+              {comments.length > 0 && (
+                <CommentList comments={comments} onReply={reply} onRemove={remove} expanded={expanded} />
+              )}
             </div>
           )}
         </div>
@@ -483,19 +492,7 @@ export function CommentsSection({
           style={{ gridTemplateRows: rowOpen ? "1fr" : "0fr" }}
         >
           <div className="min-h-0 overflow-hidden">
-            <div ref={collapsibleRef}>
-              <div
-                id="cusdis_thread"
-                ref={containerRef}
-                data-host="https://cusdis.com"
-                data-app-id={appId}
-                data-page-id={pageId}
-                data-page-url={pageUrl}
-                data-page-title={pageTitle}
-                data-lang="zh-CN"
-                data-theme="auto"
-              />
-            </div>
+            <div ref={composerRef}>{composer}</div>
           </div>
         </div>
       )}
@@ -503,41 +500,87 @@ export function CommentsSection({
   );
 }
 
-// Read-only preview of approved comments while the widget stays lazy.
-function CommentList({ comments }: { comments: CusComment[] }) {
+// Read-only-until-you-click list of the published thread.
+function CommentList({
+  comments,
+  onReply,
+  onRemove,
+  expanded,
+}: {
+  comments: CommentNode[];
+  onReply: (comment: CommentNode) => void;
+  onRemove: (comment: CommentNode) => void;
+  expanded: boolean;
+}) {
   return (
     <ol className="mb-2 mt-3 space-y-4 text-body-large leading-[1.75] text-text-main">
       {comments.map((comment) => (
-        <CommentItem key={comment.id} comment={comment} />
+        <CommentItem
+          key={comment.id}
+          comment={comment}
+          onReply={onReply}
+          onRemove={onRemove}
+          expanded={expanded}
+        />
       ))}
     </ol>
   );
 }
 
-function CommentItem({ comment }: { comment: CusComment }) {
+function CommentItem({
+  comment,
+  onReply,
+  onRemove,
+  expanded,
+}: {
+  comment: CommentNode;
+  onReply: (comment: CommentNode) => void;
+  onRemove: (comment: CommentNode) => void;
+  expanded: boolean;
+}) {
   return (
     <li>
       <div className="mb-0.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
         <span className="text-label-large font-medium text-text-sub">
-          {comment.by_nickname || CUSDIS_ZH_CN_LOCALE.nickname}
+          {comment.author.name || comment.author.username}
         </span>
-        {comment.moderator?.displayName && (
-          <span className="text-label-medium text-primary/80">{CUSDIS_ZH_CN_LOCALE.mod_badge}</span>
+        {comment.author.username && (
+          <span className="text-label-medium text-text-sub/60">@{comment.author.username}</span>
         )}
         {formatCommentDate(comment.createdAt) && (
-          <span className="text-label-medium text-text-sub/60">{formatCommentDate(comment.createdAt)}</span>
+          <span className="text-label-medium text-text-sub/60">
+            {formatCommentDate(comment.createdAt)}
+          </span>
         )}
       </div>
-      {/* Cusdis pre-parses (and sanitizes) comment bodies server-side; the
-          widget renders the same string via its own markup path. */}
+      {/* The server escapes the body and injects only its own <a>/<br>, so
+          this HTML is generated, not reader-supplied markup. */}
       <div
         className="reading-subtle whitespace-pre-wrap [&_a:underline]"
-        dangerouslySetInnerHTML={{ __html: comment.parsedContent ?? comment.content ?? "" }}
+        dangerouslySetInnerHTML={{ __html: comment.bodyHtml }}
       />
-      {comment.replies?.data && comment.replies.data.length > 0 && (
+      {expanded && (
+        <div className="mt-1 flex items-center gap-3 text-label-medium text-text-sub/70">
+          <button type="button" onClick={() => onReply(comment)} className="hover:text-text-main">
+            {COMMENT_COPY.reply}
+          </button>
+          {comment.isMine && (
+            <button type="button" onClick={() => onRemove(comment)} className="hover:text-text-main">
+              {COMMENT_COPY.remove}
+            </button>
+          )}
+        </div>
+      )}
+      {comment.replies.length > 0 && (
         <ul className="comment-reply-thread mt-2 space-y-2 border-l border-black/10 pl-4">
-          {comment.replies.data.map((reply) => (
-            <CommentItem key={reply.id} comment={reply} />
+          {comment.replies.map((reply) => (
+            <CommentItem
+              key={reply.id}
+              comment={reply}
+              onReply={onReply}
+              onRemove={onRemove}
+              expanded={expanded}
+            />
           ))}
         </ul>
       )}

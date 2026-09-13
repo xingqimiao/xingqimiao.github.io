@@ -61,7 +61,7 @@ describe('ReadingArticlePage Chinese boundary', () => {
         {...baseProps}
         contentLanguage="zh-CN"
         contentHtml={longHtml}
-        commentAppId="test-app"
+        commentApiUrl="https://comments.kiramyao.test"
         commentPageId="test-1"
         commentPageUrl="https://kiramyao.com/stories/test-1"
       />,
@@ -77,7 +77,7 @@ describe('ReadingArticlePage Chinese boundary', () => {
         {...baseProps}
         contentLanguage="zh-CN"
         contentHtml={shortHtml}
-        commentAppId="test-app"
+        commentApiUrl="https://comments.kiramyao.test"
         commentPageId="test-2"
         commentPageUrl="https://kiramyao.com/stories/test-2"
       />,
