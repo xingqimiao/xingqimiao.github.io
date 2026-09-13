@@ -491,6 +491,98 @@ body {
   border-color: rgba(255, 255, 255, 0.12);
 }
 
+/* The composer is part of the reading surface, so it follows the reader's own
+ * palette (--kira-* ), never the site tokens: `bg-white/60` here used to paint
+ * a near-white box onto the dark reader, and the site-token border vanished
+ * against it. The box also has to size itself to its content — a textarea with
+ * a fixed height shows a scrollbar track the moment a line wraps, so the JS
+ * height tween switches overflow to visible (hidden) until the cap is hit. */
+.comment-composer {
+  display: block;
+  width: 100%;
+  min-height: 3.25rem;
+  box-sizing: border-box;
+  resize: none;
+  /* Grow first; only scroll once the JS height cap is reached. */
+  overflow-y: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 16px;
+  background-color: rgba(0, 0, 0, 0.035);
+  color: var(--kira-text-main, #121317);
+  padding: 0.75rem 1rem;
+  font: inherit;
+  line-height: 1.5;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.comment-composer::placeholder {
+  color: var(--kira-text-sub, #5f6368);
+  opacity: 0.75;
+}
+
+.comment-composer:hover:not(:disabled) {
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.comment-composer:focus-visible {
+  outline: none;
+  border-color: var(--kira-text-main, #121317);
+  background-color: rgba(0, 0, 0, 0.02);
+  box-shadow: 0 0 0 3px rgba(18, 19, 23, 0.12);
+}
+
+.comment-composer:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.reading-page[data-theme="dark"] .comment-composer {
+  border-color: rgba(255, 255, 255, 0.14);
+  background-color: rgba(255, 255, 255, 0.06);
+  color: var(--kira-text-main, #f4f5f7);
+}
+
+.reading-page[data-theme="dark"] .comment-composer::placeholder {
+  color: var(--kira-text-sub, rgba(244, 245, 247, 0.72));
+}
+
+.reading-page[data-theme="dark"] .comment-composer:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.26);
+}
+
+.reading-page[data-theme="dark"] .comment-composer:focus-visible {
+  border-color: rgba(244, 245, 247, 0.85);
+  background-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(244, 245, 247, 0.16);
+}
+
+/* The primary action inverts the reader's text colour, which reads as one
+ * deliberate control in both palettes without introducing a new accent. */
+.comment-submit {
+  background-color: #121317;
+  color: #ffffff;
+  border: 1px solid transparent;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.comment-submit:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.comment-submit:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.comment-submit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.reading-page[data-theme="dark"] .comment-submit {
+  background-color: #f4f5f7;
+  color: #0d0d12;
+}
+
 /* The comment preview lands after the comments fetch; without motion it
  * pops into place. It rises and fades in while its grid row grows open —
  * the same motion language as the opened thread. The transform is a mount

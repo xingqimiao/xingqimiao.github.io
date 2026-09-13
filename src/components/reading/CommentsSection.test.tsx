@@ -101,6 +101,33 @@ describe('CommentsSection (self-hosted)', () => {
     expect(html).toContain('mx-auto mb-3 max-w-[720px]')
   })
 
+  it('keeps the composer off the site palette so it can follow the reader theme', async () => {
+    // The composer used to carry bg-white/60 + border-black/10, which painted a
+    // near-white box onto the dark reader. Those utilities must stay out; the
+    // reader-scoped .comment-composer rules own its colours instead.
+    const fs = await import('node:fs/promises')
+    const path = await import('node:path')
+    const source = await fs.readFile(
+      path.resolve(process.cwd(), 'src/components/reading/CommentsSection.tsx'),
+      'utf8',
+    )
+    expect(source).toContain('className="comment-composer"')
+    expect(source).not.toMatch(/comment-composer[^"]*bg-white/)
+    expect(source).not.toMatch(/comment-composer[^"]*border-black/)
+  })
+
+  it('ships reader-dark composer rules in the stylesheet', async () => {
+    const fs = await import('node:fs/promises')
+    const path = await import('node:path')
+    const css = await fs.readFile(path.resolve(process.cwd(), 'src/app/globals.css'), 'utf8')
+    // Both palettes must style the composer, or one of them gets a foreign box.
+    expect(css).toContain('.comment-composer {')
+    expect(css).toMatch(/\.reading-page\[data-theme="dark"\] \.comment-composer \{/)
+    expect(css).toMatch(/\.comment-composer:focus-visible/)
+    // It grows first; scrolling only appears once the JS cap is reached.
+    expect(css).toMatch(/\.comment-composer \{[^}]*overflow-y: hidden/)
+  })
+
   it('keys the pill colours off the reader theme, not the site theme', () => {
     // The reading page manages its own light/dark palette through
     // main[data-theme]; the site-wide `.dark` class is independent of that

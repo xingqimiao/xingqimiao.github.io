@@ -72,6 +72,9 @@ const formatCommentDate = (iso?: string) => {
 const REOPEN_FLAG = "kira-comments-open";
 const OPEN_QUERY = "comments";
 
+// Past this the composer stops growing and scrolls instead.
+const COMPOSER_MAX_HEIGHT = 260;
+
 // The grow-open animations must wait two frames: the browser has to commit the
 // 0fr track before it can transition to 1fr, or the growth snaps.
 const nextFrame = (cb: () => void) =>
@@ -297,14 +300,34 @@ export function CommentsSection({
     };
   }, [expanded]);
 
-  // Grow the reply box with the reader's input so long comments never scroll
-  // inside a 3-line box.
-  useEffect(() => {
+  // Fit the box to its content so no scrollbar ever appears inside it. The
+  // textarea is border-box, while scrollHeight measures the padding box — so
+  // the border has to be added back or the box ends up exactly that many
+  // pixels short and the browser draws a scrollbar track. Once the content
+  // passes the cap, scrolling is the intended behaviour instead.
+  const autoGrow = useCallback(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
+    const styles = window.getComputedStyle(textarea);
+    const border =
+      (parseFloat(styles.borderTopWidth) || 0) + (parseFloat(styles.borderBottomWidth) || 0);
     textarea.style.height = "auto";
-    textarea.style.height = `${Math.min(Math.max(textarea.scrollHeight, 44), 260)}px`;
-  }, [body, replyTo, expanded]);
+    const needed = textarea.scrollHeight + border;
+    textarea.style.height = `${Math.min(needed, COMPOSER_MAX_HEIGHT)}px`;
+    textarea.style.overflowY = needed > COMPOSER_MAX_HEIGHT ? "auto" : "hidden";
+  }, []);
+
+  // Typing, switching to reply mode and opening the thread all change the
+  // content; a viewport resize rewraps it. The box tracks each of them.
+  useEffect(() => {
+    autoGrow();
+  }, [body, replyTo, expanded, autoGrow]);
+
+  useEffect(() => {
+    const onResize = () => autoGrow();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [autoGrow]);
 
   const loginHref = () => {
     if (typeof window === "undefined") return resolve("/auth/x/start");
@@ -415,7 +438,7 @@ export function CommentsSection({
               : COMMENT_COPY.placeholder
             : COMMENT_COPY.loginRequired
         }
-        className="comment-composer w-full resize-none rounded-2xl border border-black/10 bg-white/60 px-4 py-3 text-body-large text-text-main outline-none transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+        className="comment-composer"
         rows={1}
       />
       <div className="mt-2 flex items-center justify-end gap-3">
@@ -423,7 +446,7 @@ export function CommentsSection({
           <button
             type="submit"
             disabled={pending || !body.trim()}
-            className="comment-pill rounded-full px-5 py-2.5 text-label-large disabled:opacity-50"
+            className="comment-pill comment-submit rounded-full px-5 py-2.5 text-label-large"
           >
             {pending ? COMMENT_COPY.sending : COMMENT_COPY.submit}
           </button>
