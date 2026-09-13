@@ -9,6 +9,7 @@ import {
   storeLanguage,
 } from "@/i18n/language";
 import { prefersSiteDark } from "@/components/layout/ThemeToggle";
+import { htmlTextLength } from "@/lib/storyListPresentation";
 import { LanguageToggle } from "./LanguageToggle";
 import { CommentsSection } from "./CommentsSection";
 
@@ -180,10 +181,7 @@ export function ReadingArticlePage({
             pageId={commentPageId ?? ""}
             pageUrl={commentPageUrl ?? ""}
             pageTitle={shownTitle}
-            shortPage={
-              shownContentHtml.replace(/<[^>]+>/g, "").trim().length <
-              (coverName ? 120 : 260)
-            }
+            shortPage={htmlTextLength(shownContentHtml) < (coverName ? 120 : 260)}
           />
         ) : null}
 

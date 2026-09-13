@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  htmlTextLength,
   localizeStoryItems,
   storyListCopy,
   stripWarningBlockquotes,
@@ -34,6 +35,38 @@ describe('Stories list presentation and filtering', () => {
   it('classifies story with >=100 narrative characters as long-form', () => {
     const longNarrative = '<p>' + '长篇正文字符'.repeat(25) + '</p>'
     expect(isLongFormStoryContent(longNarrative)).toBe(true)
+  })
+
+  describe('htmlTextLength', () => {
+    it('counts text and ignores tags', () => {
+      expect(htmlTextLength('<p>四个字</p>')).toBe(3)
+      expect(htmlTextLength('')).toBe(0)
+      expect(htmlTextLength(undefined as unknown as string)).toBe(0)
+    })
+
+    it('counts a fragment that includes a warning blockquote', () => {
+      // The article page derived shortPage from the raw fragment, warning and
+      // all. Stripping blockquotes here would move the pill between floating
+      // and in-flow, so this must keep counting them.
+      const withWarning = '<blockquote><p>警告两字</p></blockquote><p>正文</p>'
+      expect(htmlTextLength(withWarning)).toBe('警告两字正文'.length)
+    })
+
+    it('does not let one pass swallow a second tag, or leave a raw "<" behind', () => {
+      // The previous inline replace(/<[^>]+>/g, '') could match across two tags
+      // and consume the opening of the next one.
+      expect(htmlTextLength('<a<b>')).toBe(0)
+      // Blockquotes are removed before measuring, but a stray '<' must never
+      // be counted as if it were text.
+      expect(htmlTextLength('text<script')).toBe('text'.length)
+      expect(getStoryNarrativeText('<<script>x</script>')).not.toContain('<')
+    })
+
+    it('removes every tag even when removal exposes a new one', () => {
+      // Repeated application is what makes this safe for measuring.
+      const hostile = '<div><p><span>字</span></p></div>'
+      expect(htmlTextLength(hostile)).toBe(1)
+    })
   })
 
   it('always localizes story cards from the Chinese source', () => {

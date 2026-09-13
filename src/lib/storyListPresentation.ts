@@ -56,14 +56,50 @@ export function stripWarningBlockquotes(html: string): string {
   return html.replace(/<blockquote[\s\S]*?<\/blockquote>/gi, '').trim()
 }
 
+/**
+ * Removes tags by applying a single-tag pattern repeatedly.
+ *
+ * Two deliberate choices, both of which the naive `replace(/<[^>]+>/g, '')`
+ * gets wrong. The class is `[^<>]*`, not `[^>]+`, so one match can never span
+ * two tags and swallow the opening of the second (`'<a<b>'`). And the pass
+ * repeats until the text stops changing, so nothing survives for a later pass
+ * to expose. A bare `<` with no closing `>` is not a tag, so it is dropped
+ * instead of being counted as text.
+ *
+ * This is a measuring helper, not a sanitiser: its result is only ever used
+ * for length and word-count classification, and must never be rendered.
+ */
+function stripHtmlTags(html: string, separator: string): string {
+  let text = String(html ?? '')
+  for (;;) {
+    const next = text.replace(/<[^<>]*>/g, separator)
+    if (next === text) break
+    text = next
+  }
+  const open = text.lastIndexOf('<')
+  if (open !== -1 && text.indexOf('>', open) === -1) text = text.slice(0, open)
+  return text
+}
+
 export function getStoryNarrativeText(html: string): string {
-  const cleanHtml = stripWarningBlockquotes(html)
-  return cleanHtml.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+  return stripHtmlTags(stripWarningBlockquotes(html), ' ').replace(/\s+/g, ' ').trim()
+}
+
+/**
+ * Character count of a fragment's text, with tags removed.
+ *
+ * Measures the raw fragment, including any warning blockquote: this replaced an
+ * inline `replace(/<[^>]+>/g, '').length` and is meant to preserve its result
+ * exactly. Changing what is counted here would silently move the pill between
+ * floating and in-flow, so blockquote stripping stays in
+ * getStoryNarrativeText, where it belongs.
+ */
+export function htmlTextLength(html: string): number {
+  return stripHtmlTags(html, '').trim().length
 }
 
 export function isLongFormStoryContent(html: string): boolean {
-  const text = getStoryNarrativeText(html).replace(/\s+/g, '')
-  return text.length >= 100
+  return getStoryNarrativeText(html).replace(/\s+/g, '').length >= 100
 }
 
 export function localizeStoryItems<T extends LocalizableArticle>(
