@@ -39,6 +39,9 @@ const restoreWindowGlobals = () => {
   Object.defineProperty(window, 'history', { configurable: true, value: ORIGINAL_HISTORY })
   Object.defineProperty(window, 'scrollTo', { configurable: true, value: ORIGINAL_SCROLL_TO })
   window.sessionStorage.clear()
+  // The nickname is remembered in localStorage; leaving it behind would change
+  // what the next test sees as the field's default.
+  window.localStorage.clear()
 }
 
 const emptyPayload = { viewer: { loggedIn: false }, comments: [] }
@@ -814,5 +817,84 @@ describe('CommentsSection (self-hosted) nickname', () => {
     await mount()
     await expand()
     expect(nicknameInput()).toBeNull()
+  })
+})
+
+describe('CommentsSection (self-hosted) nickname default', () => {
+  let root: Root
+  let container: HTMLDivElement
+
+  const mount = async () => {
+    container = document.createElement('div')
+    document.body.appendChild(container)
+    root = createRoot(container)
+    await act(async () => {
+      root.render(<CommentsSection {...base} />)
+    })
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0))
+    })
+  }
+
+  const expand = async () => {
+    const trigger = Array.from(container.querySelectorAll('button')).find(
+      (b) => b.textContent === COMMENT_COPY.pill,
+    ) as HTMLButtonElement
+    await act(async () => {
+      trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 200))
+    })
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0))
+    })
+  }
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.restoreAllMocks()
+    // restoreWindowGlobals also clears localStorage, which matters here: a name
+    // remembered by another test would otherwise become this test's "default".
+    restoreWindowGlobals()
+    container?.remove()
+    if (root) {
+      void act(() => {
+        root.unmount()
+      })
+    }
+  })
+
+  it('defaults to the X display name, which the reader may then change', async () => {
+    stubFetch({ viewer: { loggedIn: true, identity: 'KiraMyao🐱' }, comments: [] })
+    await mount()
+    await expand()
+    const input = container.querySelector('#kira-comment-nickname') as HTMLInputElement
+    expect(input.value).toBe('KiraMyao🐱')
+    expect(input.disabled).toBe(false)
+  })
+
+  it('never derives the nickname from an account handle', async () => {
+    // The viewer payload carries no handle at all, so there is nothing to fall
+    // back to: an account with no display name starts blank rather than exposing
+    // an identifier as the published name.
+    stubFetch({ viewer: { loggedIn: true, identity: '' }, comments: [] })
+    await mount()
+    await expand()
+    const input = container.querySelector('#kira-comment-nickname') as HTMLInputElement
+    expect(input.value).toBe('')
+    expect(input.placeholder).toBe(COMMENT_COPY.nicknamePlaceholder)
+  })
+
+  it('publishes nothing but the nickname for a comment', async () => {
+    // A comment rendered from the API has only a name; there is no handle in the
+    // payload for the UI to display even by accident.
+    stubFetch({
+      viewer: { loggedIn: false },
+      comments: [comment({ author: { name: '匿名的猫' } })],
+    })
+    await mount()
+    expect(container.textContent).toContain('匿名的猫')
+    expect(container.textContent).not.toContain('@')
   })
 })

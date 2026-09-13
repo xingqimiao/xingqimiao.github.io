@@ -224,9 +224,10 @@ export function CommentsSection({
   );
 
   // What the field should show: whatever the reader has typed, otherwise the
-  // name they used last time, otherwise their own display name. Computed rather
-  // than synced into state, so appearing after login does not need an effect
-  // (and cannot cascade a render).
+  // name they used last time, otherwise their X display name. `viewer.identity`
+  // is the display name only — the server never sends the handle — so this
+  // default can never be an account identifier. Computed rather than synced into
+  // state, so appearing after login needs no effect (and cannot cascade).
   const rememberedNickname = (() => {
     if (nicknameTouched) return nickname;
     const stored = (() => {
