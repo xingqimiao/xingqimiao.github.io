@@ -497,6 +497,40 @@ body {
  * against it. The box also has to size itself to its content — a textarea with
  * a fixed height shows a scrollbar track the moment a line wraps, so the JS
  * height tween switches overflow to visible (hidden) until the cap is hit. */
+.comment-nickname {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background-color: rgba(0, 0, 0, 0.035);
+  color: var(--kira-text-main, #121317);
+  font: inherit;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.comment-nickname::placeholder {
+  color: var(--kira-text-sub, #5f6368);
+  opacity: 0.75;
+}
+
+.comment-nickname:focus-visible {
+  outline: none;
+  border-color: var(--kira-text-main, #121317);
+  box-shadow: 0 0 0 3px rgba(18, 19, 23, 0.12);
+}
+
+.reading-page[data-theme="dark"] .comment-nickname {
+  border-color: rgba(255, 255, 255, 0.14);
+  background-color: rgba(255, 255, 255, 0.06);
+  color: var(--kira-text-main, #f4f5f7);
+}
+
+.reading-page[data-theme="dark"] .comment-nickname::placeholder {
+  color: var(--kira-text-sub, rgba(244, 245, 247, 0.72));
+}
+
+.reading-page[data-theme="dark"] .comment-nickname:focus-visible {
+  border-color: rgba(244, 245, 247, 0.85);
+  box-shadow: 0 0 0 3px rgba(244, 245, 247, 0.16);
+}
+
 .comment-composer {
   display: block;
   width: 100%;
@@ -513,6 +547,14 @@ body {
   font: inherit;
   line-height: 1.5;
   transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.comment-avatar {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.reading-page[data-theme="dark"] .comment-avatar {
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
 .comment-composer::placeholder {
@@ -542,7 +584,15 @@ body {
   color: var(--kira-text-main, #f4f5f7);
 }
 
-.reading-page[data-theme="dark"] .comment-composer::placeholder {
+.reading-page[data-theme="dark"] .comment-avatar {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.reading-page[data-theme="dark"] .comment-avatar {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.comment-composer::placeholder {
   color: var(--kira-text-sub, rgba(244, 245, 247, 0.72));
 }
 

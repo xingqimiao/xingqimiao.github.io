@@ -49,7 +49,7 @@ const comment = (overrides: Record<string, unknown> = {}) => ({
   createdAt: '2026-09-01T10:00:00.000Z',
   edited: false,
   isMine: false,
-  author: { username: 'neko', name: '猫猫', avatar: null },
+  author: { name: '猫猫' },
   replies: [],
   ...overrides,
 })
@@ -226,7 +226,8 @@ describe('CommentsSection (self-hosted) thread', () => {
     await mount()
     expect(container.textContent).toContain('第一句话')
     expect(container.textContent).toContain('猫猫')
-    expect(container.textContent).toContain('@neko')
+    // No X handle is shown for a comment: the nickname is the identity.
+    expect(container.textContent).not.toContain('@')
     expect(container.textContent).toContain('2026-09-01')
   })
 
@@ -266,7 +267,7 @@ describe('CommentsSection (self-hosted) thread', () => {
             comment({
               id: 'c2',
               bodyHtml: '回复你',
-              author: { username: 'other', name: '别人', avatar: null },
+              author: { name: '别人' },
             }),
           ],
         }),
@@ -352,7 +353,7 @@ describe('CommentsSection (self-hosted) thread', () => {
   })
 
   it('reopens the thread when the reader comes back from X', async () => {
-    stubFetch({ viewer: { loggedIn: true, username: 'neko' }, comments: [comment({ isMine: true })] })
+    stubFetch({ viewer: { loggedIn: true, identity: '猫猫' }, comments: [comment({ isMine: true })] })
     window.sessionStorage.setItem('kira-comments-open', base.pageId)
     await mount()
     // No pill means openThread already ran on mount.
@@ -363,7 +364,7 @@ describe('CommentsSection (self-hosted) thread', () => {
   })
 
   it('reopens from the ?comments=1 query marker when storage is empty', async () => {
-    stubFetch({ viewer: { loggedIn: true, username: 'neko' }, comments: [] })
+    stubFetch({ viewer: { loggedIn: true, identity: '猫猫' }, comments: [] })
     Object.defineProperty(window, 'location', {
       configurable: true,
       value: { pathname: '/stories/47228326', search: '?comments=1', hash: '', href: 'https://kiramyao.com/stories/47228326?comments=1' },
@@ -404,7 +405,7 @@ describe('CommentsSection (self-hosted) thread', () => {
         })
       }
       return new Response(
-        JSON.stringify({ viewer: { loggedIn: true, username: 'neko' }, comments: [comment()] }),
+        JSON.stringify({ viewer: { loggedIn: true, identity: '猫猫' }, comments: [comment()] }),
         { status: 200, headers: { 'Content-Type': 'application/json' } },
       )
     })
@@ -440,7 +441,7 @@ describe('CommentsSection (self-hosted) thread', () => {
           return new Response(JSON.stringify({ error: 'too many comments' }), { status: 429 })
         }
         return new Response(
-          JSON.stringify({ viewer: { loggedIn: true, username: 'neko' }, comments: [] }),
+          JSON.stringify({ viewer: { loggedIn: true, identity: '猫猫' }, comments: [] }),
           { status: 200, headers: { 'Content-Type': 'application/json' } },
         )
       }),
@@ -461,14 +462,14 @@ describe('CommentsSection (self-hosted) thread', () => {
 
   it('only offers delete on the reader’s own comments', async () => {
     stubFetch({
-      viewer: { loggedIn: true, username: 'neko' },
+      viewer: { loggedIn: true, identity: '猫猫' },
       comments: [
         comment({ id: 'mine', bodyHtml: '我的', isMine: true }),
         comment({
           id: 'theirs',
           bodyHtml: '别人的',
           isMine: false,
-          author: { username: 'other', name: '别人', avatar: null },
+          author: { name: '别人' },
         }),
       ],
     })
@@ -486,7 +487,7 @@ describe('CommentsSection (self-hosted) thread', () => {
         return new Response(JSON.stringify({ comment: { id: 'r1' } }), { status: 201 })
       }
       return new Response(
-        JSON.stringify({ viewer: { loggedIn: true, username: 'neko' }, comments: [comment()] }),
+        JSON.stringify({ viewer: { loggedIn: true, identity: '猫猫' }, comments: [comment()] }),
         { status: 200, headers: { 'Content-Type': 'application/json' } },
       )
     })
@@ -499,7 +500,7 @@ describe('CommentsSection (self-hosted) thread', () => {
         new MouseEvent('click', { bubbles: true }),
       )
     })
-    expect(container.textContent).toContain('回复 @猫猫')
+    expect(container.textContent).toContain('回复 猫猫')
 
     const textarea = container.querySelector('textarea') as HTMLTextAreaElement
     expect(textarea.placeholder).toBe(COMMENT_COPY.replyPlaceholder)
@@ -547,5 +548,271 @@ describe('CommentsSection (self-hosted) thread', () => {
     })
     await mount()
     expect(container.textContent).toContain(COMMENT_COPY.loginBlocked)
+  })
+})
+
+describe('CommentsSection (self-hosted) logout', () => {
+  let root: Root
+  let container: HTMLDivElement
+
+  const mount = async () => {
+    container = document.createElement('div')
+    document.body.appendChild(container)
+    root = createRoot(container)
+    await act(async () => {
+      root.render(<CommentsSection {...base} />)
+    })
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0))
+    })
+  }
+
+  const expand = async () => {
+    const trigger = Array.from(container.querySelectorAll('button')).find(
+      (b) => b.textContent === COMMENT_COPY.pill,
+    ) as HTMLButtonElement
+    await act(async () => {
+      trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 200))
+    })
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0))
+    })
+  }
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.restoreAllMocks()
+    restoreWindowGlobals()
+    container?.remove()
+    if (root) {
+      void act(() => {
+        root.unmount()
+      })
+    }
+  })
+
+  it('offers a way out once signed in, and names the account', async () => {
+    stubFetch({ viewer: { loggedIn: true, identity: '猫猫' }, comments: [] })
+    await mount()
+    await expand()
+    const text = container.textContent ?? ''
+    expect(text).toContain(COMMENT_COPY.logout)
+    // Logging out is only meaningful if the reader can see who they are.
+    expect(text).toContain('猫猫')
+  })
+
+  it('signed-out readers see login, never logout', async () => {
+    stubFetch(emptyPayload)
+    await mount()
+    await expand()
+    const text = container.textContent ?? ''
+    expect(text).toContain(COMMENT_COPY.loginCta)
+    expect(text).not.toContain(COMMENT_COPY.logout)
+  })
+
+  it('posts to the logout endpoint and returns the form to signed-out', async () => {
+    let signedIn = true
+    const fetchMock = vi.fn(async (input: unknown, init?: RequestInit) => {
+      const url = String(input)
+      if (url.endsWith('/auth/logout')) {
+        expect(init?.method).toBe('POST')
+        signedIn = false
+        return new Response(JSON.stringify({ ok: true }), { status: 200 })
+      }
+      return new Response(
+        JSON.stringify({
+          viewer: signedIn ? { loggedIn: true, identity: '猫猫' } : { loggedIn: false },
+          comments: [],
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      )
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    await mount()
+    await expand()
+
+    const logoutButton = Array.from(container.querySelectorAll('button')).find(
+      (b) => b.textContent === COMMENT_COPY.logout,
+    ) as HTMLButtonElement
+    expect(logoutButton).toBeTruthy()
+    await act(async () => {
+      logoutButton.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0))
+    })
+
+    expect(fetchMock.mock.calls.some(([u]) => String(u).endsWith('/auth/logout'))).toBe(true)
+    // The form must actually flip back, not just hide the button.
+    expect(container.textContent).toContain(COMMENT_COPY.loginCta)
+    expect(container.textContent).not.toContain(COMMENT_COPY.logout)
+  })
+
+  it('says so if logging out fails, instead of silently staying signed in', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: unknown) => {
+        if (String(input).endsWith('/auth/logout')) return new Response('{}', { status: 500 })
+        return new Response(
+          JSON.stringify({ viewer: { loggedIn: true, identity: '猫猫' }, comments: [] }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        )
+      }),
+    )
+    await mount()
+    await expand()
+    const logoutButton = Array.from(container.querySelectorAll('button')).find(
+      (b) => b.textContent === COMMENT_COPY.logout,
+    ) as HTMLButtonElement
+    await act(async () => {
+      logoutButton.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0))
+    })
+    expect(container.textContent).toContain(COMMENT_COPY.sendFailed)
+  })
+})
+
+describe('CommentsSection (self-hosted) nickname', () => {
+  let root: Root
+  let container: HTMLDivElement
+
+  const mount = async () => {
+    container = document.createElement('div')
+    document.body.appendChild(container)
+    root = createRoot(container)
+    await act(async () => {
+      root.render(<CommentsSection {...base} />)
+    })
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0))
+    })
+  }
+
+  const expand = async () => {
+    const trigger = Array.from(container.querySelectorAll('button')).find(
+      (b) => b.textContent === COMMENT_COPY.pill,
+    ) as HTMLButtonElement
+    await act(async () => {
+      trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 200))
+    })
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0))
+    })
+  }
+
+  const nicknameInput = () => container.querySelector('#kira-comment-nickname') as HTMLInputElement
+
+  const typeInto = async (el: HTMLInputElement | HTMLTextAreaElement, value: string) => {
+    const proto = el instanceof HTMLTextAreaElement ? window.HTMLTextAreaElement : window.HTMLInputElement
+    const setter = Object.getOwnPropertyDescriptor(proto.prototype, 'value')!.set!
+    await act(async () => {
+      setter.call(el, value)
+      el.dispatchEvent(new Event('input', { bubbles: true }))
+    })
+  }
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.restoreAllMocks()
+    restoreWindowGlobals()
+    container?.remove()
+    if (root) {
+      void act(() => {
+        root.unmount()
+      })
+    }
+  })
+
+  it('offers a nickname field, defaulting to the reader’s own name', async () => {
+    stubFetch({ viewer: { loggedIn: true, identity: '猫猫' }, comments: [] })
+    await mount()
+    await expand()
+    const input = nicknameInput()
+    expect(input).toBeTruthy()
+    // Convenient default, not a locked-in handle.
+    expect(input.value).toBe('猫猫')
+    expect(container.textContent).toContain(COMMENT_COPY.nicknameLabel)
+    expect(container.textContent).toContain(COMMENT_COPY.nicknameHint)
+  })
+
+  it('posts the typed nickname, not the account name', async () => {
+    const fetchMock = vi.fn(async (_input: unknown, init?: RequestInit) => {
+      if (init?.method === 'POST') {
+        return new Response(JSON.stringify({ comment: { id: 'n' } }), { status: 201 })
+      }
+      return new Response(
+        JSON.stringify({ viewer: { loggedIn: true, identity: '猫猫' }, comments: [] }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      )
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    await mount()
+    await expand()
+
+    await typeInto(nicknameInput(), '  匿名小鱼干  ')
+    await typeInto(container.querySelector('textarea') as HTMLTextAreaElement, '你好')
+    await act(async () => {
+      (container.querySelector('form') as HTMLFormElement).dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true }),
+      )
+    })
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0))
+    })
+
+    const post = fetchMock.mock.calls.find(([, init]) => (init as RequestInit)?.method === 'POST')
+    const body = JSON.parse((post![1] as RequestInit).body as string)
+    expect(body.displayName).toBe('匿名小鱼干')
+    // The account identity must never be sent as the published name.
+    expect(body.displayName).not.toBe('猫猫')
+    expect(JSON.stringify(body)).not.toContain('identity')
+  })
+
+  it('refuses an over-long nickname instead of silently trimming it', async () => {
+    const fetchMock = vi.fn(async (_input: unknown, init?: RequestInit) => {
+      if (init?.method === 'POST') return new Response('{}', { status: 201 })
+      return new Response(
+        JSON.stringify({ viewer: { loggedIn: true, identity: '猫猫' }, comments: [] }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      )
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    await mount()
+    await expand()
+    await typeInto(nicknameInput(), '喵'.repeat(33))
+    await typeInto(container.querySelector('textarea') as HTMLTextAreaElement, '内容')
+    await act(async () => {
+      (container.querySelector('form') as HTMLFormElement).dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true }),
+      )
+    })
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0))
+    })
+    expect(container.textContent).toContain(COMMENT_COPY.nicknameTooLong)
+    expect(fetchMock.mock.calls.some(([, i]) => (i as RequestInit)?.method === 'POST')).toBe(false)
+  })
+
+  it('remembers the nickname for next time', async () => {
+    stubFetch({ viewer: { loggedIn: true, identity: '猫猫' }, comments: [] })
+    window.localStorage.setItem('kira-comments-nickname', '上次用的名字')
+    await mount()
+    await expand()
+    expect(nicknameInput().value).toBe('上次用的名字')
+  })
+
+  it('shows no nickname field to a signed-out reader', async () => {
+    stubFetch(emptyPayload)
+    await mount()
+    await expand()
+    expect(nicknameInput()).toBeNull()
   })
 })

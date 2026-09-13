@@ -3,10 +3,10 @@
 import gsap from "gsap";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+// The public thread carries only the nickname the reader chose. No X handle,
+// display name or avatar is ever sent for a comment.
 export type CommentAuthor = {
-  username: string;
   name: string;
-  avatar: string | null;
 };
 
 export type CommentNode = {
@@ -21,9 +21,9 @@ export type CommentNode = {
 
 export type Viewer = {
   loggedIn: boolean;
-  username?: string;
-  name?: string;
-  avatar?: string | null;
+  /** The signed-in reader's own identity, shown back to them and nowhere else. */
+  identity?: string;
+  identityAvatar?: string | null;
 };
 
 export const COMMENT_COPY = {
@@ -37,6 +37,15 @@ export const COMMENT_COPY = {
   reply: "回复",
   cancel: "取消",
   remove: "删除",
+  logout: "退出登录",
+  loggingOut: "退出中…",
+  postingAs: "正在以",
+  nicknameLabel: "昵称（公开显示）",
+  nicknamePlaceholder: "留空则显示为「读者」",
+  nicknameHint: "这是你在评论区公开的名字，不会显示你的 X 账号。",
+  nicknameTooLong: "昵称最多 32 个字符。",
+  nicknameAria: "发表评论时公开显示的昵称",
+  noName: "读者",
   loginRequired: "请先使用 X 登录，再发表评论。",
   sendFailed: "发送失败，请稍后再试。",
   loadFailed: "评论加载失败，请刷新页面重试。",
@@ -74,6 +83,11 @@ const OPEN_QUERY = "comments";
 
 // Past this the composer stops growing and scrolls instead.
 const COMPOSER_MAX_HEIGHT = 260;
+
+// Nicknames are per comment and remembered locally only, so the browser is the
+// only place this is stored; the server keeps it with the comment it names.
+const NICKNAME_KEY = "kira-comments-nickname";
+const NICKNAME_MAX = 32;
 
 // The grow-open animations must wait two frames: the browser has to commit the
 // 0fr track before it can transition to 1fr, or the growth snaps.
@@ -161,6 +175,14 @@ export function CommentsSection({
   const [body, setBody] = useState("");
   const [replyTo, setReplyTo] = useState<CommentNode | null>(null);
   const [pending, setPending] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+  // The name published with the comment. Seeded from the reader's own display
+  // name as a convenience, then theirs to change — and remembered locally so
+  // they are not retyping it on every article. This is per comment, so the same
+  // account can appear under different names and cannot be correlated by one.
+  const [nickname, setNickname] = useState("");
+  const [nicknameTouched, setNicknameTouched] = useState(false);
+  const [nicknameError, setNicknameError] = useState("");
   const [notice, setNotice] = useState(entry.notice);
   // Drawn once per mount: re-renders (e.g. a theme toggle) must not swap
   // the cat line under the reader.
@@ -200,6 +222,33 @@ export function CommentsSection({
     },
     [],
   );
+
+  // What the field should show: whatever the reader has typed, otherwise the
+  // name they used last time, otherwise their own display name. Computed rather
+  // than synced into state, so appearing after login does not need an effect
+  // (and cannot cascade a render).
+  const rememberedNickname = (() => {
+    if (nicknameTouched) return nickname;
+    const stored = (() => {
+      try {
+        return window.localStorage.getItem(NICKNAME_KEY) ?? "";
+      } catch {
+        return "";
+      }
+    })();
+    return stored || viewer.identity || "";
+  })();
+
+  const changeNickname = (value: string) => {
+    setNicknameTouched(true);
+    setNickname(value);
+    setNicknameError(value.trim().length > NICKNAME_MAX ? COMMENT_COPY.nicknameTooLong : "");
+    try {
+      window.localStorage.setItem(NICKNAME_KEY, value.trim());
+    } catch {
+      // Storage can be unavailable in private mode; the field still works.
+    }
+  };
 
   const loadComments = useCallback(async () => {
     applyThread(await fetchThread());
@@ -377,6 +426,11 @@ export function CommentsSection({
       setNotice(COMMENT_COPY.loginRequired);
       return;
     }
+    const trimmedNickname = rememberedNickname.trim();
+    if (trimmedNickname.length > NICKNAME_MAX) {
+      setNicknameError(COMMENT_COPY.nicknameTooLong);
+      return;
+    }
     setPending(true);
     setNotice("");
     try {
@@ -389,6 +443,7 @@ export function CommentsSection({
           pageUrl,
           pageTitle,
           body: text,
+          displayName: trimmedNickname,
           parentId: replyTo?.id,
         }),
       });
@@ -426,6 +481,29 @@ export function CommentsSection({
     textareaRef.current?.focus();
   };
 
+  // Ends the session on the server and re-reads the thread, so the form returns
+  // to its signed-out state rather than only looking like it did.
+  const logout = async () => {
+    setLoggingOut(true);
+    setNotice("");
+    try {
+      const response = await fetch(resolve("/auth/logout"), {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error(String(response.status));
+    } catch {
+      // Say so instead of pretending: the reload below would still show the
+      // account, which is confusing without an explanation.
+      setNotice(COMMENT_COPY.sendFailed);
+    } finally {
+      // An in-progress reply belongs to the account that is going away.
+      setReplyTo(null);
+      await loadComments();
+      setLoggingOut(false);
+    }
+  };
+
   // Rollback switch: no API configured means the site has no comments at all.
   if (!api || !pageId) return null;
 
@@ -438,7 +516,7 @@ export function CommentsSection({
       )}
       {replyTo && (
         <div className="mb-2 flex items-center gap-2 text-label-medium text-text-sub/85">
-          <span>回复 @{replyTo.author.name || replyTo.author.username}</span>
+          <span>回复 {replyTo.author.name || COMMENT_COPY.noName}</span>
           <button
             type="button"
             onClick={() => setReplyTo(null)}
@@ -446,6 +524,27 @@ export function CommentsSection({
           >
             {COMMENT_COPY.cancel}
           </button>
+        </div>
+      )}
+      {viewer.loggedIn && (
+        <div className="mb-2">
+          <label className="block text-label-medium text-text-sub/85" htmlFor="kira-comment-nickname">
+            {COMMENT_COPY.nicknameLabel}
+          </label>
+          <input
+            id="kira-comment-nickname"
+            type="text"
+            value={rememberedNickname}
+            onChange={(event) => changeNickname(event.target.value)}
+            maxLength={NICKNAME_MAX}
+            aria-label={COMMENT_COPY.nicknameAria}
+            aria-invalid={nicknameError ? true : undefined}
+            placeholder={COMMENT_COPY.nicknamePlaceholder}
+            className="comment-nickname mt-1 w-full max-w-[280px] rounded-xl px-3 py-2 text-body-medium"
+          />
+          <p className="mt-1 text-label-medium text-text-sub/70">
+            {nicknameError || COMMENT_COPY.nicknameHint}
+          </p>
         </div>
       )}
       <textarea
@@ -464,12 +563,40 @@ export function CommentsSection({
         className="comment-composer"
         rows={1}
       />
-      <div className="mt-2 flex items-center justify-end gap-3">
+      <div className="mt-2 flex items-center justify-between gap-3">
+        {viewer.loggedIn ? (
+          // Show which account is posting, and how to leave it. Without this the
+          // reader is signed in with no way back out.
+          <div className="flex min-w-0 items-center gap-2 text-label-medium text-text-sub/85">
+            {viewer.identityAvatar && (
+              <img
+                src={viewer.identityAvatar}
+                alt=""
+                referrerPolicy="no-referrer"
+                className="comment-avatar h-6 w-6 shrink-0 rounded-full object-cover"
+              />
+            )}
+            <span className="truncate">
+              <span className="sr-only">{COMMENT_COPY.postingAs} </span>
+              {viewer.identity || COMMENT_COPY.noName}
+            </span>
+            <button
+              type="button"
+              onClick={logout}
+              disabled={loggingOut}
+              className="shrink-0 underline decoration-dotted underline-offset-2 hover:text-text-main disabled:opacity-50"
+            >
+              {loggingOut ? COMMENT_COPY.loggingOut : COMMENT_COPY.logout}
+            </button>
+          </div>
+        ) : (
+          <span />
+        )}
         {viewer.loggedIn ? (
           <button
             type="submit"
             disabled={pending || !body.trim()}
-            className="comment-pill comment-submit rounded-full px-5 py-2.5 text-label-large"
+            className="comment-pill comment-submit shrink-0 rounded-full px-5 py-2.5 text-label-large"
           >
             {pending ? COMMENT_COPY.sending : COMMENT_COPY.submit}
           </button>
@@ -477,7 +604,7 @@ export function CommentsSection({
           <button
             type="button"
             onClick={startLogin}
-            className="comment-pill rounded-full px-5 py-2.5 text-label-large"
+            className="comment-pill shrink-0 rounded-full px-5 py-2.5 text-label-large"
           >
             {COMMENT_COPY.loginCta}
           </button>
@@ -590,11 +717,8 @@ function CommentItem({
     <li>
       <div className="mb-0.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
         <span className="text-label-large font-medium text-text-sub">
-          {comment.author.name || comment.author.username}
+          {comment.author.name || COMMENT_COPY.noName}
         </span>
-        {comment.author.username && (
-          <span className="text-label-medium text-text-sub/60">@{comment.author.username}</span>
-        )}
         {formatCommentDate(comment.createdAt) && (
           <span className="text-label-medium text-text-sub/60">
             {formatCommentDate(comment.createdAt)}
