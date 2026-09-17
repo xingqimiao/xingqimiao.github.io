@@ -46,12 +46,17 @@ export function SiteDocument({
             __html: `(function(){try{var t=localStorage.getItem("kira-site-theme");var d=t?t==="dark":window.matchMedia("(prefers-color-scheme: dark)").matches;document.documentElement.classList.toggle("dark",d);}catch(e){}})();`,
           }}
         />
-        {/* Privacy-friendly analytics (Umami Cloud, cookieless) */}
-        <script
-          defer
-          src="https://cloud.umami.is/script.js"
-          data-website-id="42307541-bc01-4467-bb2b-2212c5dad23d"
-        />
+        {/*
+          No analytics script. The site is served by Cloudflare, so the edge already
+          counts requests and visits, and the operator reads those aggregates from the
+          Cloudflare API rather than loading a third-party tag here. That keeps two
+          promises the privacy policy makes: no analytics scripts, and no requests to
+          any third-party host.
+
+          This replaced an Umami Cloud tag on 2026-09-18. No data changed hands that
+          was not already going through Cloudflare — but the page no longer executes
+          anyone else's code, which is the part a reader cares about.
+        */}
       </head>
       <body className="relative flex min-h-full flex-col overflow-x-clip bg-background font-sans text-text-main">
         <SiteThemeBootstrap />
