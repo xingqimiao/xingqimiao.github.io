@@ -27,16 +27,6 @@ Kira Tracker 支持通过 MCP 协议把你自行选择的 AI 助手连接到账�
 
 是否连接助手由你决定。数据一旦离开本服务，我们就无法撤回。`;
 
-const SECTION_11 = `### 26.11 用一句话说明这些内容
-
-* **我们能看到什么。** 你的用药记录和化验结果加密保存，静态时我们不持有解密密钥，因此数据库被窃取也不会暴露记录内容。
-* **我们什么时候能读取。** 你登录后，密钥会在服务器内存中保留，最长为你连续三十分钟没有操作，以便服务读取和更新你的记录。这段时间内我们可以读取你的记录；超时或你主动退出后，密钥即被丢弃，我们无法再读取。
-* **这不是端到端加密。** 你的浏览器与服务器之间使用 HTTPS 传输，服务器在你解锁期间会解密。我们不是声称我们从未看到你的数据，而是声称在你离开的时候我们不持有密钥。
-* **密码是唯一无法挽回的东西。** 记录的解密密钥由你的密码派生，我们只保存一个无法还原出密钥的哈希。密码丢失，记录就无法恢复，你也好、我们也罢，都无法挽回。恢复码保护的是你的登录，不是你的数据，它解不开任何记录。两样都请放在不会丢的地方。
-* **助手与令牌。** 你可以把访问令牌粘贴给 AI 助手来连接它。令牌只在你处于登录状态时有效，也无法单独解开你的账户。请把它当作密码：在你登录期间，泄露的令牌可以读取你的记录并让会话一直保持有效。在设置中吊销即可终止。记录一旦到达助手提供方，就由其政策约束，我们无法替你在那边删除。
-* **删除账户**会立即且完整地移除你的记录、化验结果、设置、恢复码、令牌和已关联的登录方式。会保留一条不含任何标识信息的计数记录。你单独删除的记录会被标记为已删除并隐藏，但仍会保存到你删除账户为止。
-
-本节之前的 26.1 至 26.10 是逐项说明；如果你只想了解大致情况，读这一节即可。`;
 
 const md = data.content_markdown;
 const i3 = md.indexOf(OLD_3_START);
@@ -50,17 +40,16 @@ if (!(i3 < i4 && i4 < i11)) {
   throw new Error("section anchors out of order");
 }
 
-// Splice 26.3 in place, then 26.11 (its start shifts by the length delta of change 1,
-// so recompute against the new string rather than reusing offsets).
+// 26.3 is rewritten in place; 26.11 (the audit table) is dropped entirely — a section
+// that restates the document in summary is not a thing a privacy policy does. It is
+// the last section, so nothing needs renumbering.
 const withNewThree =
-  md.slice(0, i3) + SECTION_3 + "\r\n\r\n" + md.slice(i4).replace(/^/, "");
+  md.slice(0, i3) + SECTION_3 + "\r\n\r\n" + md.slice(i4);
 
 const i11New = withNewThree.indexOf("### 26.11 本节依据的实现");
 if (i11New < 0) throw new Error("26.11 lost after first splice");
 
-const updatedMd = withNewThree.slice(0, i11New) + SECTION_11;
-// Preserve the file's trailing newline convention.
-data.content_markdown = updatedMd.endsWith("\n") ? updatedMd : updatedMd + "\r\n";
+data.content_markdown = withNewThree.slice(0, i11New).replace(/\s*$/, "\r\n");
 
 // --- HTML -------------------------------------------------------------------
 // The page renders content_html, so it has to carry the same text. Rebuild only the
@@ -138,8 +127,15 @@ const replaceRange = (startHeading, stopHeading, markdown) => {
   doomed.forEach((n) => n.remove());
 };
 
-// 26.11 runs to the end of the document.
-replaceRange(h11, null, SECTION_11);
+// Removes a heading and every element after it, for a section that runs to EOF.
+const removeToEnd = (startHeading) => {
+  const doomed = collect(startHeading, null);
+  startHeading.remove();
+  doomed.forEach((n) => n.remove());
+};
+
+// 26.11 runs to the end of the document and is removed rather than replaced.
+removeToEnd(h11);
 replaceRange(findHeading("26.3"), findHeading("26.4"), SECTION_3);
 
 data.content_html = root.toString();
@@ -165,15 +161,14 @@ for (const [label, body] of [
   ["markdown", data.content_markdown],
   ["html", data.content_html],
 ]) {
-  for (const claim of [
-    "远端", // placeholder check no
-  ]) void claim;
   if (!body.includes("延长")) throw new Error(`${label}: missing session-extension fact`);
   if (!body.includes("吊销")) throw new Error(`${label}: missing revocation`);
   if (!body.includes("远程访问")) throw new Error(`${label}: missing remote-access denial`);
-  if (!body.includes("端到端")) throw new Error(`${label}: missing E2EE denial`);
   if (body.includes("server/src/") || body.includes("server/schema")) {
     throw new Error(`${label}: internal file path still present`);
+  }
+  if (body.includes("26.11") || body.includes("本节依据的实现")) {
+    throw new Error(`${label}: the removed audit/recap section is still present`);
   }
 }
 if (!data.content_markdown.includes("不是同一个意思")) {
