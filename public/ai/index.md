@@ -40,6 +40,7 @@ KiraMyao Equal 关注中国跨性别与性别多元群体的生存处境、社�
 - [中国MTF生存指南：喵呜，一起在当下活下去](https://kiramyao.com/cat-cave/china-mtf-survival-guide) ([Markdown](/ai/cat-cave/china-mtf-survival-guide.md))
 - [“带有精美插画和丝带的精装本”](https://kiramyao.com/cat-cave/illustrated-hardcover-notebook-with-ribbon) ([Markdown](/ai/cat-cave/illustrated-hardcover-notebook-with-ribbon.md))
 - [ios26.5 Pride壁纸](https://kiramyao.com/cat-cave/ios-26-5-pride-wallpapers) ([Markdown](/ai/cat-cave/ios-26-5-pride-wallpapers.md))
+- [Kira HRT Tracker：我们的 HRT 记录工具](https://kiramyao.com/cat-cave/kira-hrt-tracker) ([Markdown](/ai/cat-cave/kira-hrt-tracker.md))
 - [性别审判庭](https://kiramyao.com/stories/10432746) ([Markdown](/ai/stories/10432746.md))
 - [RLE,根据自己的接受程度,慢慢来哦~](https://kiramyao.com/stories/10755068) ([Markdown](/ai/stories/10755068.md))
 - [我不确定是喜欢她还是想变成她](https://kiramyao.com/stories/11216931) ([Markdown](/ai/stories/11216931.md))

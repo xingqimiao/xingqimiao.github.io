@@ -13,3 +13,4 @@ KiraMyao Equal 的文章、随笔与社群记录。
 - [中国MTF生存指南：喵呜，一起在当下活下去](https://kiramyao.com/cat-cave/china-mtf-survival-guide) ([Markdown](/ai/cat-cave/china-mtf-survival-guide.md)) - 我们在国际反恐同日、国际不再恐同日写下了这篇文章作为一个小礼物
 - [“带有精美插画和丝带的精装本”](https://kiramyao.com/cat-cave/illustrated-hardcover-notebook-with-ribbon) ([Markdown](/ai/cat-cave/illustrated-hardcover-notebook-with-ribbon.md)) - 所谓男娘测试题中的故事
 - [ios26.5 Pride壁纸](https://kiramyao.com/cat-cave/ios-26-5-pride-wallpapers) ([Markdown](/ai/cat-cave/ios-26-5-pride-wallpapers.md)) - Apple Pride2026壁纸
+- [Kira HRT Tracker：我们的 HRT 记录工具](https://kiramyao.com/cat-cave/kira-hrt-tracker) ([Markdown](/ai/cat-cave/kira-hrt-tracker.md)) - 一个免费、MIT 开源的 HRT 记录小工具。支持两套药代动力学计算模型与多种血检校准，支持 MCP 协议连接 AI 助手，兼具为交易员猫猫准备的 4 小时 K 线视图，安静陪你记下每一次用药。
