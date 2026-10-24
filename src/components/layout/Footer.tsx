@@ -96,10 +96,12 @@ export default function Footer({ locale }: FooterProps) {
             {dictionary.footer.twitter}
           </a>
           <a
-            href="/llms.txt"
+            href="https://hrt.kiramyao.com/about/"
+            target="_blank"
+            rel="noopener noreferrer"
             className={`text-body-large transition-colors hover:underline ${subtleLink}`}
           >
-            {dictionary.footer.llmsTxt}
+            {dictionary.footer.hrtTracker}
           </a>
           <ThemeToggle
             className={

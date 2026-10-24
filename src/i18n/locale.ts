@@ -21,7 +21,7 @@ export const uiDictionary = {
     privacy: 'Privacy Policy',
     projectTrans: 'Project Trans',
     twitter: 'Twitter',
-    llmsTxt: 'LLM.txt',
+    hrtTracker: 'HRT 记录仪',
   },
 } as const
 
