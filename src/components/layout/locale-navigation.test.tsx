@@ -57,7 +57,7 @@ describe('Chinese-content site navigation', () => {
     expect(anchorAttributes(markup, 'About Us')).toContain('href="/about"')
     expect(anchorAttributes(markup, 'Privacy Policy')).toContain('href="/privacy"')
     expect(anchorAttributes(markup, 'Project Trans')).toContain('href="https://2345.lgbt/zh-cn/"')
-    expect(anchorAttributes(markup, 'HRT 记录仪')).toContain('href="https://hrt.kiramyao.com/about/"')
+    expect(anchorAttributes(markup, 'HRT')).toContain('href="https://hrt.kiramyao.com/about/"')
     expect(markup).not.toContain('关于 KiraMyao')
     expect(markup).not.toContain('隐私政策')
     expect(markup).not.toContain('href="/about-kiramyao"')
