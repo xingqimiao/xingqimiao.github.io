@@ -47,6 +47,21 @@ keywords: [跨性别调研报告, 2026调研, 完整报告PDF, 性别多元, 调
   </a>
 </div>
 
+<div class="not-prose my-8">
+  <a href="/pic/report/2026-transgender-life-survey-reader-edition/report-v1.2-en.pdf" download class="flex w-full items-center justify-between gap-5 rounded-[24px] border border-black/10 bg-[#f5f5f7] px-6 py-4 text-left transition-all hover:scale-[1.01] hover:border-black/15">
+    <span class="flex min-w-0 items-center gap-4">
+      <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-white text-text-main">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="h-6 w-6"><path d="M11.25 13.1893L11.25 2C11.25 1.58579 11.5858 1.25 12 1.25C12.4142 1.25 12.75 1.58579 12.75 2L12.75 13.1893L16.4697 9.46967C16.7626 9.17678 17.2374 9.17678 17.5303 9.46967C17.8232 9.76256 17.8232 10.2374 17.5303 10.5303L12.5303 15.5303C12.3897 15.671 12.1989 15.75 12 15.75C11.8011 15.75 11.6103 15.671 11.4697 15.5303L6.46967 10.5303C6.17678 10.2374 6.17678 9.76256 6.46967 9.46967C6.76256 9.17678 7.23744 9.17678 7.53033 9.46967L11.25 13.1893Z" fill="currentColor"/></svg>
+      </span>
+      <span class="min-w-0">
+        <span class="block text-title-large font-normal text-text-main">下载英文版 PDF（English edition）</span>
+        <span class="mt-1 block text-label-large text-text-sub">report-v1.2-en.pdf · 112 页 · 约 2.5 MB</span>
+      </span>
+    </span>
+    <span class="shrink-0 rounded-full bg-white px-4 py-2 text-label-large text-text-main">下载</span>
+  </a>
+</div>
+
 ## 报告包含什么
 
 - **12 章**：执行摘要、研究背景与样本特征、身份觉察与表达、身体与医疗、家庭、校园、就业与经济、心理健康与生活福祉、证件与公共服务、社会支持与韧性、核心发现与行动方向、附录。

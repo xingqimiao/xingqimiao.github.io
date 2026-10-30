@@ -8,17 +8,6 @@ description: 'Full online edition of the 2026 Survey Report on the Living Condit
 ---
 
 <div class="report-full">
-<div class="download-card not-prose">
-  <a href="/pic/report/2026-transgender-life-survey-reader-edition/report-v1.2-en.pdf" download class="download-card__link">
-    <span class="download-card__icon" aria-hidden="true">PDF</span>
-    <span class="download-card__text">
-      <span class="download-card__title">Download the full report as PDF</span>
-      <span class="download-card__meta">report-v1.2-en.pdf · 114 pages · about 2.6 MB</span>
-    </span>
-    <span class="download-card__action">Download</span>
-  </a>
-</div>
-
 <nav class="toc-page" aria-label="Report contents"><h2 id="report-toc" class="toc-title">Contents</h2><ul class="toc-list"><li class="toc-item"><a class="toc-link" href="#chapter-1">
 <span class="idx">01</span>
 <span class="toc-title-text">Executive Summary</span>
