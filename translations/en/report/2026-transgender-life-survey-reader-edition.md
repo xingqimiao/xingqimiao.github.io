@@ -8,6 +8,7 @@ description: 'Full online edition of the 2026 Survey Report on the Living Condit
 ---
 
 <div class="report-full">
+<p class="report-download-hint">Need the PDF? <a href="/documents/2026-transgender-life-survey-full-report">Download the Chinese or English edition from the documents page</a>.</p>
 <nav class="toc-page" aria-label="Report contents"><h2 id="report-toc" class="toc-title">Contents</h2><ul class="toc-list"><li class="toc-item"><a class="toc-link" href="#chapter-1">
 <span class="idx">01</span>
 <span class="toc-title-text">Executive Summary</span>

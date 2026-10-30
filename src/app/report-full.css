@@ -1197,3 +1197,16 @@
   font-size: 13.5px;
   font-weight: 700;
 }
+
+/* ── PDF 下载引导（阅读页顶部一行，非卡片；文档页才有真正的下载按钮） ── */
+.reading-page .report-full .report-download-hint {
+  margin: 0 0 18px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--report-muted);
+}
+.reading-page .report-full .report-download-hint a {
+  color: var(--report-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

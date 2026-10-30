@@ -25,6 +25,7 @@ gridSpan: featured
 ---
 
 <div class="report-full">
+<p class="report-download-hint">需要 PDF 版？<a href="/documents/2026-transgender-life-survey-full-report">在文档页下载中英两种版本的完整报告</a>。</p>
 <nav class="toc-page" aria-label="报告目录"><h2 id="report-toc" class="toc-title">目录</h2><ul class="toc-list"><li class="toc-item"><a class="toc-link" href="#chapter-1">
 <span class="idx">01</span>
 <span class="toc-title-text">执行摘要</span>
