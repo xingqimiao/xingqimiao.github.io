@@ -985,3 +985,215 @@
     gap: 16px 12px;
   }
 }
+
+/* ── 实时图表（DOM 渲染；图内无小字，说明一律回到正文） ──────────────────── */
+.reading-page .report-full .chart-figure {
+  margin: 24px 0;
+  padding: 20px 22px 22px;
+  background: var(--report-surface);
+  border: 1px solid var(--report-surface-highest);
+  border-radius: var(--report-sh-lg);
+  text-align: left;
+  break-inside: avoid;
+}
+.reading-page .report-full .chart-title {
+  font-size: 16.5px;
+  font-weight: 800;
+  line-height: 1.35;
+  color: var(--report-ink);
+  margin: 0 0 16px;
+  text-align: left;
+}
+
+/* 条形：标签一行 + 满宽轨道一行；英文长标签不再被挤成多行 */
+.reading-page .report-full .chart-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.reading-page .report-full .chart-row { display: grid; gap: 5px; }
+.reading-page .report-full .chart-row-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+.reading-page .report-full .chart-label {
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--report-ink);
+  text-align: left;
+}
+.reading-page .report-full .chart-value {
+  flex-shrink: 0;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--chart-accent);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.reading-page .report-full .chart-track {
+  display: block;
+  height: 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--chart-accent) 11%, var(--report-bg));
+  overflow: hidden;
+}
+.reading-page .report-full .chart-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--chart-accent);
+  opacity: 0.92;
+}
+
+/* 内联三列（仅小多图使用：标签短且固定） */
+.reading-page .report-full .chart-row--inline {
+  grid-template-columns: 52px minmax(0, 1fr) 52px;
+  align-items: center;
+  gap: 10px;
+}
+.reading-page .report-full .chart-row--inline .chart-label {
+  font-size: 12.5px;
+  color: var(--report-muted);
+}
+.reading-page .report-full .chart-row--inline .chart-value { font-size: 12.5px; }
+.reading-page .report-full .chart-row--inline .chart-track { height: 10px; }
+
+/* 环形图 */
+.reading-page .report-full .chart-pie {
+  display: grid;
+  grid-template-columns: 168px minmax(0, 1fr);
+  gap: 30px;
+  align-items: center;
+}
+.reading-page .report-full .chart-donut { width: 168px; height: 168px; display: block; }
+.reading-page .report-full .chart-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+.reading-page .report-full .chart-legend li {
+  display: grid;
+  grid-template-columns: 11px minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+}
+.reading-page .report-full .chart-legend li::before { content: none; display: none; }
+.reading-page .report-full .chart-swatch { width: 11px; height: 11px; border-radius: 4px; transform: translateY(-1px); }
+.reading-page .report-full .chart-legend-label {
+  font-size: 14.5px;
+  line-height: 1.4;
+  color: var(--report-ink-2);
+  text-align: left;
+}
+.reading-page .report-full .chart-legend-value {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--report-ink);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* 小多图：双列面板（每个面板自成一个容器，故不再套外层卡片） */
+.reading-page .report-full .chart-figure:has(.chart-multi) {
+  padding: 20px 0 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+}
+.reading-page .report-full .chart-multi {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 18px;
+}
+.reading-page .report-full .chart-panel {
+  background: var(--report-surface);
+  border: 1px solid var(--report-surface-highest);
+  border-radius: var(--report-sh-md);
+  padding: 16px 18px 18px;
+}
+.reading-page .report-full .chart-panel-title {
+  font-size: 14.5px;
+  font-weight: 800;
+  line-height: 1.35;
+  color: var(--report-ink);
+  margin: 0 0 12px;
+  text-align: left;
+}
+.reading-page .report-full .chart-bars--compact { gap: 9px; }
+
+@media (max-width: 640px) {
+  .reading-page .report-full .chart-figure { padding: 16px 16px 18px; border-radius: var(--report-sh-md); }
+  .reading-page .report-full .chart-multi { grid-template-columns: 1fr; gap: 13px; }
+  .reading-page .report-full .chart-pie { grid-template-columns: 1fr; gap: 18px; justify-items: center; }
+  .reading-page .report-full .chart-donut { width: 150px; height: 150px; }
+  .reading-page .report-full .chart-label,
+  .reading-page .report-full .chart-value,
+  .reading-page .report-full .chart-legend-label,
+  .reading-page .report-full .chart-legend-value { font-size: 14px; }
+}
+
+/* ── PDF 下载卡（英文版；PDF 构建时移除，PDF 内不放指向自身的下载链接） ── */
+.reading-page .report-full .download-card {
+  margin: 0 0 24px;
+}
+.reading-page .report-full .download-card__link {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border-radius: var(--report-sh-md);
+  border: 1px solid var(--report-surface-highest);
+  background: var(--report-surface);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+.reading-page .report-full .download-card__link:hover {
+  border-color: color-mix(in srgb, var(--report-accent) 45%, var(--report-surface-highest));
+}
+.reading-page .report-full .download-card__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--report-accent) 12%, var(--report-surface));
+  color: var(--report-accent);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+.reading-page .report-full .download-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.reading-page .report-full .download-card__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--report-ink);
+}
+.reading-page .report-full .download-card__meta {
+  font-size: 13px;
+  color: var(--report-muted);
+}
+.reading-page .report-full .download-card__action {
+  margin-left: auto;
+  flex-shrink: 0;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: var(--report-ink);
+  color: var(--report-surface);
+  font-size: 13.5px;
+  font-weight: 700;
+}

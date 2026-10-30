@@ -6,14 +6,23 @@ export type LocalizedContentResolution = {
   fallback: boolean
 }
 
+/**
+ * Pick the reader's language when a translation exists.
+ *
+ * Falls back to the Chinese original and reports `fallback: true`, so callers can
+ * tell "no English version yet" apart from "the reader chose Chinese".
+ */
 export function resolveLocalizedContent(
-  _requestedLocale: ContentLocale,
+  requestedLocale: ContentLocale,
   chineseValue: string,
-  _englishValue?: string | null,
+  englishValue?: string | null,
 ): LocalizedContentResolution {
+  if (requestedLocale === 'en' && englishValue) {
+    return { value: englishValue, effectiveLocale: 'en', fallback: false }
+  }
   return {
     value: chineseValue,
     effectiveLocale: 'zh',
-    fallback: false,
+    fallback: requestedLocale === 'en',
   }
 }
